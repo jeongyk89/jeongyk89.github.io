@@ -24,7 +24,7 @@
 	</style>
 </head>
 <body>
-	<div id="cursor" class="material-icons">gesture</div>
+	<div id="cursor" class="material-icons"></div>
 	<script>
 		var canvas;
 		var flameSize = 50;
@@ -58,12 +58,6 @@
 			// Constrain flame size
 			flameSize = constrain(flameSize, 50, 400);
 
-			// Draw flame
-			beginShape();
-			vertex(flameX, flameY);
-			vertex(flameX + flameWidth / 2, flameY + flameHeight);
-			vertex(flameX - flameWidth / 2, flameY + flameHeight);
-			endShape(CLOSE);
 
 			// Draw particles
 			for (var i = 0; i < particles.length; i++) {
