@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Network Graph</title>
+  <style>
+   html,
+   body {
+     width: 100%;
+     height: 100%;
+     margin: 0;
+     padding: 0;
+   }
+   #graph-container {
+     width: 100%;
+     height: 100%;
+   }
+   .node {
+     fill: #1f77b4;
+     stroke: black;
+     stroke-width: 2px;
+     cursor: pointer;
+   }
+   .wire {
+     stroke: black;
+     stroke-width: 2px;
+     fill: none;
+     stroke-opacity: 0.5;
+   }
+   .wire:hover {
+     stroke-opacity: 1;
+     stroke-width: 4px;
+   }
+   text {
+     font-family: Arial;
+     font-size: 16px;
+     fill: white;
+     pointer-events: none;
+   }
+ </style>
+ 
+</head>
+<body>
+  <div id="graph-container"></div>
+  <div id="message"></div>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://d3js.org/d3-scale-chromatic.v2.min.js"></script>
+
+  <script>
+// Import the color scale module
+
+// Define the data for the network graph
+var nodes = [
+  {id: "0", x: 100, y: 100},
+  {id: "1", x: 200, y: 100},
+  {id: "2", x: 150, y: 200}
+];
+var links = [
+  {source: "0", target: "1"},
+  {source: "1", target: "2"},
+  {source: "2", target: "0"}
+];
+
+var width = window.innerWidth;
+var height = window.innerHeight;
+var lastNodeId = 2;
+
+
+var lastClickedNodeId = null; // Store the ID of the last clicked node
+var lastClickedNode = null; // Store the ID of the last clicked node
+
+    // Define the function for handling mouseover events on wires
+    function on_wire_mouseover(event, d) {
+      d3.select(this)
+        .attr("stroke-width", 4);
+    }
+
+    // Define the function for handling mouseout events on wires
+    function on_wire_mouseout(event, d) {
+      d3.select(this)
+        .attr("stroke-width", 2);
+    }
+
+    // Create the SVG element for the network graph
+    var svg = d3.select("#graph-container")
+      .append("svg")
+      .attr("width", "100%")
+      .attr("height", "100%");
+
+// Create the links between the nodes
+var link = svg.selectAll(".link")
+  .data(links)
+  .enter()
+  .append("line")
+  .attr("class", "wire")
+  .attr("x1", function(d) { return nodes.find(node => node.id === d.source).x; })
+  .attr("y1", function(d) { return nodes.find(node => node.id === d.source).y; })
+  .attr("x2", function(d) { return nodes.find(node => node.id === d.target).x; })
+  .attr("y2", function(d) { return nodes.find(node => node.id === d.target).y; })
+  .on("mouseover", on_wire_mouseover)
+  .on("mouseout", on_wire_mouseout);
+
+// Create the nodes of the network graph
+var node = svg.selectAll(".node")
+  .data(nodes)
+  .enter()
+  .append("g")
+  .attr("class", "node")
+  .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+  .call(d3.drag()
+    .on("start", dragstarted)
+    .on("drag", dragged)
+    .on("end", dragended));
+
+// Add circles to the nodes with random colors
+node.append("circle")
+  .attr("r", 20)
+  .style("fill", function(d, i) { return d3.interpolateViridis(Math.random()); })
+  .on("click", function(event, d) {
+    console.log("Clicked node " + d.id);
+  });
+
+  // Update the lastClickedNodeId variable when a node is clicked
+node.on("click", function(event, d) {
+  lastClickedNodeId = d.id;
+});
+
+// Add text labels to the nodes
+node.append("text")
+  .attr("text-anchor", "middle")
+  .attr("dy", ".35em")
+  .style("font-family", "Arial")
+  .style("font-size", "14px")
+  .text(function(d) { return d.id; });
+
+      // Define the simulation for the network graph
+      var simulation = d3.forceSimulation(nodes)
+  .force("charge", d3.forceManyBody().strength(-400)) // Change the strength value here
+  .force("link", d3.forceLink(links).id(function(d) { return d.id; }))
+  .on("tick", ticked);
+
+  var addButton = svg.append("g")
+  .attr("transform", "translate(" + (width / 2) + "," + (height - 20) + ")")
+  .attr("cursor", "pointer")
+  .on("click", function(event, d) {
+    if (lastClickedNodeId !== null) {
+      addNode(lastClickedNodeId);
+    } else {
+      showMessage("Please select a node to connect the new node");
+    }
+  });
+
+  var message = d3.select("#message");
+
+function showMessage(text) {
+  message.text(text);
+  setTimeout(function() {
+    message.text("");
+  }, 2000);
+}
+  
+function restartSimulation() {
+  // Restart the simulation with the updated data
+  simulation.nodes(nodes);
+  simulation.force("link").links(links);
+  simulation.alpha(1).restart();
+  
+  // Update the visual elements of the network graph
+  link = link.data(links);
+  link.exit().remove();
+  link = link.enter()
+    .append("line")
+    .attr("class", "wire")
+    .merge(link);
+  
+  node = node.data(nodes);
+  node.exit().remove();
+  node = node.enter()
+    .append("g")
+    .attr("class", "node")
+    .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+    .call(d3.drag()
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended))
+    .merge(node);
+  
+  node.append("circle")
+    .attr("r", 20)
+    .style("fill", function(d, i) { return d3.interpolateViridis(Math.random()); })
+    .on("click", function(event, d) {
+      console.log("Clicked node " + d.id);
+    });
+  
+  node.append("text")
+    .attr("text-anchor", "middle")
+    .attr("dy", ".35em")
+    .style("font-family", "Arial")
+    .style("font-size", "14px")
+    .text(function(d) { return d.id; });
+}
+function addNode() {
+  if (lastClickedNodeId === null) {
+    window.print("Please select a node to connect the new node");
+    return;
+  }
+    // Find the node that was clicked
+  var clickedNode = nodes.find(node => node.id === lastClickedNodeId);
+    // Create a new node with a random ID and position
+   var newNode = { id: generateNodeId(), x: clickedNode.x + Math.random() * 200 - 100, y: clickedNode.y + Math.random() * 200 - 100 };
+  // Add the new node to the nodes array
+  nodes.push(newNode);
+
+  // Create a new link from the clicked node to the new node
+  var newLink = { source: lastClickedNodeId, target: newNode.id };
+  
+  // Add the new link to the links array
+  links.push(newLink);
+  
+  // Redraw the network
+  restartSimulation();
+  
+  // Show a message to indicate that the node was added successfully
+  showMessage("Node added successfully");
+}
+
+
+
+
+
+
+
+
+
+
+addButton.append("rect")
+  .attr("x", -40)
+  .attr("y", -10)
+  .attr("width", 80)
+  .attr("height", 20)
+  .attr("fill", "#1f77b4")
+  .attr("stroke", "black")
+  .attr("stroke-width", 2);
+
+addButton.append("text")
+  .attr("text-anchor", "middle")
+  .attr("dominant-baseline", "middle")
+  .attr("fill", "white")
+  .attr("font-size", "14px")
+  .text("Add Node");
+
+// Define the function for handling drag events
+function dragstarted(event, d) {
+  if (!event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x;
+  d.fy = d.y;
+}
+
+function dragged(event, d) {
+  d.fx = event.x;
+  d.fy = event.y;
+  d3.select(this).attr("transform", function(d) { return "translate(" + d.fx + "," + d.fy + ")"; });
+}
+
+function dragended(event, d) {
+  if (!event.active) simulation.alphaTarget(0);
+  d.fx = null;
+  d.fy = null;
+}
+
+// Define the function for updating the positions of the nodes and wires
+function ticked() {
+  link.attr("x1", function(d) { return d.source.x; })
+    .attr("y1", function(d) { return d.source.y; })
+    .attr("x2", function(d) { return d.target.x; })
+    .attr("y2", function(d) { return d.target.y; });
+
+  node.attr("transform", function(d) {
+    d.x = Math.max(20, Math.min(width - 20, d.x));
+    d.y = Math.max(20, Math.min(height - 20, d.y));
+    return "translate(" + d.x + "," + d.y + ")";
+  });
+}
+function generateNodeId() {
+   lastNodeId++;
+  return lastNodeId;
+}
+
+   </script>
+</body>
+</html>
+

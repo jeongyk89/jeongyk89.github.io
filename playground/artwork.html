@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Interactive Fire Artwork</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/3.0.1/iconfont/material-icons.min.css"></script>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			cursor: pointer;
+		}
+		canvas {
+			position: absolute;
+			z-index: -1;
+		}
+		#cursor {
+			position: fixed;
+			z-index: 9999;
+			font-size: 48px;
+			color: #f44336;
+			pointer-events: none;
+		}
+	</style>
+</head>
+<body>
+	<div id="cursor" class="material-icons">gesture</div>
+	<script>
+		var canvas;
+		var flameSize = 50;
+		var flameGrowth = 1;
+		var particles = [];
+
+		function setup() {
+			canvas = createCanvas(windowWidth, windowHeight);
+			canvas.position(0, 0);
+			noStroke();
+			fill(255, 255, 0, 100);
+		}
+
+		function draw() {
+			background(0);
+
+			var flameX = mouseX;
+			var flameY = mouseY;
+			var flameWidth = flameSize;
+			var flameHeight = flameSize;
+
+			// Grow the flame when mouse is clicked
+			if (mouseIsPressed) {
+				flameSize += flameGrowth;
+			}
+			// Shrink the flame when mouse is released
+			else {
+				flameSize -= flameGrowth;
+			}
+
+			// Constrain flame size
+			flameSize = constrain(flameSize, 50, 400);
+
+			// Draw flame
+			beginShape();
+			vertex(flameX, flameY);
+			vertex(flameX + flameWidth / 2, flameY + flameHeight);
+			vertex(flameX - flameWidth / 2, flameY + flameHeight);
+			endShape(CLOSE);
+
+			// Draw particles
+			for (var i = 0; i < particles.length; i++) {
+				particles[i].update();
+				particles[i].display();
+			}
+		}
+
+		function Particle(x, y, r, c) {
+			this.x = x;
+			this.y = y;
+			this.r = r;
+			this.color = c;
+
+			this.speedX = random(-2, 2);
+			this.speedY = random(-2, 2);
+
+			this.update = function() {
+				this.x += this.speedX;
+				this.y += this.speedY;
+
+				// Bounce off walls
+				if (this.x > width || this.x < 0) {
+					this.speedX *= -1;
+				}
+				if (this.y > height || this.y < 0) {
+					this.speedY *= -1;
+				}
+			};
+
+			this.display = function() {
+				fill(this.color);
+				ellipse(this.x, this.y, this.r, this.r);
+			};
+		}
+
+		function mouseMoved() {
+			var p = new Particle(mouseX, mouseY, random(5, 15), color(random(255), random(255), random(255), 100));
+			particles.push(p);
+		}
+	</script>
+</body>
+</html>
