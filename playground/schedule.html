@@ -1,0 +1,105 @@
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Optimal Route Finder</title>
+    <style>
+      #map {
+        height: 500px;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Optimal Route Finder</h1>
+    <form id="address-form">
+      <label for="origin-url">Origin URL:</label>
+      <input type="text" id="origin-url" name="origin-url" required>
+      <br>
+      <label for="destination-url">Destination URL:</label>
+      <input type="text" id="destination-url" name="destination-url" required>
+      <br>
+      <input type="submit" value="Find Optimal Route">
+    </form>
+    <div id="map"></div>
+    <div id="routes"></div>
+    <script>
+      function initMap() {
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 12,
+          center: { lat: 37.7749, lng: -122.4194 }, // San Francisco coordinates
+        });
+        
+        const directionsService = new google.maps.DirectionsService();
+        const directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
+        
+        const form = document.getElementById("address-form");
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const originUrl = form.elements["origin-url"].value;
+          const destinationUrl = form.elements["destination-url"].value;
+          
+          const originAddress = extractAddressFromUrl(originUrl);
+          const destinationAddress = extractAddressFromUrl(destinationUrl);
+          
+          const transitOptions = { modes: ['BUS', 'RAIL', 'SUBWAY', 'TRAIN', 'TRAM'], routingPreference: 'FEWER_TRANSFERS' };
+          const request = {
+            origin: originAddress,
+            destination: destinationAddress,
+            travelMode: "TRANSIT",
+            transitOptions: transitOptions,
+            provideRouteAlternatives: true,
+          };
+          
+          directionsService.route(request, (response, status) => {
+            if (status === "OK") {
+              directionsRenderer.setDirections(response);
+              
+              const routesDiv = document.getElementById("routes");
+              routesDiv.innerHTML = "";
+              
+              for (let i = 0; i < Math.min(response.routes.length, 3); i++) {
+                const route = response.routes[i];
+                const time = route.legs.reduce((sum, leg) => sum + leg.duration.value, 0);
+                const timeMinutes = Math.round(time / 60);
+                const description = `Route ${i + 1}: ${route.summary} (${timeMinutes} minutes)`;
+                const routeDiv = document.createElement("div");
+                routeDiv.textContent = description;
+                routesDiv.appendChild(routeDiv);
+
+                const steps = route.legs.reduce((allSteps, leg) => allSteps.concat(leg.steps), []);
+                const transitSteps = steps.filter(step => step.travel_mode === "TRANSIT");
+                for (const transitStep of transitSteps) {
+                  const line = transitStep.transit.line.short_name || transitStep.transit.line.name;
+                  const vehicle = transitStep.transit.line.vehicle.name;
+                  const startStop = transitStep.transit.departure_stop.name;
+                  const endStop = transitStep.transit.arrival_stop.name;
+                  const stepDiv = document.createElement("div");
+                  stepDiv.textContent = `- Take ${vehicle} ${line} from ${startStop} to ${endStop}`;
+                  routeDiv.appendChild(stepDiv);
+                }
+              }
+            } else {
+              alert(`Error: ${status}`);
+            }
+          });
+        });
+      }
+      
+      function extractAddressFromUrl(url) {
+        const match = url.match(/\/([^/]+),?-\d/);
+        if (match) {
+          return match[1].replace(/-/g, " ");
+        }
+        return "";
+      }
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCH29XOuJOFsVT1MARnN1LVGgkVfhZKwwc&callback=initMap"
+    async defer></script>
+  </body>
+</html>
