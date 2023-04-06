@@ -26,11 +26,11 @@
     <div id="map"></div>
     <div id="routes"></div>
     <script>
-      function initMap() {
-        const map = new google.maps.Map(document.getElementById("map"), {
-          zoom: 12,
-          center: { lat: 37.7749, lng: -122.4194 }, // San Francisco coordinates
-        });
+function initMap() {
+  const map = new google.maps.Map(document.getElementById("map"), {
+    zoom: 12,
+    center: { lat: 59.3293, lng: 18.0686 }, // Stockholm coordinates
+  });
         
         const directionsService = new google.maps.DirectionsService();
         const directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
