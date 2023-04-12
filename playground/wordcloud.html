@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Interactive Word Cloud</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-cloud@1.2.5/build/d3.layout.cloud.min.js"></script>
+  </head>
+  <body>
+    <div id="wordcloud"></div>
+    
+    <script>
+      // Sample data for the word cloud
+      const data = [
+        { word: "apple", frequency: 5 },
+        { word: "banana", frequency: 3 },
+        { word: "orange", frequency: 4 },
+        { word: "grape", frequency: 2 },
+        { word: "pear", frequency: 1 }
+      ];
+      
+      // Set up the word cloud layout
+      const layout = d3.layout.cloud()
+        .size([600, 400])
+        .words(data.map(d => ({ text: d.word, size: 10 + d.frequency * 10 })))
+        .padding(5)
+        .rotate(() => ~~(Math.random() * 2) * 90)
+        .font("Impact")
+        .fontSize(d => d.size)
+        .on("end", draw);
+      
+      // Draw the word cloud
+      function draw(words) {
+        d3.select("#wordcloud")
+          .append("svg")
+          .attr("width", layout.size()[0])
+          .attr("height", layout.size()[1])
+          .append("g")
+          .attr("transform", `translate(${layout.size()[0] / 2},${layout.size()[1] / 2})`)
+          .selectAll("text")
+          .data(words)
+          .enter()
+          .append("text")
+          .style("font-size", d => `${d.size}px`)
+          .style("font-family", "Impact")
+          .style("fill", "steelblue")
+          .attr("text-anchor", "middle")
+          .attr("transform", d => `translate(${d.x},${d.y})rotate(${d.rotate})`)
+          .text(d => d.text);
+      }
+      
+      // Start the word cloud layout
+      layout.start();
+    </script>
+  </body>
+</html>

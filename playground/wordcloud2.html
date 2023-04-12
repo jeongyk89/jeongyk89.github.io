@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Interactive Word Cloud</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-cloud/1.2.5/d3.layout.cloud.min.js"></script>
+
+    <style>
+      .word {
+        cursor: pointer;
+      }
+
+      .word:hover {
+        fill: red;
+      }
+
+      .connection {
+        stroke: #ccc;
+        stroke-width: 1px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="wordcloud"></div>
+    <div id="tooltip" style="position: absolute; z-index: 10; visibility: hidden; padding: 10px; background-color: white; border: 1px solid black;"></div>
+
+    <script>
+      // Load the text file
+      const myText = "The quick brown fox jumps over the lazy dog. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut eget libero ut mauris ultrices dapibus. Sed sit amet felis vitae elit auctor interdum. Proin vel elit et mi bibendum tempus. Donec vel dolor ut velit congue tempor. Phasellus bibendum arcu id ante semper, in pharetra nunc semper. Aliquam sollicitudin purus ut massa aliquam, vel sagittis sapien interdum. Morbi vulputate leo sed eros hendrerit ullamcorper. In hac habitasse platea dictumst. Nullam eget eros euismod, bibendum elit at, commodo lorem. Duis ultricies hendrerit velit, quis luctus nulla faucibus sit amet. Sed maximus pretium massa at dictum. Nullam venenatis malesuada risus, id fringilla libero mattis non.";
+
+            // Split the text into an array of words
+        const words = myText.split(/\s+/).filter(word => word.length > 3);
+
+        // Compute the word frequencies
+        const frequencies = {};
+        words.forEach(word => {
+          frequencies[word] = (frequencies[word] || 0) + 1;
+        });
+
+        // Convert the word frequencies into an array of objects
+        const data = Object.keys(frequencies).map(word => ({ word, frequency: frequencies[word] }));
+
+        // Set up the word cloud layout
+        const layout = d3.layout.cloud()
+          .size([600, 400])
+          .words(data.map(d => ({ text: d.word, size: 10 + d.frequency * 10 })))
+          .padding(5)
+          .rotate(() => ~~(Math.random() * 2) * 90)
+          .font("Impact")
+          .fontSize(d => d.size)
+          .on("end", draw);
+
+        // Draw the word cloud
+        function draw(words) {
+          const svg = d3.select("#wordcloud")
+            .append("svg")
+            .attr("width", layout.size()[0])
+            .attr("height", layout.size()[1]);
+
+          const wordcloud = svg.append("g")
+            .attr("transform", `translate(${layout.size()[0] / 2},${layout.size()[1] / 2})`);
+
+          const wordElements = wordcloud.selectAll("text")
+            .data(words)
+            .enter()
+            .append("text")
+            .classed("word", true)
+            .style("font-size", d => `${d.size}px`)
+            .style("font-family", "Impact")
+            .style("fill", "steelblue")
+            .attr("text-anchor", "middle")
+            .attr("transform", d => `translate(${d.x},${d.y})rotate(${d.rotate})`)
+            .text(d => d.text);
+
+          // Add tooltip for each word
+          wordElements
+            .on("mouseover", (event, d) => {
+              const [x, y] = d3.mouse(event.currentTarget);
+              d3.select("#tooltip")
+                .style("visibility", "visible")
+                .text(`${d.text}: ${d.frequency}`)
+                .style("left", `${x + 10}px`)
+                .style("top", `${y + 10}px`);
+            })
+            .on("mouseout", () => {
+              d3.select("#tooltip")
+                .style("visibility", "hidden");
+            });
+
+                    // Add connections between the words
+                    const connections = [];
+          wordElements.each(function (d, i) {
+            const word1 = d.text;
+            const x1 = d.x;
+            const y1 = d.y;
+            wordElements.each(function (e, j) {
+              if (i !== j) {
+                const word2 = e.text;
+                const x2 = e.x;
+                const y2 = e.y;
+                const distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                if (distance < 150) {
+                  connections.push({ word1, x1, y1, word2, x2, y2 });
+                }
+              }
+            });
+          });
+
+          const connectionElements = wordcloud.selectAll(".connection")
+            .data(connections)
+            .enter()
+            .append("line")
+            .classed("connection", true)
+            .attr("x1", d => d.x1)
+            .attr("y1", d => d.y1)
+            .attr("x2", d => d.x2)
+            .attr("y2", d => d.y2);
+
+          // Start the word cloud layout
+          layout.start();
+        }
+
+    </script>
+  </body>
+</html>

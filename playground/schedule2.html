@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Optimal Route Finder</title>
+    <style>
+      #map {
+        height: 500px;
+        width: 100%;
+      }
+      body {
+        font-family: Arial, sans-serif;
+      }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCH29XOuJOFsVT1MARnN1LVGgkVfhZKwwc&callback=initMap" async defer></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js" charset="utf-8"></script>
+  </head>
+  <body>
+    <h1>Optimal Route Finder</h1>
+    <form id="address-form">
+        <label for="origin-url">Origin URL:</label>
+        <input type="text" id="origin-url" name="origin-url" required style="width: 100%;" value="Svartensgatan 12A">
+        <br>
+        <label for="destination-url">Destination URL:</label>
+        <input type="text" id="destination-url" name="destination-url" style="width: 100%;" required value="Ekehjelmstorget 2">
+        <br>
+        <label for="waypoints">Waypoints (separated by commas):</label>
+        <input type="text" id="waypoints" name="waypoints" style="width: 100%;" required value="Tideliusgatan 22, Tideliusgatan 1">
+        <br>
+        <label for="staying-time">Staying time at each point (in minutes):</label>
+        <input type="text" id="staying-time" name="staying-time" style="width: 100%;" required value="10,15,20">
+        <br>
+        <label for="time-windows">Time windows for each point (start and end times separated by '-', each time window separated by ','):</label>
+        <input type="text" id="time-windows" name="time-windows" style="width: 100%;" required value="08:00-12:00,08:00-12:00,08:00-12:00">
+        <br>
+        <label for="starting-time">Starting time (hh:mm):</label>
+        <input type="text" id="starting-time" name="starting-time" style="width: 100%;" required value="08:00">
+        <br>
+        <input type="submit" value="Find Optimal Route">
+      </form>
+    <div id="map"></div>
+    <div id="routes"></div>
+    <div id="gantt-chart" style="width: 100%; height: 500px;"></div>
+    <script>
+      google.charts.load('current', {'packages': ['timeline']});
+
+      function initMap() {
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 12,
+          center: { lat: 59.3293, lng: 18.0686 }, // Stockholm coordinates
+        });
+
+        const directionsService = new google.maps.DirectionsService();
+        const directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
+
+        const form = document.getElementById("address-form");
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const originUrl = form.elements["origin-url"].value;
+          const destinationUrl = form.elements["destination-url"].value;
+          //const waypoints = form.elements["waypoints"].value.split(',').map(url => ({location: extractAddressFromUrl(url)}));
+          const waypoints = form.elements["waypoints"].value.split(',').map(url => ({location: extractAddressFromAddress(url)}));
+          const stayingTime = form.elements["staying-time"].value.split(',').map(time => parseInt(time));
+          const timeWindows = form.elements["time-windows"].value.split(',').map(window => {
+            const times = window.split('-');
+            return {start: times[0], end: times[1]};
+          });
+          const startingTime = new Date(`1970-01-01T${form.elements["starting-time"].value}:00`);
+
+          //const originAddress = extractAddressFromUrl(originUrl);
+          //const destinationAddress = extractAddressFromUrl(destinationUrl);
+
+          const originAddress = extractAddressFromAddress(originUrl);
+          const destinationAddress = extractAddressFromAddress(destinationUrl);
+
+
+          const transitOptions = { modes: ['BUS', 'RAIL', 'SUBWAY', 'TRAIN', 'TRAM'], routingPreference: 'FEWER_TRANSFERS' };
+          const request = {
+            origin: originAddress,
+            destination: destinationAddress,
+            travelMode: "DRIVING",
+            transitOptions: transitOptions,
+            provideRouteAlternatives: true,
+            waypoints: waypoints,
+          };
+
+          directionsService.route(request, (response, status) => {
+  if (status === "OK") {
+    directionsRenderer.setDirections(response);
+
+    const routesDiv = document.getElementById("routes");
+    routesDiv.innerHTML = "";
+
+    let optimalRouteIndex = 0;
+    let minTime = Infinity;
+    const ganttData = [];
+
+    for (let i = 0; i < Math.min(response.routes.length, 3); i++) {
+      const route = response.routes[i];
+      const time = route.legs.reduce((sum, leg) => sum + leg.duration.value, 0);
+      const timeMinutes = Math.round(time / 60);
+
+      if (timeMinutes < minTime) {
+        minTime = timeMinutes;
+        optimalRouteIndex = i;
+      }
+
+      const description = `Route ${i + 1}: ${route.summary} (${timeMinutes} minutes)`;
+      const routeDiv = document.createElement("div");
+      routeDiv.textContent = description;
+      routesDiv.appendChild(routeDiv);
+
+      const steps = route.legs.reduce((allSteps, leg) => allSteps.concat(leg.steps), []);
+      const transitSteps = steps.filter(step => step.travel_mode === "TRANSIT");
+
+      ganttData[i] = [];
+
+      let currentTime = new Date(startingTime);
+      for (const [index, transitStep] of transitSteps.entries()) {
+        const line = transitStep.transit.line.short_name || transitStep.transit.line.name;
+        const vehicle = transitStep.transit.line.vehicle.name;
+        const startStop = transitStep.transit.departure_stop.name;
+        const endStop = transitStep.transit.arrival_stop.name;
+        const stepDiv = document.createElement("div");
+        stepDiv.textContent = `- Take ${vehicle} ${line} from ${startStop} to ${endStop}`;
+        routeDiv.appendChild(stepDiv);
+
+        // Adding data to the Gantt chart
+        const startDate = new Date(currentTime);
+        currentTime.setSeconds(currentTime.getSeconds() + stayingTime[index] * 60 + transitStep.duration.value);
+        const endDate = new Date(currentTime);
+
+        ganttData[i].push([
+          `Step ${index + 1}`,
+          `${vehicle} ${line}`,
+          startDate,
+          endDate
+        ]);
+      }
+    }
+
+    console.log(ganttData);
+
+    if (ganttData[optimalRouteIndex].length > 0) {
+  drawGanttChart(ganttData[optimalRouteIndex]);
+} else {
+  console.log("No data available for the Gantt chart.");
+}
+
+
+  } else {
+    const errorMessage = `Error: ${status}\nResponse: ${JSON.stringify(response)}`;
+    alert(errorMessage + "\nClick OK to copy this error message to your clipboard.");
+
+    // Copy error message to clipboard
+    const tempInput = document.createElement("textarea");
+    tempInput.value = errorMessage;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand("copy");
+    document.body.removeChild(tempInput);
+  }
+});
+          });
+        }
+// Create Gantt chart drawing function
+function drawGanttChart(ganttData) {
+                  const container = document.getElementById('gantt-chart');
+                  const chart = new google.visualization.Timeline(container);
+                  const dataTable = new google.visualization.DataTable();
+                  
+                  dataTable.addColumn({type: 'string', id: 'Step'});
+                  dataTable.addColumn({type: 'string', id: 'Description'});
+                  dataTable.addColumn({type: 'date', id: 'Start'});
+                  dataTable.addColumn({type: 'date', id: 'End'});
+                  dataTable.addRows(ganttData);
+
+                  chart.draw(dataTable);
+                }
+
+      function extractAddressFromUrl(url) {
+  const match = url.match(/-([a-z]+)-(\d+)/gi);
+  if (match) {
+    return match.map(part => part.slice(1).replace(/-/g, " ")).join(" ");
+  }
+  return "";
+      }
+
+function extractAddressFromAddress(address) {
+  return address;
+}
+
+    </script>
+  </body>
+</html>
