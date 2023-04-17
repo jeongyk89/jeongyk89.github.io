@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quadrilateral Subdivision Animation with Waving Dots</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+    }
+    
+    .quadrilateral {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      background-color: #4caf50;
+      animation: subdivide 4s ease-in-out infinite;
+    }
+    
+    .subdivision {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      background-color: #ff9800;
+      opacity: 0;
+      animation: reveal 4s ease-in-out infinite;
+    }
+    
+    .top-left {
+      top: 0;
+      left: 0;
+    }
+    
+    .top-right {
+      top: 0;
+      right: 0;
+    }
+    
+    .bottom-left {
+      bottom: 0;
+      left: 0;
+    }
+    
+    .bottom-right {
+      bottom: 0;
+      right: 0;
+    }
+    
+    @keyframes subdivide {
+      50% {
+        transform: scale(0.5);
+      }
+    }
+    
+    @keyframes reveal {
+      50% {
+        opacity: 1;
+      }
+    }
+    
+    /* Waving Dots Animation */
+    .dot {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: #ff4081;
+      border-radius: 50%;
+      animation: wave 2s ease-in-out infinite;
+    }
+    
+    @keyframes wave {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-120px);
+      }
+    }
+
+    .dot:nth-child(odd) {
+      animation-delay: -1s;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="quadrilateral">
+    <div class="subdivision top-left"></div>
+    <div class="subdivision top-right"></div>
+    <div class="subdivision bottom-left"></div>
+    <div class="subdivision bottom-right"></div>
+  </div>
+  
+  <!-- Waving Dots -->
+  <div class="dot" style="top: 180px; left: 80px;"></div>
+  <div class="dot" style="top: 180px; left: 120px;"></div>
+  <div class="dot" style="top: 180px; left: 160px;"></div>
+  <div class="dot" style="top: 180px; left: 200px;"></div>
+  <div class="dot" style="top: 180px; left: 240px;"></div>
+  <div class="dot" style="top: 180px; left: 280px;"></div>
+  <div class="dot" style="top: 180px; left: 320px;"></div>
+  <div class="dot" style="top: 180px; left: 360px;"></div>
+  <div class="dot" style="top: 180px; left: 400px;"></div>
+  <div class="dot" style="top: 180px; left: 440px;"></div>
+  <div class="dot" style="top: 180px; left: 480px;"></div>
+</body>
+</html>

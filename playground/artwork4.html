@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Artistic Waving Dots with Gravity and Collisions</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #a7ffeb; /* Spring-theme background color */
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .dot {
+      position: absolute;
+      background-color: #ff4081;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    function randomColor() {
+      const letters = '0123456789ABCDEF';
+      let color = '#';
+      for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    }
+
+    function randomSize(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function randomPosition(axis) {
+      const windowSize = axis === 'x' ? window.innerWidth : window.innerHeight;
+      return Math.floor(Math.random() * windowSize);
+    }
+
+    const numberOfDots = 50;
+    const gravity = 0.2;
+    let dots = [];
+
+    for (let i = 0; i < numberOfDots; i++) {
+      const dotSize = randomSize(10, 50);
+      const dot = document.createElement('div');
+      dot.classList.add('dot');
+      dot.style.width = `${dotSize}px`;
+      dot.style.height = `${dotSize}px`;
+      dot.style.left = `${randomPosition('x')}px`;
+      dot.style.top = `${randomPosition('y')}px`;
+      dot.style.backgroundColor = randomColor();
+      document.body.style.backgroundColor = randomColor();
+      document.body.appendChild(dot);
+
+      dots.push({
+        element: dot,
+        size: dotSize,
+        velocityY: 0,
+        isHeld: false
+      });
+    }
+
+    function detectCollision(dot1, dot2) {
+      const rect1 = dot1.element.getBoundingClientRect();
+      const rect2 = dot2.element.getBoundingClientRect();
+
+      const dx = (rect1.x + dot1.size / 2) - (rect2.x + dot2.size / 2);
+      const dy = (rect1.y + dot1.size / 2) - (rect2.y + dot2.size / 2);
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      return distance < (dot1.size / 2 + dot2.size / 2);
+    }
+
+    document.addEventListener('mousedown', (e) => {
+      dots.forEach((dot) => {
+        const rect = dot.element.getBoundingClientRect();
+        if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+          dot.isHeld = true;
+        }
+      });
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      dots.forEach((dot) => {
+        if (dot.isHeld) {
+            dot.element.style.left = `${e.clientX - dot.size / 2}px`;
+      dot.element.style.top = `${e.clientY - dot.size / 2}px`;
+        }
+      });
+    });
+
+    document.addEventListener('mouseup', () => {
+      dots.forEach((dot) => {
+        dot.isHeld = false;
+      });
+    });
+
+    function animate() {
+      const windowHeight = window.innerHeight;
+      const windowWidth = window.innerWidth;
+
+      dots.forEach((dot, index) => {
+        if (!dot.isHeld) {
+          dot.velocityY += gravity;
+          const newTop = parseFloat(dot.element.style.top) + dot.velocityY;
+          const newLeft = parseFloat(dot.element.style.left);
+
+          if (newTop <= 0 || newTop + dot.size >= windowHeight) {
+            dot.velocityY = -dot.velocityY * 0.8;
+          } else {
+            dot.element.style.top = `${newTop}px`;
+          }
+
+          if (newLeft <= 0 || newLeft + dot.size >= windowWidth) {
+            dot.velocityX = -dot.velocityX * 0.8;
+          } else {
+            dot.element.style.left = `${newLeft}px`;
+          }
+
+          // Check for collisions with other dots and adjust positions if needed
+          for (let j = index + 1; j < dots.length; j++) {
+            const otherDot = dots[j];
+            if (detectCollision(dot, otherDot)) {
+              // Separate the dots to avoid overlapping
+              const rect1 = dot.element.getBoundingClientRect();
+              const rect2 = otherDot.element.getBoundingClientRect();
+              const overlap = (dot.size / 2 + otherDot.size / 2) - Math.sqrt(Math.pow(rect1.x - rect2.x, 2) + Math.pow(rect1.y - rect2.y, 2));
+              const angle = Math.atan2(rect1.y - rect2.y, rect1.x - rect2.x);
+              dot.element.style.left = `${rect1.x + overlap * Math.cos(angle) / 2}px`;
+              dot.element.style.top = `${rect1.y + overlap * Math.sin(angle) / 2}px`;
+              otherDot.element.style.left = `${rect2.x - overlap * Math.cos(angle) / 2}px`;
+              otherDot.element.style.top = `${rect2.y - overlap * Math.sin(angle) / 2}px`;
+
+              // Reverse velocities of the colliding dots
+              const tempVelocityY = dot.velocityY;
+              dot.velocityY = otherDot.velocityY;
+              otherDot.velocityY = tempVelocityY;
+
+              // Change the colors of colliding dots
+              dot.element.style.backgroundColor = randomColor();
+              otherDot.element.style.backgroundColor = randomColor();
+            }
+          }
+        } else {
+          dot.velocityY = 0;
+          dot.velocityX = 0;
+        }
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+</body>
+</html>

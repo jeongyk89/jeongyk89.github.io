@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quadrilateral Subdivision Animation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+    }
+    
+    .quadrilateral {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      background-color: #4caf50;
+      animation: subdivide 4s ease-in-out infinite;
+    }
+    
+    .subdivision {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      background-color: #ff9800;
+      opacity: 0;
+      animation: reveal 4s ease-in-out infinite;
+    }
+    
+    .top-left {
+      top: 0;
+      left: 0;
+    }
+    
+    .top-right {
+      top: 0;
+      right: 0;
+    }
+    
+    .bottom-left {
+      bottom: 0;
+      left: 0;
+    }
+    
+    .bottom-right {
+      bottom: 0;
+      right: 0;
+    }
+    
+    @keyframes subdivide {
+      50% {
+        transform: scale(0.5);
+      }
+    }
+    
+    @keyframes reveal {
+      50% {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="quadrilateral">
+    <div class="subdivision top-left"></div>
+    <div class="subdivision top-right"></div>
+    <div class="subdivision bottom-left"></div>
+    <div class="subdivision bottom-right"></div>
+  </div>
+</body>
+</html>
