@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Interactive Artistic Waving Dots with Gravity, Collisions, and Dynamic Background</title>
+  <title>Interactive Tesla-Inspired Dots</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -14,22 +14,29 @@
       height: 100vh;
       margin: 0;
       overflow: hidden;
-      background: linear-gradient(45deg, #a7ffeb, #a7ffeb);
-      transition: background 1s ease;
+      background: linear-gradient(45deg, #0f0c29, #302b63, #24243e);
     }
 
     .dot {
       position: absolute;
-      background-color: #ff4081;
+      background-color: #00ffff;
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+      box-shadow: 0px 0px 10px rgba(0, 255, 255, 0.4);
       mix-blend-mode: screen;
       transition: transform 0.5s ease;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
+  <canvas id="arcCanvas"></canvas>
   <script>
     function randomColor() {
       const r = Math.floor(Math.random() * 200) + 55;
@@ -56,7 +63,7 @@ let dots = [];
     let mouseY = 0;
 
     for (let i = 0; i < numberOfDots; i++) {
-      const dotSize = randomSize(10, 50);
+      const dotSize = randomSize(10, 20);
       const dot = document.createElement('div');
       dot.classList.add('dot');
       dot.style.width = `${dotSize}px`;
@@ -152,6 +159,20 @@ document.addEventListener('touchstart', handleStart);
 document.addEventListener('touchmove', handleMove);
 document.addEventListener('touchend', handleEnd);
 
+const arcCanvas = document.getElementById('arcCanvas');
+    const ctx = arcCanvas.getContext('2d');
+    arcCanvas.width = window.innerWidth;
+    arcCanvas.height = window.innerHeight;
+
+    function drawElectricArc(dot1, dot2) {
+      ctx.beginPath();
+      ctx.moveTo(dot1.x, dot1.y);
+      ctx.lineTo(dot2.x, dot2.y);
+      ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.closePath();
+    }
 
     function updateBackground() {
       let red = 0;
@@ -244,6 +265,31 @@ dot.element.style.transform += ` scale(${scaleFactor})`;
       dot.velocityY = 0;
       dot.velocityX = 0;
     }
+
+          // Clear the canvas
+          ctx.clearRect(0, 0, arcCanvas.width, arcCanvas.height);
+
+// Draw electric arcs between dots
+dots.forEach((dot1, index1) => {
+  dots.forEach((dot2, index2) => {
+    if (index1 !== index2) {
+      const rect1 = dot1.element.getBoundingClientRect();
+      const rect2 = dot2.element.getBoundingClientRect();
+
+      const dx = rect1.x + dot1.size / 2 - (rect2.x + dot2.size / 2);
+      const dy = rect1.y + dot1.size / 2 - (rect2.y + dot2.size / 2);
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < 150) {
+        drawElectricArc(
+          { x: rect1.x + dot1.size / 2, y: rect1.y + dot1.size / 2 },
+          { x: rect2.x + dot2.size / 2, y: rect2.y + dot2.size / 2 }
+        );
+      }
+    }
+  });
+});
+
   });
 
   updateBackground();
