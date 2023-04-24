@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Energy Consumption and Delivery Visualization</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <label for="timeline">Timeline:</label>
+  <input type="range" id="timeline" min="0" max="100" value="0" step="1" oninput="updateData(this.value)">
+  <br>
+  <svg id="visualization" width="800" height="600"></svg>
+  <svg id="lineGraph" width="800" height="200"></svg>
+
+
+  <script>
+    // Mock data
+    const nodes = [
+    {id: 1, name: 'Node 1', x: 50, y: 50, energy: [10, 20, 30, 40, 50]},
+  {id: 2, name: 'Node 2', x: 150, y: 150, energy: [15, 25, 35, 45, 55]},
+  {id: 3, name: 'Node 3', x: 250, y: 50, energy: [5, 15, 25, 35, 45]},
+  {id: 4, name: 'Node 4', x: 350, y: 150, energy: [20, 30, 40, 50, 60]},
+      // Add more nodes
+    ];
+
+    const deliveries = [
+  {from: 1, to: 2, time: 0},
+  {from: 1, to: 3, time: 0},
+  {from: 1, to: 4, time: 0},
+  {from: 2, to: 3, time: 0},
+  {from: 2, to: 4, time: 0},
+  {from: 3, to: 4, time: 0},
+  // Add more deliveries
+];
+
+
+    // Set up the SVG
+    const svg = d3.select('#visualization');
+    const nodeGroup = svg.append('g').attr('class', 'nodes');
+    const deliveryGroup = svg.append('g').attr('class', 'deliveries');
+
+    // Draw nodes
+    const nodeSelection = nodeGroup.selectAll('circle')
+      .data(nodes)
+      .enter()
+      .append('circle')
+      .attr('cx', d => d.x)
+      .attr('cy', d => d.y)
+      .attr('r', 10)
+      .attr('fill', 'steelblue');
+
+      function updateData(value) {
+  // Calculate energy consumption at the selected time
+  nodes.forEach(node => {
+    node.currentEnergy = node.energy[value];
+  });
+
+  // Filter deliveries based on the selected time
+  const currentDeliveries = deliveries.filter(delivery => delivery.time <= value);
+
+  // Update the visualization
+  updateVisualization(nodes, currentDeliveries);
+
+  // Move the red and green dots
+  moveDots(value);
+}
+
+
+    // Function to update the visualization
+    function updateVisualization(nodes, currentDeliveries) {
+      // Update node colors based on energy consumption
+      nodeSelection.attr('fill', d => d3.interpolateRdYlBu(1 - d.currentEnergy / 60));
+
+      // Update deliveries
+      const deliverySelection = deliveryGroup.selectAll('line')
+        .data(currentDeliveries, d => `${d.from}-${d.to}`);
+
+      // Enter new deliveries
+      deliverySelection.enter()
+        .append('line')
+        .attr('x1', d => nodes.find(node => node.id === d.from).x)
+        .attr('y1', d => nodes.find(node => node.id === d.from).y)
+        .attr('x2', d => nodes.find(node => node.id === d.to).x)
+        .attr('y2', d => nodes.find(node => node.id === d.to).y)
+        .attr('stroke', 'black')
+        .attr('stroke-width', 2);
+
+      // Exit old deliveries
+      deliverySelection.exit().remove();
+
+      // Update red dot on the edge between nodes
+  const deliveryDotSelection = deliveryGroup.selectAll('circle.red-dot')
+    .data(currentDeliveries, d => `${d.from}-${d.to}`);
+
+  // Enter new red dots
+  deliveryDotSelection.enter()
+    .append('circle')
+    .attr('class', 'red-dot')
+    .attr('r', 5)
+    .attr('fill', 'red');
+
+  // Update red dot positions
+  deliveryDotSelection
+    .attr('cx', d => (nodes.find(node => node.id === d.from).x + nodes.find(node => node.id === d.to).x) / 2)
+    .attr('cy', d => (nodes.find(node => node.id === d.from).y + nodes.find(node => node.id === d.to).y) / 2);
+
+  // Exit old red dots
+  deliveryDotSelection.exit().remove();
+    }
+
+    function moveDots(x0) {
+  const currentEnergyValues = nodes.map(node => node.energy[Math.round(x0)]);
+  const maxValue = d3.max(currentEnergyValues);
+  const minValue = d3.min(currentEnergyValues);
+  const y0 = yScale(maxValue === minValue ? maxValue : minValue);
+  focus.attr('transform', `translate(${xScale(Math.round(x0)) + 50}, ${y0})`);
+  focus.select('text').text(`${minValue} - ${maxValue}`);
+
+  // Update the green dot position on the time series graph
+  greenDot.attr('transform', `translate(${xScale(Math.round(x0)) + 50}, ${y0})`).style('display', null);
+
+  const deliveryDotSelection = deliveryGroup.selectAll('circle.red-dot')
+    .data(currentDeliveries, d => `${d.from}-${d.to}`);
+
+// Update red dot positions
+deliveryDotSelection
+    .attr('cx', d => (nodes.find(node => node.id === d.from).x + nodes.find(node => node.id === d.to).x) / 2 + 10 * Math.cos(x0 * 2 * Math.PI / 100))
+    .attr('cy', d => (nodes.find(node => node.id === d.from).y + nodes.find(node => node.id === d.to).y) / 2 + 10 * Math.sin(x0 * 2 * Math.PI / 100));
+
+
+}
+
+
+
+
+
+    // Set up the SVG for the line graph
+const lineGraphSvg = d3.select('#lineGraph');
+const lineGraphGroup = lineGraphSvg.append('g').attr('class', 'lineGraph');
+
+// Create scales for the line graph
+const xScale = d3.scaleLinear().domain([0, 100]).range([50, 750]);
+const yScale = d3.scaleLinear().domain([0, 60]).range([150, 10]);
+
+// Create axes for the line graph
+const xAxis = d3.axisBottom(xScale);
+const yAxis = d3.axisLeft(yScale);
+
+// Add axes to the line graph
+lineGraphSvg.append('g').attr('class', 'x-axis').attr('transform', 'translate(0, 150)').call(xAxis);
+lineGraphSvg.append('g').attr('class', 'y-axis').attr('transform', 'translate(50, 0)').call(yAxis);
+
+// Create a line generator
+const lineGenerator = d3.line()
+  .x((d, i) => xScale(i))
+  .y(d => yScale(d));
+
+// Draw lines for each node's energy consumption
+nodes.forEach((node, i) => {
+  lineGraphGroup.append('path')
+    .datum(node.energy)
+    .attr('class', `line line-${i}`)
+    .attr('d', lineGenerator)
+    .attr('fill', 'none')
+    .attr('stroke', d3.schemeCategory10[i])
+    .attr('stroke-width', 2);
+});
+
+// Create a focus element for displaying energy consumption at the current time
+const focus = lineGraphGroup.append('g').attr('class', 'focus').style('display', 'none');
+focus.append('circle').attr('r', 4.5);
+focus.append('text').attr('x', 9).attr('dy', '.35em');
+
+
+  // Create a green dot for the time series graph
+  const greenDot = lineGraphGroup.append('circle')
+  .attr('class', 'green-dot')
+  .attr('r', 5)
+  .attr('fill', 'green')
+  .style('display', 'none');
+
+// Create a rectangular overlay to capture mouse events for the line graph
+lineGraphGroup.append('rect')
+  .attr('class', 'overlay')
+  .attr('width', 700)
+  .attr('height', 150)
+  .attr('transform', 'translate(50, 0)')
+  .style('fill', 'none')
+  .style('pointer-events', 'all')
+  .on('mouseover', () => focus.style('display', null))
+  .on('mouseout', () => {
+    focus.style('display', 'none');
+    greenDot.style('display', 'none');
+  })
+  .on('mousemove', function(event) {
+  const x0 = xScale.invert(d3.pointer(event)[0] - 50);
+  moveDots(x0);
+});
+
+
+
+
+
+        // Initialize the visualization
+        updateData(0);
+  </script>
+</body>
+</html>
+
+
+   

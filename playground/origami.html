@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Interactive Origami-Inspired Animation</title>
+	<style>
+		body {
+			background-color: #f2f2f2;
+			font-family: Arial, sans-serif;
+		}
+
+		.container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin-top: 50px;
+		}
+
+		.canvas {
+			position: relative;
+			width: 400px;
+			height: 400px;
+			background-color: #fff;
+			box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+			margin-bottom: 30px;
+		}
+
+		.paper {
+			position: absolute;
+			width: 100px;
+			height: 100px;
+			background-color: #f1c40f;
+			border-radius: 10px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+			animation: fold 2s ease infinite alternate;
+			cursor: pointer;
+		}
+
+		@keyframes fold {
+			from {
+				transform: rotate(0deg);
+			}
+
+			to {
+				transform: rotate(90deg);
+			}
+		}
+
+		button {
+			padding: 10px 20px;
+			background-color: #3498db;
+			color: #fff;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			font-size: 16px;
+			font-weight: bold;
+			transition: all 0.2s ease-in-out;
+		}
+
+		button:hover {
+			background-color: #2980b9;
+		}
+
+		button:active {
+			transform: translateY(2px);
+		}
+
+		.instructions {
+			text-align: center;
+			font-size: 20px;
+			font-weight: bold;
+			margin-bottom: 20px;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="canvas">
+			<div class="paper"></div>
+		</div>
+		<button id="fold">Fold</button>
+		<button id="unfold">Unfold</button>
+		<p class="instructions">Click the paper to fold it or the buttons to fold and unfold the paper!</p>
+	</div>
+
+	<script>
+		const paper = document.querySelector('.paper');
+		const foldButton = document.querySelector('#fold');
+		const unfoldButton = document.querySelector('#unfold');
+
+		foldButton.addEventListener('click', () => {
+			paper.style.animation = 'fold 2s ease infinite alternate';
+			foldButton.style.backgroundColor = '#ccc';
+			unfoldButton.style.backgroundColor = '#3498db';
+		});
+
+		unfoldButton.addEventListener('click', () => {
+			paper.style.animation = '';
+			unfoldButton.style.backgroundColor = '#ccc';
+			foldButton.style.backgroundColor = '#3498db';
+		});
+
+		paper.addEventListener('click', () => {
+			paper.style.animation = 'fold 2s ease';
+			setTimeout(() => {
+				paper.style.animation = '';
+			}, 2000);
+		});
+	</script>
+</body>
+</html>
