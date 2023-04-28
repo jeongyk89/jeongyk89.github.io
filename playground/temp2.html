@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Temperature Data Visualization</title>
+    <meta charset="utf-8" />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+      svg {
+        font: 10px sans-serif;
+      }
+
+      .axis path,
+      .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+      }
+
+      .line {
+        fill: none;
+        stroke: steelblue;
+        stroke-width: 1.5px;
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="960" height="500"></svg>
+
+    <script>
+      // Generate some random data for the last 30 days
+      const data = d3.range(30).map((d) => ({
+        date: d3.timeDay.offset(new Date(), -d),
+        temperature: Math.floor(Math.random() * 50) + 50,
+      }));
+
+      const svg = d3.select("svg");
+      const margin = { top: 20, right: 20, bottom: 30, left: 50 };
+      const width = +svg.attr("width") - margin.left - margin.right;
+      const height = +svg.attr("height") - margin.top - margin.bottom;
+      const g = svg
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+      const x = d3
+        .scaleTime()
+        .domain(d3.extent(data, (d) => d.date))
+        .range([0, width]);
+
+      const y = d3
+        .scaleLinear()
+        .domain([0, d3.max(data, (d) => d.temperature)])
+        .range([height, 0]);
+
+      const xAxis = d3.axisBottom(x);
+      const yAxis = d3.axisLeft(y);
+
+      g.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", `translate(0,${height})`)
+        .call(xAxis);
+
+      g.append("g")
+        .attr("class", "axis axis--y")
+        .call(yAxis)
+        .append("text")
+        .attr("class", "axis-title")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", "0.71em")
+        .attr("text-anchor", "end")
+        .text("Temperature (°F)");
+
+      const line = d3
+        .line()
+        .x((d) => x(d.date))
+        .y((d) => y(d.temperature));
+
+      g.append("path")
+        .datum(data)
+        .attr("class", "line")
+        .attr("d", line);
+    </script>
+  </body>
+</html>

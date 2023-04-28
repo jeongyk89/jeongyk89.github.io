@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Time Series Data Visualization with D3.js</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <style>
+           .line {
+        fill: none;
+        stroke: url(#line-gradient);
+        stroke-width: 2px;
+    }
+    .circle {
+        fill: url(#circle-gradient);
+    }
+        .tooltip {
+  position: absolute;
+  text-align: center;
+  width: 120px;
+  height: 28px;
+  padding: 1px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 3px;
+  pointer-events: none;
+  opacity: 0;
+}
+.axis path,
+.axis line {
+  stroke-width: 1px; /* Adjust this value to change the thickness */
+}
+
+
+    </style>
+</head>
+<body>
+
+<h1>Temperature Data for the Last 90 Days</h1>
+
+<div id="chart"></div>
+
+<script>
+// Set the dimensions of the chart
+var margin = {top: 20, right: 30, bottom: 30, left: 60},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+// Set the ranges
+var x = d3.scaleTime().range([0, width]);
+var y = d3.scaleLinear().range([height, 0]);
+
+// Define the line
+var valueline = d3.line()
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.temperature); });
+
+// Append the svg object to the body of the page
+var svg = d3.select("#chart").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+// Define the data
+var data = [];
+var today = new Date();
+for (var i = 0; i < 90; i++) {
+    var date = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
+    var temperature = Math.floor(Math.random() * 10) + 20;
+    data.push({date: date, temperature: temperature});
+}
+
+// Scale the range of the data
+x.domain(d3.extent(data, function(d) { return d.date; }));
+y.domain([0, d3.max(data, function(d) { return d.temperature; })]);
+
+// Add the valueline path
+svg.append("path")
+    .data([data])
+    .attr("class", "line")
+    .attr("d", valueline);
+
+// Define gradients for the line and data points
+var lineGradient = svg.append("defs")
+    .append("linearGradient")
+    .attr("id", "line-gradient")
+    .attr("gradientUnits", "userSpaceOnUse")
+    .attr("x1", 0)
+    .attr("y1", y(0))
+    .attr("x2", 0)
+    .attr("y2", y(1))
+    .selectAll("stop")
+    .data([
+        {offset: "0%", color: "red"},
+        {offset: "50%", color: "orange"},
+        {offset: "100%", color: "steelblue"}
+    ])
+    .enter()
+    .append("stop")
+    .attr("offset", function(d) { return d.offset; })
+    .attr("stop-color", function(d) { return d.color; });
+
+var circleGradient = svg.append("defs")
+    .append("radialGradient")
+    .attr("id", "circle-gradient")
+    .attr("cx", "50%")
+    .attr("cy", "50%")
+    .attr("r", "50%")
+    .selectAll("stop")
+    .data([
+        {offset: "0%", color: "steelblue"},
+        {offset: "100%", color: "white"}
+    ])
+    .enter()
+    .append("stop")
+    .attr("offset", function(d) { return d.offset; })
+    .attr("stop-color", function(d) { return d.color; });
+
+
+    // Add the valueline path with animation
+var path = svg.append("path")
+    .data([data])
+    .attr("class", "line")
+    .attr("d", valueline);
+
+var totalLength = path.node().getTotalLength();
+
+path.attr("stroke-dasharray", totalLength + " " + totalLength)
+    .attr("stroke-dashoffset", totalLength)
+    .transition()
+    .duration(50)
+    .ease(d3.easeLinear)
+    .attr("stroke-dashoffset", 0);
+
+
+// Add the X Axis
+svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .attr("class", "axis") // Add the class here
+    .call(d3.axisBottom(x));
+
+// Add the Y Axis
+svg.append("g")
+    .attr("class", "axis") // Add the class here
+    .call(d3.axisLeft(y));
+
+// Add the X Axis with color
+svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x))
+    .selectAll("text, path, line")
+    .style("fill", "black")
+    .style("stroke", "black");
+
+// Add the Y Axis with color
+svg.append("g")
+    .call(d3.axisLeft(y))
+    .selectAll("text, path, line")
+    .style("fill", "black")
+    .style("stroke", "black");
+
+
+// Create a tooltip div
+var tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
+
+// Add data points with animation
+var points = svg.selectAll("circle")
+    .data(data)
+    .enter()
+    .append("circle")
+    .attr("r", 5)
+    .attr("cx", function(d) { return x(d.date); })
+    .attr("cy", function(d) { return y(d.temperature); })
+    .style("class", "circle")
+    .style("opacity", 0)
+    .on("mouseover", function(d) {
+        tooltip.transition()
+            .duration(200)
+            .style("opacity", 1);
+        tooltip.html("Date: " + d.date.toISOString().slice(0, 10) + "<br/>Temperature: " + d.temperature)
+            .style("left", (d3.event.pageX + 10) + "px")
+            .style("top", (d3.event.pageY - 30) + "px");
+    })
+    .on("mouseout", function(d) {
+        tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
+    });
+
+// Animate data points appearance
+points.transition()
+    .duration(2000)
+    .delay(function(d, i) { return i * 50; })
+    .style("opacity", 1);
+
+
+
+</script>
+
+</body>
+</html>
