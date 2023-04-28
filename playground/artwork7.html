@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Manufacturing Inspired Generative Art</title>
+	<style>
+		body {
+			background-color: black;
+			margin: 0;
+			padding: 0;
+		}
+		
+		canvas {
+			display: block;
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+</head>
+<body>
+	<canvas></canvas>
+	
+	<script>
+		var canvas = document.querySelector('canvas');
+		var ctx = canvas.getContext('2d');
+		
+		var w = canvas.width = window.innerWidth;
+		var h = canvas.height = window.innerHeight;
+		
+		var color = '#fff';
+		var lineWidth = 5;
+		var margin = 100;
+		
+		var lines = [];
+		
+		function Line(x1, y1, x2, y2) {
+			this.x1 = x1;
+			this.y1 = y1;
+			this.x2 = x2;
+			this.y2 = y2;
+		}
+		
+		Line.prototype.draw = function() {
+			ctx.beginPath();
+			ctx.moveTo(this.x1, this.y1);
+			ctx.lineTo(this.x2, this.y2);
+			ctx.strokeStyle = color;
+			ctx.lineWidth = lineWidth;
+			ctx.stroke();
+		};
+		
+		function init() {
+			for (var i = margin; i < w - margin; i += margin) {
+				var line = new Line(i, margin, i, h - margin);
+				lines.push(line);
+			}
+		}
+		
+		function animate() {
+			requestAnimationFrame(animate);
+			ctx.clearRect(0, 0, w, h);
+			
+			for (var i = 0; i < lines.length; i++) {
+				var line = lines[i];
+				line.draw();
+				
+				line.x1 += Math.random() * 2 - 1;
+				line.y1 += Math.random() * 2 - 1;
+				line.x2 += Math.random() * 2 - 1;
+				line.y2 += Math.random() * 2 - 1;
+			}
+		}
+		
+		init();
+		animate();
+	</script>
+</body>
+</html>

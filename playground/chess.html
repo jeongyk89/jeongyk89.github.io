@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard-1.0.0.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.2/chess.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard.js/1.0.0/chessboard-1.0.0.min.js"></script>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+  </style>
+  <title>Chess Game</title>
+</head>
+<body>
+  <div id="board" style="width: 400px"></div>
+  <script>
+    const board = Chessboard('board', {
+      draggable: true,
+      position: 'start',
+      onDrop: handleMove,
+    });
+
+    const game = new Chess();
+
+    function handleMove(source, target) {
+      const move = game.move({
+        from: source,
+        to: target,
+        promotion: 'q',
+      });
+
+      if (move === null) {
+        return 'snapback';
+      } else {
+        checkGameStatus();
+      }
+    }
+
+    function checkGameStatus() {
+      if (game.in_checkmate()) {
+        alert('Checkmate');
+      } else if (game.in_draw()) {
+        alert('Draw');
+      }
+    }
+  </script>
+</body>
+</html>

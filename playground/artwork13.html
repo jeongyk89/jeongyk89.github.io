@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Generative Art: A Colorful and Moving Experience</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+		}
+		
+		canvas {
+			display: block;
+		}
+		
+		h1 {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			font-family: Arial, sans-serif;
+			font-size: 5rem;
+			font-weight: bold;
+			color: #fff;
+			text-shadow: 3px 3px 3px #000;
+			z-index: -1;
+		}
+	</style>
+</head>
+<body>
+	<canvas></canvas>
+	<h1>GENERATIVE ART</h1>
+	
+	<script>
+		var canvas = document.querySelector('canvas');
+		var ctx = canvas.getContext('2d');
+		
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+		
+		var lines = [];
+		var lineWidth = 2;
+		var speed = 2;
+		var holeRadius = 200;
+		var holeCenter = { x: canvas.width / 2, y: canvas.height / 2 };
+		
+		function Line(x1, y1, x2, y2, color) {
+			this.x1 = x1;
+			this.y1 = y1;
+			this.x2 = x2;
+			this.y2 = y2;
+			this.color = color;
+		}
+		
+		Line.prototype.draw = function() {
+			ctx.beginPath();
+			ctx.moveTo(this.x1, this.y1);
+			ctx.lineTo(this.x2, this.y2);
+			ctx.strokeStyle = this.color;
+			ctx.lineWidth = lineWidth;
+			ctx.stroke();
+		};
+		
+		function init() {
+			for (var i = 0; i < canvas.width; i += 10) {
+				for (var j = 0; j < canvas.height; j += 10) {
+					if (Math.sqrt(Math.pow(i - holeCenter.x, 2) + Math.pow(j - holeCenter.y, 2)) > holeRadius) {
+						var x1 = i + Math.random() * 10;
+						var y1 = j + Math.random() * 10;
+						var x2 = x1 + Math.random() * 40 - 20;
+						var y2 = y1 + Math.random() * 40 - 20;
+						var color = 'rgb(255, 255, 255)';
+						var line = new Line(x1, y1, x2, y2, color);
+						lines.push(line);
+					}
+				}
+			}
+		}
+		
+		function animate() {
+			requestAnimationFrame(animate);
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			
+			var date = new Date();
+			var seconds = date.getSeconds();
+			var minutes = date.getMinutes();
+			var hours = date.getHours();
+			
+			// Change the color of the lines based on the current time
+			var color = 'rgb(' + seconds * 4 + ', ' + minutes * 4 + ', ' + hours * 10 + ')';
+			
+			// Change the speed of the lines based on the current time
+			var speed = (seconds + minutes + hours) / 30;
+			
+			for (var i = 0; i < lines.length; i++) {
+				var line = lines[i];
+				line.x1 += Math.random() * speed - speed / 2;
+				line.y1 += Math.random() * speed 				- speed / 2;
+				line.x2 += Math.random() * speed - speed / 2;
+				line.y2 += Math.random() * speed - speed / 2;
+				line.color = color;
+				line.draw();
+				
+				// Add shaking effect to the lines
+				line.x1 += Math.random() * 2 - 1;
+				line.y1 += Math.random() * 2 - 1;
+				line.x2 += Math.random() * 2 - 1;
+				line.y2 += Math.random() * 2 - 1;
+				
+				// Make the lines fall into the hole
+				if (Math.sqrt(Math.pow(line.x1 - holeCenter.x, 2) + Math.pow(line.y1 - holeCenter.y, 2)) <= holeRadius) {
+					if (line.y1 < holeCenter.y) {
+						line.y1 += speed;
+						line.y2 += speed;
+					} else {
+						line.y1 = line.y2;
+					}
+				}
+			}
+		}
+		
+		init();
+		animate();
+	</script>
+</body>
+</html>
+

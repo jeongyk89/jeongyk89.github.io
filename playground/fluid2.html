@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+  <title>Fluid Particle Simulation with Waves</title>
+</head>
+<body>
+  <script>
+    let particles = [];
+    let numParticles = 200;
+    
+    function setup() {
+      createCanvas(windowWidth, windowHeight);
+      for (let i = 0; i < numParticles; i++) {
+        particles.push(new Particle());
+      }
+    }
+    
+    function draw() {
+      background(0);
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].show();
+      }
+    }
+    
+    class Particle {
+      constructor() {
+        this.pos = createVector(random(width), random(height));
+        this.vel = createVector(0, 0);
+        this.acc = createVector(0, 0);
+        this.maxSpeed = 2;
+      }
+      
+      applyForce(force) {
+        this.acc.add(force);
+      }
+      
+      update() {
+        this.vel.add(this.acc);
+        this.vel.limit(this.maxSpeed);
+        this.pos.add(this.vel);
+        this.acc.mult(0);
+        
+        if (this.pos.x < 0) this.pos.x = width;
+        if (this.pos.x > width) this.pos.x = 0;
+        if (this.pos.y < 0) this.pos.y = height;
+        if (this.pos.y > height) this.pos.y = 0;
+      }
+      
+      show() {
+        stroke(150, 150, 255, 100);
+        strokeWeight(4);
+        point(this.pos.x, this.pos.y);
+      }
+    }
+    
+    function mouseMoved() {
+      for (let i = 0; i < particles.length; i++) {
+        let mouse = createVector(mouseX, mouseY);
+        let dir = p5.Vector.sub(mouse, particles[i].pos);
+        let distSq = dir.magSq();
+        if (distSq < 10000) {
+          let force = dir.normalize().mult(1000 / distSq);
+          particles[i].applyForce(force);
+        }
+      }
+    }
+    
+    function touchMoved() {
+      for (let i = 0; i < particles.length; i++) {
+        let touch = createVector(touchX, touchY);
+        let dir = p5.Vector.sub(touch, particles[i].pos);
+        let distSq = dir.magSq();
+        if (distSq < 10000) {
+          let force = dir.normalize().mult(1000 / distSq);
+          particles[i].applyForce(force);
+        }
+      }
+      return false; // prevent default behavior of touch events
+    }
+  </script>
+</body>
+</html>

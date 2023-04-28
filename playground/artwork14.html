@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Bouncing Balls</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+		
+		canvas {
+			display: block;
+		}
+	</style>
+</head>
+<body>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+	
+	<script>
+		var scene = new THREE.Scene();
+		var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+		var renderer = new THREE.WebGLRenderer();
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		document.body.appendChild(renderer.domElement);
+		
+		var balls = [];
+		var numBalls = 100;
+		var maxRadius = 5;
+		var minRadius = 1;
+		var maxSpeed = 0.1;
+		var minSpeed = 0.05;
+		
+		for (var i = 0; i < numBalls; i++) {
+			var geometry = new THREE.SphereGeometry(Math.floor(Math.random() * (maxRadius - minRadius + 1)) + minRadius, 16, 16);
+			var material = new THREE.MeshBasicMaterial({ color: 'rgb(' + Math.floor(Math.random() * 256) + ', ' + Math.floor(Math.random() * 256) + ', ' + Math.floor(Math.random() * 256) + ')' });
+			var ball = new THREE.Mesh(geometry, material);
+			ball.position.x = (Math.random() - 0.5) * 20;
+			ball.position.y = (Math.random() - 0.5) * 20;
+			ball.position.z = (Math.random() - 0.5) * 20;
+			ball.speedX = (Math.random() * (maxSpeed - minSpeed + 1)) + minSpeed;
+			ball.speedY = (Math.random() * (maxSpeed - minSpeed + 1)) + minSpeed;
+			ball.speedZ = (Math.random() * (maxSpeed - minSpeed + 1)) + minSpeed;
+			ball.speedX *= Math.random() < 0.5 ? -1 : 1;
+			ball.speedY *= Math.random() < 0.5 ? -1 : 1;
+			ball.speedZ *= Math.random() < 0.5 ? -1 : 1;
+			balls.push(ball);
+			scene.add(ball);
+		}
+		
+		camera.position.z = 50;
+		
+		function animate() {
+			requestAnimationFrame(animate);
+			
+			for (var i = 0; i < balls.length; i++) {
+				var ball = balls[i];
+				
+				if (ball.position.x + ball.geometry.parameters.radius >= 20 || ball.position.x - ball.geometry.parameters.radius <= -20) {
+					ball.speedX = -ball.speedX;
+				}
+				
+				if (ball.position.y + ball.geometry.parameters.radius >= 20 || ball.position.y - ball.geometry.parameters.radius <= -20) {
+					ball.speedY = -ball.speedY;
+				}
+				
+				if (ball.position.z + ball.geometry.parameters.radius >= 20 || ball.position.z - ball.geometry.parameters.radius <= -20) {
+					ball.speedZ = -ball.speedZ;
+				}
+				
+				ball.position.x += ball.speedX;
+				ball.position.y += ball.speedY;
+				ball.position.z += ball.speedZ;
+			}
+			
+            renderer.render(scene, camera);
+		}
+
+		function onWindowResize() {
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+		}
+
+		window.addEventListener('resize', onWindowResize, false);
+
+		animate();
+	</script>
+</body>
+</html>

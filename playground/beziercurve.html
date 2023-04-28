@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Bezier Curve</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    svg {
+      border: 1px solid black;
+    }
+    .control-point {
+      fill: red;
+      cursor: pointer;
+      stroke: white;
+      stroke-width: 2px;
+    }
+    .control-point:hover {
+      fill: #ff8080;
+    }
+    #curve {
+      stroke-width: 3px;
+      fill: none;
+    }
+  </style>
+</head>
+<body>
+  <svg id="svg" width="800" height="600">
+    <path id="curve" d="M100,300 C250,50 350,350 500,300" stroke="blue" />
+    <circle id="start-point" class="control-point" cx="100" cy="300" r="20" />
+    <circle id="control-point-1" class="control-point" cx="250" cy="50" r="20" />
+    <circle id="control-point-2" class="control-point" cx="350" cy="350" r="20" />
+    <circle id="end-point" class="control-point" cx="500" cy="300" r="20" />
+  </svg>
+  <script>
+    const svg = document.getElementById('svg');
+    const curve = document.getElementById('curve');
+    const startPoint = document.getElementById('start-point');
+    const controlPoint1 = document.getElementById('control-point-1');
+    const controlPoint2 = document.getElementById('control-point-2');
+    const endPoint = document.getElementById('end-point');
+
+    function addTrace() {
+      const newPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      newPath.setAttribute('d', curve.getAttribute('d'));
+      newPath.setAttribute('stroke', 'rgba(128, 128, 128, 0.1)');
+      newPath.setAttribute('stroke-width', '3');
+      newPath.setAttribute('fill', 'none');
+      svg.insertBefore(newPath, curve);
+    }
+
+    function updateCurve() {
+      curve.setAttribute('d', `M${startPoint.cx.baseVal.value},${startPoint.cy.baseVal.value} C${controlPoint1.cx.baseVal.value},${controlPoint1.cy.baseVal.value} ${controlPoint2.cx.baseVal.value},${controlPoint2.cy.baseVal.value} ${endPoint.cx.baseVal.value},${endPoint.cy.baseVal.value}`);
+      const color = `hsl(${(Math.random() * 360)}, 80%, 60%)`;
+      curve.setAttribute('stroke', color);
+      addTrace();
+    }
+
+    function mouseMoveHandler(e) {
+      const svgRect = svg.getBoundingClientRect();
+      const x = e.clientX - svgRect.left;
+      const y = e.clientY - svgRect.top;
+      e.target.setAttribute('cx', x);
+      e.target.setAttribute('cy', y);
+      updateCurve();
+    }
+
+    function addDragListeners(element) {
+      element.addEventListener('mousedown', (e) => {
+        svg.addEventListener('mousemove', mouseMoveHandler);
+    });     
+        svg.addEventListener('mouseup', () => {
+        svg.removeEventListener('mousemove', mouseMoveHandler);
+      });
+
+      svg.addEventListener('mouseleave', () => {
+        svg.removeEventListener('mousemove', mouseMoveHandler);
+      });
+    }
+
+    addDragListeners(startPoint);
+    addDragListeners(controlPoint1);
+    addDragListeners(controlPoint2);
+    addDragListeners(endPoint);
+  </script>
+</body>
+</html>

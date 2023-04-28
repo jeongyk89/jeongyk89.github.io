@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Manufacturing Inspired Generative Art</title>
+	<style>
+		body {
+			background-color: #181818;
+			margin: 0;
+			padding: 0;
+		}
+		
+		canvas {
+			display: block;
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			z-index: -1;
+		}
+	</style>
+</head>
+<body>
+	<canvas></canvas>
+	
+	<script>
+		var canvas = document.querySelector('canvas');
+		var ctx = canvas.getContext('2d');
+		
+		var w = canvas.width = window.innerWidth;
+		var h = canvas.height = window.innerHeight;
+		
+		var colors = ['#ff9900', '#0099ff', '#66ff66', '#ff66cc', '#cc99ff'];
+		var lineWidths = [1, 2, 3, 4, 5];
+		var margin = 40;
+		
+		var lines = [];
+		
+		function Line(x1, y1, x2, y2, color, lineWidth) {
+			this.x1 = x1;
+			this.y1 = y1;
+			this.x2 = x2;
+			this.y2 = y2;
+			this.color = color;
+			this.lineWidth = lineWidth;
+			this.angle = Math.atan2(this.y2 - this.y1, this.x2 - this.x1);
+			this.distance = Math.sqrt((this.x2 - this.x1) * (this.x2 - this.x1) + (this.y2 - this.y1) * (this.y2 - this.y1));
+			this.gap = Math.random() * 10;
+			this.offset = Math.random() * 10;
+		}
+		
+		Line.prototype.draw = function() {
+			ctx.beginPath();
+			ctx.moveTo(this.x1, this.y1);
+			ctx.lineTo(this.x2, this.y2);
+			ctx.strokeStyle = this.color;
+			ctx.lineWidth = this.lineWidth;
+			ctx.stroke();
+		};
+		
+		function init() {
+			for (var i = margin; i < w - margin; i += margin) {
+				for (var j = margin; j < h - margin; j += margin) {
+					var x1 = i + Math.random() * 5 - 2.5;
+					var y1 = j + Math.random() * 5 - 2.5;
+					var x2 = i + Math.random() * 5 - 2.5;
+					var y2 = j + Math.random() * 5 - 2.5;
+					var color = colors[Math.floor(Math.random() * colors.length)];
+					var lineWidth = lineWidths[Math.floor(Math.random() * lineWidths.length)];
+					var line = new Line(x1, y1, x2, y2, color, lineWidth);
+					lines.push(line);
+				}
+			}
+		}
+		
+		function animate() {
+			requestAnimationFrame(animate);
+			ctx.clearRect(0, 0, w, h);
+			
+			for (var i = 0; i < lines.length; i++) {
+				var line = lines[i];
+				line.draw();
+				
+				var angleOffset = Math.sin(Date.now() / 1000 + line.offset) * 0.5;
+				var x1 = line.x1 + Math.cos(line.angle + angleOffset) * line.gap;
+				var y1 = line.y1 + Math.sin(line.angle + angleOffset) * line.gap;
+				var x2 = x1 + Math.cos(line.angle) * line.distance;
+                var y2 = y1 + Math.sin(line.angle) * line.distance;
+                line.x1 = x1;
+			line.y1 = y1;
+			line.x2 = x2;
+			line.y2 = y2;
+		}
+	}
+	
+	init();
+	animate();
+</script>
+</body>
+</html>
