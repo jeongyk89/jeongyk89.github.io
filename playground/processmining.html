@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Process Mining Visualization</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <style>
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+        }
+
+        .node {
+            stroke: #fff;
+            stroke-width: 1.5px;
+        }
+
+        .event {
+            fill: red;
+        }
+
+        .label {
+            font-family: "Arial", sans-serif;
+            font-size: 12px;
+            fill: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Event Log Visualization</h1>
+    <div id="visualization"></div>
+
+    <script>
+        // Sample data
+        var nodes = [
+            { name: "Start", x: 100, y: 200 },
+            { name: "Activity A", x: 300, y: 100 },
+            { name: "Activity B", x: 300, y: 300 },
+            { name: "Activity C", x: 500, y: 200 },
+            { name: "End", x: 700, y: 200 }
+        ];
+
+        var links = [
+            { source: 0, target: 1 },
+            { source: 0, target: 2 },
+            { source: 1, target: 3 },
+            { source: 2, target: 3 },
+            { source: 3, target: 4 }
+        ];
+
+        // Event logs and start times
+        var eventLogs = [
+            [0, 1, 3, 4],  // Event Log 1
+            [0, 2, 3, 4],   // Event Log 2
+            [0, 2, 3, 4],
+            [0, 2, 3, 4],
+            [0, 2, 3, 4],
+            [0, 2, 3, 4],
+            [0, 2, 3, 4],
+            [0, 1, 3, 4],  // Event Log 1
+            [0, 1, 3, 4],  // Event Log 1
+            [0, 1, 3, 4],  // Event Log 1
+            [0, 1, 3, 4],  // Event Log 1
+            [0, 1, 3, 4]  // Event Log 1
+
+        ];
+
+        var startTimes = [
+            0,      // Event Log 1 starts immediately
+            1000,    // Event Log 2 starts after 2 seconds
+            2000,
+            2000,
+            2000,
+            2000,
+            2000,
+            2000,
+            2000,
+            3000,
+            4000,
+            5000
+        ];
+
+        // Calculate the number of events for each node
+        var eventCounts = Array(nodes.length).fill(0);
+        eventLogs.forEach(eventLog => {
+            eventLog.forEach(nodeIndex => {
+                eventCounts[nodeIndex]++;
+            });
+        });
+
+        // Create SVG elements
+        var networkSvg = d3.select("#visualization").append("svg")
+            .attr("width", 960)
+            .attr("height", 600);
+
+            var barChartSvg = d3.select("#visualization").append("svg")
+        .attr("width", 960)
+        .attr("height", 300);  // Increase the height to fit the labels
+
+
+        // Draw the links
+        var link = networkSvg.selectAll(".link")
+            .data(links)
+            .enter().append("line")
+            .attr("class", "link")
+            .attr("x1", d => nodes[d.source].x)
+            .attr("y1", d => nodes[d.source].y)
+            .attr("x2", d => nodes[d.target].x)
+            .attr("y2", d => nodes[d.target].y);
+
+        // Draw the nodes
+        var node = networkSvg.selectAll(".node")
+            .data(nodes)
+            .enter().append("circle")
+            .attr("class", "node")
+            .attr("cx", d => d.x)
+            .attr("cy", d => d.y)
+            .attr("r", 10);
+
+        // Draw the labels
+        var label = networkSvg.selectAll(".label")
+            .data(nodes)
+            .enter().append("text")
+            .attr("class", "label")
+            .attr("x", d => d.x + 15)
+            .attr("y", d => d.y)
+            .text(d => d.name);
+
+        // Draw the 'event' nodes
+        var eventNodes = eventLogs.map((eventLog, i) => {
+            return networkSvg.append("circle")
+                .attr("class", "event")
+                .attr("r", 7)
+                .attr("cx", nodes[eventLog[0]].x)
+                .attr("cy", nodes[eventLog[0]].y)
+                .attr("fill", i === 0 ? "red" : "blue");  // Different colors for different event logs
+        });
+
+    // Draw the bars
+    var barWidth = 960 / nodes.length;
+    var bar = barChartSvg.selectAll(".bar")
+        .data(nodes)
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", (d, i) => i * barWidth)
+        .attr("width", barWidth - 1)
+        .attr("y", (d, i) => 200 - eventCounts[i] * 20)  // Adjust the factor to scale the bars
+        .attr("height", (d, i) => eventCounts[i] * 20)  // Adjust the factor to scale the bars
+        .on("click", function(d, i) {
+            node.attr("fill", (d, j) => j === i ? "orange" : "white");
+        });
+
+        barChartSvg.selectAll(".bar-label")
+    .data(nodes)
+    .enter().append("text")
+    .attr("class", "bar-label")
+    .attr("x", (d, i) => i * barWidth)
+    .attr("y", 280)
+    .attr("text-anchor", "start")  // Align the text to the start of the bar
+    .text(d => d.name);
+
+    // Print the list of event logs and their start times
+    var eventLogList = d3.select("body").append("div")
+        .attr("id", "eventLogList")
+        .append("ul");
+
+    eventLogs.forEach((eventLog, i) => {
+        eventLogList.append("li")
+            .text("Event Log " + (i + 1) + " (Start Time: " + startTimes[i] + " ms): " + eventLog.map(e => nodes[e].name).join(" -> "));
+    });
+
+    // Define the transition function
+    function transition() {
+        // This array is to keep track of the real-time events at each node
+        var currentEventCount = Array(nodes.length).fill(0);
+        eventNodes.forEach((eventNode, i) => {
+            setTimeout(() => {
+                var j = 0;
+                d3.interval(function() {
+                    if(j < eventLogs[i].length - 1) {
+                        // Remove the event from the current node in the event count array
+                        if (j > 0) {
+                            currentEventCount[eventLogs[i][j - 1]]--;
+                        }
+
+                        // Add the event to the next node in the event count array
+                        currentEventCount[eventLogs[i][j]]++;
+
+                        // Update the bars
+                        bar.data(nodes)
+                            .transition()
+                            .duration(1000)
+                            .attr("y", (d, k) => 200 - currentEventCount[k] * 20)
+                            .attr("height", (d, k) => currentEventCount[k] * 20);
+
+                        // Move the event node
+                        eventNode.transition()
+                            .duration(1000)
+                            .attr("cx", nodes[eventLogs[i][j + 1]].x)
+                            .attr("cy", nodes[eventLogs[i][j + 1]].y);
+                        
+                        j++;
+                    }
+                    else if(j == eventLogs[i].length - 1){
+                        // Remove the event from the final node in the event count array
+                        currentEventCount[eventLogs[i][j]]--;
+                        
+                        // Update the bars
+                        bar.data(nodes)
+                            .transition()
+                            .duration(1000)
+                            .attr("y", (d, k) => 200 - currentEventCount[k] * 20)
+                            .attr("height", (d, k) => currentEventCount[k] * 20);
+                    }
+                }, 1000);
+            }, startTimes[i]);
+        });
+    }
+
+    // Start the animation
+    transition();
+</script>
+</body>
+</html>
