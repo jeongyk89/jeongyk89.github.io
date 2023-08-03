@@ -1,0 +1,963 @@
+uh as well as this is a panel discussion so I'm here to bounce ideas and see uh very
+inductive the hardest answer with regard to
+Industry 5.0 is no we have not discussed industry 5.0 as a concept like how we
+have done the industry 4. but that being said The Core Concepts of
+Industry 5.0 which was presented previously with resilient sustainability
+and humans in Greek are very much part of scania's future plan and also today's work I
+would say there are two ways to look at it maybe we haven't thought about industry 5.0 as
+a concept or it's there already in in digitalization things that we do
+and we haven't put a name to it we just worked with it but the other question that you asked for me about the
+technology roadmap that I can talk about quite extensively if you want so we have
+a tool you can call it a whole technology roadmap so we have this tool which is an
+extensive list of different technologies that we would require for the future and I mean future really
+long term looking like 20 40 is the year that we set for ourselves
+um and try to build scenarios on where the world would be in in 15 20 years
+in each of these different scenarios what is that Scania would require in
+terms of Technology competence when I mean competence both hard competence as well as
+self-confidence and how do we develop ourselves towards
+that goal and that we work with quite extensively so this technology roadmap that I'm describing it definitely
+includes quite a lot of sustainability uh
+tools and methods and and Technologies as well and
+definitely a lot on human-centric like how do we help humans so the whole point
+is competence development so we of course think about our employees The Operators and technicians in addition to
+engineers and managers as well so how do we as a group develop competences
+towards these future um scenarios that we could end up with
+so we use this on all of the production units at Scania for competencies
+so that is how we work with uh today towards future
+
+
+yeah thank you very much yes okay and I have several questions but maybe I can
+just let the audience or other panels can speak do you have any comments or other questions about his answer
+anyone in this lower yeah
+do you think that it would make any change if you start thinking of that's
+personally for me keeping away from buzzwords and
+sorry to say industry 5.0 no no I didn't decide anything no it's okay but it's
+good
+how we could benefit the industries that from that perspective of course it's really good but when it comes to a
+application and implication in the industry it's more case like Casey specifically so that is why it really
+doesn't matter but of course the the pillars that you presented these these resilience and
+sustainability and circularity and human-centric focus that's of course our Vital and what we have to focus
+I have a one question so you mentioned that it is like a tool it's a
+technological roadmap so it makes sense that you are very oriented to the tool and maybe the value comes after but do
+you think it's maybe not about only in Scania but do you think it is it possible to change this concept to the
+into some business like a value first and a tool later comes later
+work on the two so there could be new additions to
+the tool there could be things that will delete it because it's obsolete anymore so it's it's a living tool so it's like
+okay so the tools could get in and get out on a yearly basis so you revise it every
+year not
+level structure for it we have themes and domains and then the technology areas
+okay yeah so we work on all levels okay yeah
+yep thank you for your answer oh yes I oh okay I will
+and like maybe they really work in conjunction how do you work equine conjunction like the technology roadmap
+with the sustainability roadmap because I know you work so much with waste and
+reducing energy waste
+um we have road maps for everything it's a
+big company we have road maps for accessibility we have a roadmap for Quality we
+have how I would put it sorry you said something more
+uh Sandra did you say something more I would say the technology roadmap is
+what we use for confidence development purposes the others could be more
+ah it's it's submitted
+[Music] quality and and whatnot so we have a lot
+of road maps but I would I would say like this the technology roadmap that we have is
+more from the point of view of confidence development
+so this is more comprehensive than individual roadmaps that's sustainability or digitization or
+quality building so this would be like including everything
+um and and this will sort of represent the whole organization that rather than
+a specific groups within a production unit which is just quality or just it's
+so this would be the more comprehensive view on things so this this technology roadmap that I'm talking about includes
+for example technology areas like energy use biocentric production
+the answer for your question Sandra
+small comment from my end I I think
+clear cut between between four and Industry five is maybe a bit theoretical because in reality it
+is I think this is an endless Evolution that is ongoing actually a lot of
+companies are still struggling to read some type of values from industry foreign and all the good things that
+comes in the concept of Industry five is is to me a more an evolution of the
+industry for uh and it's it's a very ill-fit type of evolution into more
+environmental and um change or resilience and the user
+oriented views I think it's good to package it and
+instify but maybe in a few years this time we would talk about industry 10 and it's it becomes a bit blurry I think the
+key theme on what's going on right now is really the green industrial transition and that will take all the
+Technologies over of a plant productivity into something that are of
+a greater good and that's where you find in District Five just a reflection
+most of the companies I'm working with are still struggling with getting the basics or industry forward in place
+foreign [Music]
+struggling and working hard on that I definitely agree with the perspectives
+that industry 4.0 suggests but it's definitely more challenging
+than but I also think one more thing it's not like clear steps like you achieve
+something and move on to the next we are still doing industry 3.0 things we are still working with computers and
+internet which was pretty much Paradigm Shift one before industry for
+myself so it's like everything coexists it's not completely moving from one to the next it's like neighbors the every
+new edition is enabling the way
+yeah I totally agree with you because maybe if you think about like a whole planet maybe some part of the world
+maybe it's different like some some country they're more advanced than some country they are not Advanced so the
+technological level should be we are like in living together with those things I think
+uh yes and I think I can just stand here so I hope everyone can hear me and I
+think it's a good uh discussion uh like a perspective from the Scania but maybe
+we can move on to more like a general uh perspective so I have a question to you
+oof uh because you have you are not like a working with some like a specific
+client but maybe you are more working with the general perspective so my question to you is the what was the like
+what do you think about the The crucial elements to have a successful digital
+transition maybe from your based on your experiences what was the key element to
+make this trendy fan happen [Music]
+is 55.
+four and five because again most companies are the touching upon the concept of a file
+and I think um there are a lot of challenges of course if you go back
+if you go back in time Swedish industry is very Advanced we and
+it's driven by the hard and very high salaries in the region so to make the
+industry competitive we have been working with automation a lot since
+that's I think you call that industry three and that means that it's been a
+massive investment in factories moving into an automation Technologies and and the Legacy and and you have all these
+hands-all knowledge that's put into the technology however today most of the
+people that actually build this Foundation to make the Swedish industry effective or actually not there anymore
+they are retired so we sit thing with an advanced industry that now need to switch and
+that are Po and partially switching to the industry poor and eventually the
+industry five and I think this situation opens up a
+lot of challenges because minor companies are sitting in this Advanced setup which is good from
+Theory a few years back to perspective but it's also a bit of a struggle
+because in the future they need to be connected all these islands of operations need to be
+connected you know that already but that's super difficult to break these
+silos in the industry and to invest and to modernize and I think this is this is
+the struggle that a lot of companies are doing right now
+oh sorry oh sorry can you can you accept me or someone
+else or now I think it's fine right yes
+okay very good yeah so so the industry has a lot of challenge with the Legacy
+that's the point and then then moving into four you need to open this up you
+need to extract the data you need to start integrated and you need to work with the security and there are so many
+risks so many companies that are super afraid of opening up the the production
+sites from a security perspective specifically now when we are faced with
+service security threats around the world so so it's a quite a big step just
+to move into four and now um but there are some that has been
+successfully done that already and there are some that actually taken the leap step to five but most likely those are
+companies that are pushing for Green Field implementation that are setting up new plans in general which is really
+fantastic North world and and even companies like ssab is Now setting up
+new companies up in the north I mean it's it's a big thing that is moving on driven by the green industrial
+transition but again just to summarize uh to your question the key enablers and the and
+the problems I think it's it's security is clearly one of the challenges that
+need to be overcome but you also given this is an um ecosystem play you need to involve
+all the stakeholders in a different way not just the owners um it's it's a multiple stakeholders across
+company they need to be involved to make this happen and to create that common Vision on on what is the value for the
+people in the plant or the companies all the partners I think that's the thing that we need to
+work on there's a risk I will continue forever otherwise
+no no it's fine yeah thank you for your answer and maybe I can let also give
+some space for here or someone from online do you have any question or
+comment yet Sandra
+people are not there and the trends in in in the scientific Community is to
+describe the operators working in these systems as smart and Escape
+and this is really wrong uh and that's a real like challenge like
+how can we successfully help the companies in like finding people like
+still a good work where they can be Innovative and creative and like
+connecting with the new technologies although they are not as smart or
+skilled anymore maybe as smart is like the wrong word but as skin
+like do you have a tip for how to help companies in doing that
+
+
+
+
+
+
+
+
+
+
+well I I can only share what's going on from Iron then and
+what's going on from from a system technology implementation company like April
+um first I agree with you I mean we we see we see these big change from a people perspective from from blue color
+to actually Factory become effective white colors and it's it's a different skill sets of
+people in the industry in the in the factory in itself the or this simplest
+type a traditional Factor work or or not there simply in the previous time there are somewhere there of course today but
+maybe in a few years time we will only have like Advanced High University to
+develop people in the factory I mean that's a possible scenario who knows
+yeah we maybe we we don't really know but yeah but the thing is it's it's uh
+it's gonna be a different stuff or people in the future factories they're going to have different demands
+uh and how do you how do you get these people enthusiastic about working in
+such a factories you need to provide them with with tools that you need to provide them within an environment or
+that they really like you need to work close to the to the workers and make
+sure their the environment are safe and really nice I mean focus on the people
+and the factory will be critical and so for example the way that the company like Viper is reacting on this trend is
+that we're buying design companies and we're working closely with with them with customers in in shop floor design
+on how to interact in a different way to make that operations much nicer
+and more secure so I think that's the short answer and
+then I can of course continue on double clicking and what that means but it's really that key thing that I see is
+happening getting closer to them to the worker that are becoming different
+and create new solutions for those workers does that make sense to you
+yes I would of course like to know more like how do you get closer to the worker
+and how do you do the design but I know already like the other perspective is
+that many people are now hiring like from from Manpower and other consultancy
+firms just to be able to do their assembly work and that's another type of
+you I mean still the shop floor needs to be attractive and nice but it's like
+any type of people that is working there
+yeah it's interesting Evolution isn't it um maybe I can interrupt you uh because
+we already talked we already started to talk about human-centric so I think it's a good time to ask you Sandra so I
+prepare a question to you about like a human-centric design so as you are working in rice maybe you have a lot of
+research project especially for the human-centric perspective so how do you
+like incorporate in terms of the human-centric perspective into your project maybe you can introduce your
+experience and the knowledge in that perspective to us
+yes thank you of of course I don't have like all the right answers and
+we work with different types of models like uh working with the cognitive
+models or socio-technical models and how to think about how users should
+collaborate with machines and how that should be implemented into the
+organization since many are working with lean Concepts already there's like
+trying to connect the already used language and bridging that with with
+like focusing on the human and I think one main thing is to really
+work in a multi-disciplinary way so like connecting models of chronic
+cognition with technology used and data security for instance
+there's a lot of things that we need to develop further indeed so maybe the keyword is not focused on
+just focus on the maybe some specific Technologies more about like a multi-disciplinary perspective we can
+bring something from psychology or ux other design perspective as well yeah
+thank you very much and the environmentals yes
+um do you have any comments or question to her
+I feel this problem is not necessarily just with operators but this issue is on
+all levels in Industry exactly even when we talk about digital tools it's like yes it's one thing to have
+them in place but for it to work for the people to use it
+then it's about the people maybe we lose the human-centric approach there when we
+design things when we Implement a new technology or a new
+Solutions is it the same could I agree or assume that this is not just an operator that
+of course operators are more important because they are the ones who does most of the work in the factory but it's it's
+cascading effect to all first
+[Music]
+civilization further like many successful companies have
+stated that you need it needs to be leader driven so the leaders need to
+really understand what is going on and be able to like
+give the resources so that the technology can indeed be user-centric
+which means that they have to understand it like all of the people need to understand it
+like smart and connected like we saw in one of the nice figures that Jake
+presented earlier it's not the hierarchical level but it's all of them
+connected yes
+do you see also in in were you working
+um a trend increased Trend or using like mixed reality type of concepts for um
+users on the shop floor Etc any thoughts on that
+yes I'm involved in a project where we work with VR for instance and
+like before and like we tried to investigate how it can be like applied
+or implemented in a successful way and we are very curious but
+like you said earlier like the the it means that the personal competence
+levels are shifted and sometimes we don't know how to do that in the most efficient way so we do some use cases
+and we try it but we don't really understand how or
+in many cases it fails like we don't really see the
+success right away at least not in the bigger companies but sometimes also in the smaller
+companies so we we don't have the possibility of doing that if we say like solo but and we
+implement the 3D like instructions straight away based on like the investment of millions
+I don't know then we can see some other technology shift happening because we really like
+invest and like try to make it successful or implemented
+straight away the answers some things
+interesting yup thank you Sandra maybe then we can
+move on to the bigger companies what are they doing so I can ask asanian so maybe
+in zenika you are adopting a lot of Technologies and new like teams in terms
+of like digitalization do you how do you adopt new technology when it comes to like you need to introduce some new
+teams to The Operators or not only for The Operators some like a way of working
+we we had some a lot of these kind of discussions that we're having now in effect internally within us
+we started with by creating an organization to to
+start like deploying digital uh in in a
+widering perspective but still we are struggling
+with with the questions that everyone is talking about right now we we had some
+kind of collaboration with other other companies
+where we try to we ran a program where we set people from management and Technical experts
+together with the people working with lean and other questions that is more human-centric
+ways of working and have this kind of program where
+we wanted to emphasize the digital culture so we wanted to start with what
+are the needs and we want to help people to understand like what's digital before
+starting with implementing different Technologies but we still have this kind
+of focus on the technology itself itself if we think of like we we do see that
+digital twins is a very good technology that you could use to to be more
+efficient for it for instance so we could start with instead of going to the problem itself and seeing like what are
+the operators or the managers on the shop floor struggling with daily and how could we
+help them with the solution we go and start with we have a digital twin technology how could we apply it from
+this so so it's it's a bit of struggle even if we think of the digital culture and
+try to focus on the problem itself the digital Solution on it we are not
+there yet but I I would say that we're trying to do something to to be to
+be able to solve this problem and we are also having some kind of boot camps in
+the third part of the uh organization to be
+to tell people about like this these are the technologies that are available how
+could that help you and start like the projects from from
+the shop floor and have this digital organization to help with running the projects and
+so it feels like there are like a two ways you have a like a organization who
+is in charge of this digital cultural introduce and then also problem-based
+when you find the problem and you try to solve the problem with these two boxes
+yeah something like that it's not that structured this way that we would like to have it it's more
+like happening sometimes it's uh sometimes it's it's successful sometimes it's more pushing a technology that we
+think it's right it's a good one yeah right sometimes
+yeah and do you have any questions or comments
+uh yeah Rami um I think I mean from from what I this
+what everyone said and from the discussion can you hear me yes we can hear you okay
+um it feels or in my opinion the the success of the vision in Industry zero
+uh will be linked to how we can
+um have use the the enabling Technologies in a way that would lead to sort of
+gains in all the pillars human Centric sustainability and resiliency for
+example uh I mean we would have the meta world so we would have XR technology
+that is human-centric I mean uh
+it's probably easier to to have competence development foreign to use this technology and
+by using this technology we can link to other native technologies that would lead to sustainability or to recognize
+like digital twins to to to optimize certain uh
+operations and then we have enabled technology and networks and everything together and my feeling is
+that that it would be a win-win-win use case as well that that will sort of
+promote the success of Industry part of zero uh I I think this is like more of the
+recipe also when it comes to sustainability so I think the focus on use cases where
+there's this win-win-win uh will be will be uh promoting or will
+be sort of motivating giving incentives to company to implement such a
+a way of working with that or tasks that are human-centric
+unsustainable I think I think this is my sort of perspective on this
+yeah thank you for your input I think when we are thinking about like when we are in elementary school I think it was
+easy to learn something from the case so maybe it's also same to the organization like if they can start from the case or
+some concept that they can understand easily maybe that's easier to adopt it
+yes and yeah we have another perspective from Anna
+so you have a lot of experience in the industry and maybe for example for the
+Volvo CE as well so can you give us some input when you are implementing new
+technologies into your work or maybe in your current work you can introduce some new things as well
+yeah I I thank you very much and I a very interesting panel discussion and I
+agree with with a lot of things uh so forth maybe I I tend to repeat what this
+already said in my own words uh I I first of all it was really good to see the definition and customization of
+industry for that zero because it's not very well used uh uh yet so it's coming
+from a more theoretical work and the theoretical side
+um and I as you said I also have to base this from my previous position then research and uh the main things that I
+see in the latest year is really to bring this concept of value into the discussion and also the integration of
+
+
+
+
+
+
+
+
+
+
+
+sustainable development goals and their awareness of it that has been really a shift uh and and to start with
+addressing the question what problems are we trying to solve with the technology and then we can discuss how
+to do it and it will really differ I mean if it's all the engineering based such as I mean example Energy Efficiency
+for the glacier systems or steering system of the production system and in general then it's probably other
+stakeholders involved but if you compared to integrating tools like you mentioned uh mixed reality like
+argumented reality for example for for having a concurrent Engineering Process uh with r d in order to improve assembly
+for example the operating Staley environment then it's another type of of uh approach that you have to take so
+engaging the social technical uh really requires an awareness awareness of this
+when you put up a strategy so it's also aligned with the production system that you have your legacy that it was into
+and that also requires skill management and understanding how this how to manage
+this from the human and the soft factors uh it also you mentioned the the skills
+of the operator and and also the manager skills I think it's also requires
+adequate skills from the data scientist that is really hard to find and recruit
+nowadays but it also requires skills from the ones that is ordering the
+decision makers uh and that requires more like CRS from
+uh Innovation management or knowledgement management and perhaps also strategies and theories so I I
+think this to conclude is this is why it's also important to work with you from Academia uh not only on the
+technology but also Bridging the knowledge and understanding the integration on these different levels
+mentioned from The Operators to the middle manage but also breaking the the existing silos
+in large companies uh and to add on a complexity also in their faces with the
+different actors that are going to to support the transition in the value chain
+so uh to conclude this type of discussions initiatives to
+find the platforms where we can discuss this type of question is or management
+Knowledge Management and Innovation management disease really important as
+well in order to take some makeups forward
+yep thank you Anna uh I have a just quick question you mentioned about it's really difficult to adapt and introduce
+new technology into the larger companies and I remember you started to work with
+the small and medium companies in your region do you think it will be easier to work with a small and medium companies
+or we need another like a different approaches to the smaller medium companies
+I I've uh
+but I also Define what you mean with it's because
+it's coming from the University side with a very high knowledge and then we
+have the very oh sorry Anna
+can you hear our connection is was not good so maybe can you I mean
+yes I will mute here maybe
+can you yes now we can hear your word can you
+repeat your answer sorry for that great foreign
+company [Music]
+I think it's a very good start is to start to Define what time
+means what if I
+thought Monday so
+foreign
+but I'm sure you recognize this as well yeah thank you for your answer uh wolf
+do you have any comments no I I think I think that's a really
+good comment actually because this whole shift industry for industry five and uh horse tracks it's
+[Music] maybe this is
+all required
+industry in this country is based on a lot of sport I think that's a
+that's these companies Direction
+okay I think okay um
+yes
+planning to come into latex but for example science based Target and circularity uh those two concepts will
+will really bring challenges when we look into what supply chain is needed in order to to achieve the Paris agreement
+and what the efficiency do they need to do in order to to Really fulfill what
+the larger oems are requiring now
+exactly and how do you how do you really convince these companies to move in
+these directions I mean new regulations from European
+Union is one thing but uh demand from their customers usually better at
+driving force and how do you how do we really make these companies take a quicker step
+in these directions to be more sustainable and circular that's because
+that's very closely aligned with the industry profile I think this is
+um the baby question really yep Sandra you have a yes
+or a lot of a lot of your tips going on like previously one example is the robot
+leave where 540 smaller medium-sized Enterprises went through kind of
+Investigation what is needed and then they could apply for some funding from Triplex Market
+and uh a lot of them made changes in their automation level and also the
+competence levels but so there are a lot of other types of initiatives going on
+but still not all of the companies know about it and also they don't have time
+right and I would also like to latch on to
+what Rami said about the success stories because there are quite a lot of success stories for industry 4.0
+like uh describing maybe excellent tortilla Pia where where they did World
+Tour where they did a lot of like efficiency adding but also increasing
+the digitalization removing papers happier workers so on
+but still sometimes and also after Maxon but we forget that the product of that
+is years and years and years of development maybe into uh
+digital culture or other types of Investments
+so we will take some time and I think it's also a matter of how to like introduce or promote a successful story
+to other companies as well that's also very important
+that we need another type of series as well to understand how the Knowledge Management is is going is going to to
+lead to this success and that's also where you from Academia is as a very good support and opinion
+with this because we need conceptualization and we need some Hands-On practices in in combination
+yeah thank you for your input yep
+please yes yeah my comment was on this
+other type of Industry that's growing rapidly in all over the world including Sweden is this exactly factories
+we have a dirt of [Music] operators and technicians there right
+now and it's only going to increase we need thousands if not more across several factories in in Sweden
+so this problem is is already quite challenging and complex and it's only
+increasing many Falls set aside and with this new battery
+factories the the the tasks themselves are new we
+have never produced batteries in large scale before and we've never worked with chemicals before yeah so it's not just
+competences but also it's not just people but also what type of Competency do we need so it's
+significantly bigger problem than yeah it was a few years ago I feel like this is when the the Tesla introduced like
+the electrical cars I think it was like a big transition from the traditional automotive industry just like electrical
+devices so I think that will be or not it will be happening in the battery production as well
+do just from Scania itself we know that we have a new battery Factory it's not ready yet but soon it will be and we
+know that we have several hundreds of operators we don't have yet so we're going to use operators
+from other factories within Scania and make them work there how will it work we don't know we have to wait
+yep I think we already use the before then uh we planned but I think it was
+really good discussion for the in this topic so I would like to move on to the
+next topic for now so we have a topic about the how to
+collaborate between industry and Academia I think we already touched upon some of the points already the first
+part so that we can keep discussing on this so there are several questions as
+well but I would like to start a question to you uh Anna because maybe
+you are the expertise or you have many experience experiences in this Academia
+industry collaboration in terms of like how to build a good net bridge between
+them so my question is yeah maybe you already mentioned about it what could be
+the key success factor to make it happen or to make it successful
+yeah I think we we start to be that we're all human and it as a starting
+point and uh I think one of the key success factors is to basically understand
+the first person working in Industry operate in two different contexts
+uh and the key is to align those systems to get the most out of it
+so I'll start with creating trust and I mean how do you create the trust and my
+personal series is that you start to create trust by being yourself like
+being authentic and transparent and open when having the dialogue or problems to
+set up together and then you need to be transparent and how you need to to work together to
+solve it you have to discuss that and also uh the key point for industry is
+what results you expect in the end uh you have a strong driving force for the
+Publications in the Academia is it's a very good to conceptualize and
+and together uh knowledge uh production in that sense
+but it's normally not what you expect as an industrial person in the end to get
+the paper sent with a lot of conceptualized knowledge so it starts on
+with discussing that and and be clear on what you can do and will you you will
+not do as a researcher to not touch the the borders of of
+consultancies or or be clear what what is expected from you from from the scientific system uh and then
+uh to to end the factor that is really hard to control uh that it's to be aware
+of the timing because the topic that is the state of the art in research is probably too early for the industrial
+need or that the industry is has already worked on it but in a different way
+so if you can take the industrial work or need and stretch it further
+uh to the state-of-the-art you can both come predictive and get a lot of
+interesting data as well so uh I call it the the golden knot to
+
+
+
+
+
+
+
+
+
+
+
+
+
+start to collaborate on and it it probably needs some some back and forth
+discussion to find this called the knot yeah thank you for your input do you
+have any yep uh we have Eric
+can you hear me yes yes I think it's also maybe
+Maybe
+the individuals I think
+we as recent years
+more accurately the people who are actually
+to develop something that is
+I think that that's complementary too you know
+that's not a question of all
+right uh what has struck me many times is that often when it's conceptualizes
+you talk about the organization as such but you actually have talked to one individual that is probably very keen on
+or interested in the the area that you're trying to solve but if you talk
+to a colleague of him or in another department you will
+get completely different uh responses or saying so uh to understand the different
+levels of being a human or being a team or being a department or being in an
+organization I think that's that's really good to take into consideration what level you're study on
+a really good point Eric yep thank you Eric and Anna and maybe I
+can just keep continue to discuss in this topic uh I have a
+question to you oof I think the way of working in Consulting field is kind of
+similar as what the researchers are doing like find the case from the industry and solve the problem for the
+clients but maybe in a different way so I want to learn like
+work with your clients like if there is any like a challenges when you are
+collaborating together with your clients how do you overcome what kind of like uh
+challenges do you have and how do you overcome it maybe we can learn from the
+Consulting industry as well I happen to share some insights
+I'm afraid it's not the one answer it's always different depends on
+on on the company you work with but um I've been working with alone of a
+different industrial Consortium that has gone together and to really
+solve a problem or do something um really good and it's been different companies it's
+been usually a combination of multiple companies Framing and ecosystem of some
+kind and and I think the first Lessons Learned From from making making that
+successful is to make sure everybody is really aligned on the vision of the goal
+setting Etc that's easier said than done I mean that's probably something everybody
+would sign off but it's so important in a win-win-win
+scenario um companies within an ecosystem need to see their
+game he can't game can't go and it just
+until to spend a lot of
+numbers
+foreign uh yes thank thank you oh uh is there
+anyone who has any comments
+[Music]
+foreign I would like to answer this question as
+well I'm not sure if I'm in line with the other answers but I would like to talk about
+um misconception or differences between uh
+my gender feeling is that people in Industry can research
+doesn't work and that's because there is a misalignment in understanding
+what research can produce and what the industry wants
+research by definition is something that's forward-looking and in Industry we try to work with
+problems of today so if you want solutions for problems of today
+research is often not the answer at least it's six months to a year that's
+the bad minimum that you need to set so there needs to be some sort of understanding or
+why do we need research in industry and this affects both the Trust In
+research from industry but also the way research is conducted I would say being at the University for several
+years and I know that we keep talking about uh we need to do good research but we have to make sure
+that it's useful for the industry and I completely disagree with that sentence we cannot do good research but if there
+is a part then it's not good research uh the the good scientific research will
+always be useful to the society including Industries there is no but I I feel and this is a
+problem that needs addressing from both and sports from Academia and both as
+well as the industry I would say um that did not answer how can Academia
+and Industry work together but that's a problem that I would like solutions to
+um so we are thinking about it in our group at Scania at least and how to be better at it
+yeah just wanted to mention that yeah I think that's very important perspective
+the more you get used to working with each other uh then it becomes easier and
+especially if you find those riches it can be most of these students it can be
+Industrial phds can be [Music]
+phds that are positioned different in different
+organizational settings in order to to promote and to make this going
+I think the those [Music] language
+translator is is needed in both Academia and Industry in order to
+create the produce an understanding so some kind of translators or Catholic
+catalysts perhaps is needed so the the more more of those uh the
+E-Series becomes to understand each other
+any comments on that oh you heard me I can have a small
+comment on it I think in any uh collaboration it's good to have a common view on a future State
+um what is the really we like to achieve and I think this is also now our Academia can contribute a lot
+things that are not here now but that are really where things are going and
+and they it should be interlocked they are in our situation and and the future
+state I mean it's not two different versions of the same it's it's the same thing so
+I think clearly there are opportunities for strong collaboration but it's important you need to find the role
+and again coming back to the win-win
+just uh I think it's um to sit down and find that when we're in proposition is
+is where we need to do and yeah
+but also to have this policy makers and the we see a strong uh push also from
+the funding agencies in order to find the interesting aspects to to discover together as a future state
+I would like to add to these comments made by you both
+um we talked a little bit about cases use cases on how to
+um show value in research and how to present inspiration
+um that's good but I also think it's for for research to actually implement it
+and activate actual results in the industry there needs to be more than just use cases
+there needs to be business cases and that's something that Academia could be better at in when they present their
+research ideas not just a few research idea but like create
+value propositions exactly like the industry 4.0 that we talk about what is the value proposition that this can
+bring to the industry that could really help in pushing
+results towards implementation I think Sandra yeah I I wanted to maybe Bridge all of
+the things together like we talk about the future and also maybe the
+opportunities for what maybe digitization can do and sometimes when when we build the systems I think that's
+the main issue like we talk about like all the possible opportunities but we don't talk about
+what are the actual tasks that we want to be digitized
+what are the activities like which behaviors are we supporting
+and sometimes it's difficult when you for a pro for a company when they talk
+to a technology provider and the provider says what you want we can do everything
+so we get sort of Lost in the futuristic State and we don't start with like
+what do we actually want I don't know if you agree you're
+and if it's difficult why is it difficult to talk about what like these
+are the tasks like this and this and this and not those
+yeah I agree Sandra that is the better the language or
+communication between academic and Industry to to explain what is needed but also to
+explain what could be promised and what could be achieved
+so sorry yes I think as I mentioned in the beginning
+this balance between the conceptual knowledge that the Academia will will provide and the result that the industry
+wanted to have having this discussion at the beginning of the approach
+um I I feel that not all research needs to
+be conceptual especially in manufacturing we are an applied research field so the of course there could be
+conception but not everything needs to be perception so there should be more applied research
+which I feel is something in Sweden
+but of course conceptual results are also important to industry but we need to know what is something that we could
+have conceptual results on what is something that we need actual implementation resources that that needs
+to be clear I saw that
+uh Rami you have any comments uh I had
+the it's very well into this
+topic I think it was more like follow-up on Sandra's comment regarding the
+motivations uh finding the use cases and
+my feeling is that there should be more push from
+regulatory or from political parties on change
+Force sustainability and uh and the human Centric or more
+this type of aspects and I think I think there should be more I mean
+there is effort but I think there should be a bit more so this is bent and so that we have more
+interactions with the Western Conference of the oil with the research that is
+more objective and thought uh like knowing the neighboring
+technology state of the art and into more I I think just leaving things
+to having just counting on the value is not enough we need more regulation this
+is my opinion we need to speed up the processes because I mean many companies are still not embracing industry 4.0 and
+it should be sped up should be should become faster I think
+can I comment oh yes sure yeah yeah I I since I have recently changed this
+position to the regional development and to work with the smart specialization I would say that the the political targets
+are there and the uh the defined in in special targets as well uh regarding
+digitalization regarding the Innovation System regarding the Energy Efficiency and circular economy but but I think
+there uh it what you're addressing is a little bit more awareness that this is actually
+there and to to engage and evolve more
+people in the or more companies in in the system I think that's the ecosystem
+part that those was also mentioned in that that we probably have the political
+goals also from from EU directing in the regional development but how do we
+create those ecosystems that operate and then get this in place uh in reality
+that's uh I think my challenge the next coming years at least so if you need if
+you have any ideas then and uh support to give peace please contact me
+yes yeah for sure yeah and yeah I can just leave the the floor
+open to the audience as well and do you have any idea about like industry
+Academia collaboration or any comments about the discussion that we had
+otherwise I can move on to the next topic yes okay and this is the last topic that I
+have prepared for today so it's more about what are the challenges and what are the opportunities in terms of
+digitalization so there are also some questions that I
+have prepared and I think I can start with you so it's more about like um
+yeah uh how the AstraZeneca like um capitalize on this decision-making in
+digital transformation how they emphasize or how they put this like a
+digital transformation as a first step maybe you already mentioned in the first time but maybe do you have any good
+example how they promote this Digital Way of working yeah
+I mean one of the biggest drivers for uh
+yes one of the biggest drivers drivers
+in this kind of data driven decision-making
+for us to be able to check
+it has been a driver for us to start like what what are the technologies that could help us with
+being more data driven and have a
+technologies that help us to structure our data and get more insights on from our data so
+this is have been driving the digitalization but from from the other side as well the digitalization have
+been have made made it easier for us to to drive this kind of questions as well so
+I would say that it's one of the biggest drivers related within the city making
+
+
+
+
+
+
+
+
+
+
+
+
+
+and the other part as I mentioned before it's more like seeing that we have with
+different problems that could be solved to it with the with digital and we've
+people who work on shop floor to give ideas or
+some of the people who were working on their own applications for instance low
+code or no code applications to solve some problems so it has been like this this kind of
+the two-way drivers the from a management
+perspective more insights on them from
+from the digital and told me the problem the shop for flow problems
+so yeah I hope it answers yeah yeah yeah thanks
+for your answer and I can unmute myself yes
+can you hear me
+I think this is the challenge where and I have this hybrid concept okay yeah but I do fix it yeah so this is so yeah also
+well not maybe I can ask uh Anna um can you give us any like examples that you
+have done before in terms of digitalization but focused on the sustainability perspective did
+you have any project very focused on digitalization
+reflected
+back to the flows of materials back to the flows of energy and water and how to
+use digital tools to create the awareness and transparency uh so I think this uh we have some
+experience especially when an Energy Efficiency where uh the programs also include a lot of uh organizational
+behavior management as well as a good example uh where we need the traceability of what we consume today
+starting off from probably a factory unit back uh early 2010 and then having
+full energy systems that are followed up on on the weekly basis or so
+um I think also if you look ahead that many companies now have committed
+to the science-based Target that I mentioned in order to reduce CO2 emissions and then the whole value chain
+that includes manufacturing the logistics the material materials manufacturing the Renewables used for
+their products Etc so it also involves the energies I'm creating a lot of
+complexity and then we also have policy making to make sure that this uh initiatives also
+are economically beneficial uh in the in the new economic system that we
+hopefully get as well so I think uh when when working with
+process development you always have to go back to your starting point and we really uh real-time data
+uh and there is uh even if we'll come a little bit far we we need to uh still uh
+see where we have our key points with the health support of data in both sufficiency of social uh economic and
+environmental aspects and also get support in the complex decision making
+so uh I think the I mean to mention some example to to get to CO2 reduction or
+Energy Efficiency or using digitalization to operate in hazardous environments Etc tracing chemicals uh or
+materials uh it needs to come back to to previous discussions as well start with
+the value or a purpose and uh like a clear mission to innovate people around
+so uh I hope it answers your your questions taken probably other people can comment as well yeah thank you for
+your answer it feels like uh the opportunity is starting from the data itself like as hasanya mentioned the
+data-driven decision making it gave us a lot of opportunities in terms of our digitalization as well and you mentioned
+the scientific goal I think that is also a big opportunity for everyone so that
+they can have a clear goal to take account into their business as well and
+do you have any comments or uh idea about this
+oh yep
+and can be a bit scared
+yes
+according to understand
+a little bit more modern Spike but why we are working together I think that we need to push
+everyone to reach his own data it's not even playing this is on data so we have a lot of insightful if we didn't touch
+our data try to understand regarding this data we cannot ask that
+the same system from a different industries that have good Dexter material data and algorithms you have
+inspired from this data because they are not commonly prepared they are not the daily practice resisted so it just
+comments that everyone needs to start with on their that price of having inside for instance what is governments
+can go better in better performance better accessibility better for his own
+needs not for the whole ecosystem if everyone is starting to do his own thoughts then the whole ecosystem will
+support this movement in my opinion yep thank you for your input
+um yes and I have some questions to you uh Mahesh
+so maybe in when you have been working in scania's a year and maybe you have
+seen some like challenges when they are introducing new digital transformation
+into your business and can you give us an example of what was the challenges if
+you had or how do you how did you overcome the challenges
+I haven't worked awful lot in this area but I will try to paint a picture based on what I know
+and there are two types of
+issues here that is
+I think they exist in maybe talk about legacies right um
+plenty of all machines the practice of all and everything is awesome Legacy
+things that we need to digitize and and there are plenty of people
+working on that and on the other end is when you actually use the digitized
+factories and machines into actual business using digital tools which is
+the digitalization part of it and there are plenty of challenges
+between them I would say um the company like Scania which is
+quite big we have plenty of I.T systems and I3 tools in the factory
+one of the simplest problem is interoperability between the system we
+cannot depend on one system and one type of data sources for decision making the decisions are complex because it needs
+to be informed from several different perspectives so then there is discrepancy in terms of
+quality availability even if everything is good then there is latency between
+data and so forth and then comes the other problem of the Analytics
+what analytics do we need what is that that we actually require in terms of
+decision once we had everything trustworthy or not so the then the
+problem is cascading in different as uh it's an ongoing problem probably in
+other companies as well we're trying to work on this uh because
+we cannot just have one system or one platform we need to have multiple platform because uh of the complexities
+in the missions and complexities and the processes it's about how do we collaborate how do we cooperate between
+the different organizations internally within China how do we share data
+internally that also plays a major role in terms of
+for example the scanner is like an international company so maybe you have another system in Brazil and so on like
+that tell me about it I have the thing that I'm talking about is okay
+okay yeah do you have any comments from online
+okay I don't see any comments so then I can move on to the question to you
+Sandra so you have been working in human-centric design principles and I
+would like to know or if you can give any advice to us in terms of
+digitalization how can we be more focused on human-centric principles and
+how can we bring the human-centric principle into the digitalization because I feel like many times we are we
+are like we miss the human-centric perspective just maybe technological development first yeah maybe you can
+give us some insight or advice to us yes
+yes and it can mean many things like safety ergonomics cognitive issues like
+how we work together in the organization or teams so on
+uh and and that's the topic on on its own but I think the best advice is
+that it concerns the human mind right so what we really need to do is to
+listen to one another use the system
+and Anna talked about it previously like what is the real problem
+and I would really like to stress that what is the task that we want to
+digitalize or first of course digitize but is it peaking is it sorting is it
+optimization is it complex problem solve solving is it alerting someone or is it
+all of them together solution will be completely different like was what is it what is it not
+um and I would also like to add the point of Industry 5.0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+concerns to me not only the humans in the production but Society
+and that's really difficult like how can manufacturing companies also provide benefit for the society in
+general and I was sad um interested in what shot GPT would say
+about how society would benefit from the introduction of Cobalts
+and I was disappointed by the answer I was saying because he it was in a most like
+industry 4.0 like approach like increasing efficiency and
+we can move production to a place where where is less cost
+um and yeah I was disappointed maybe we have to solve that together like how can
+we actually make some things that are better for society I mean jobs will
+probably be better many people can learn or train in a better way we will make so
+many Transformations I think that we're not really aware of so many things in one answer
+that's okay no it is totally okay um I I feel like yeah I also do a lot of
+like a courage to church if you did before I prepare something but yeah that
+sometimes it it gives us like a very like a creative and like organized
+answer but sometimes it disappointed us but maybe because of the information the
+church Beauty had is also from the huge human generated so it's not like a Ford
+question uh the answers so we that's the thing maybe the human need to be human
+need to be involved and soul and really like yeah just just one question you
+mentioned about when we are designing or when we are digitalizing something we need to think about uh the human first
+and I was thinking about uh what if they don't want to digitalize or what if they
+don't they just want to stay as it is how how do you approach them or are you
+trying to show do you try to show like some examples or the Visions or how do
+you convince them yeah yeah like something that comes up and in
+the coaching situation we have to win that person over because that person has a lot of negative influence but also
+that person can be the ambassador of the digitalization like moving forward
+but uh one example that we or uh something that you can do is when you
+talk about digitalization or technology you think that it's so much ahead but you can get two people that normally
+don't like talk together or there are different generous generations for
+instance about how they use their phone like like what what apps are you using
+and how
+one thing attacking what is his or her problems really
+yeah I just remember when the smartphone was first introduced my parents they don't want it to use because they don't
+know what can they do but nowadays they are addicted in the smartphone so it is this better to show them like how can
+improve their lives but then maybe that's really important for everyone
+so I hope you can still hear us because I think there is some connection delayed
+here and yeah do you have any comments or the questions to
+us maybe just a question from myself
+oh yeah we can hear you yeah you can say something
+it works that's great yeah it is working
+hopefully oh you're here yes okay
+uh no I I was just going to ask you uh Sandra about the like in which
+which Forum will you start with like working on on the
+digital culture or on like people start to change and understand what the
+opportunity that is is it like in the project
+work with everyone get everyone in the let's talk about a big company like
+AstraZeneca would you start with having everyone in place and talking about what opportunities or like how would you
+approach that
+also needs to have an area work so it can have in various ways and it
+should
+thank you yep thank you very much uh I have a the
+one last question to you oof um
+yeah I I think it's that's the general question like how maybe you can share your experience uh
+from the Wipro cases like how do you help the clients to overcome these
+challenges and opportunities in general in terms of digitalization
+like what was the how do you like make it happen in successful way maybe you
+can give us some other perspective from your your experience
+[Music]
+adjust
+ing where the wall so
+right
+Action Line
+change that is
+reason this is a typical change of the companies are doing and we need to ask
+the service provider we need to help them achieve that and the third is of course
+to help to modernize themselves in the
+actual plans and I think this is maybe the most relevant topic for this meeting
+the workshop and to me it's really it's to to build help trying to build
+this Delta glue between the traditional I.T and ot to really get these things
+together and get the value out of it for the people for the planets and for the
+owners Etc um so building up Concepts and way of
+working is something we are trying to constantly change and improve for
+example working going from waterfall to an ideal we are working which is really
+the core you can't you can't do everything you want to go you need to think big
+Sports small but then scale fast in order to really make this
+transformation going um I know that this is a very broad
+number of topics that I just said but this is the reality we are in and which
+we are trying to work from within to help our customers
+all of them I don't know if that makes sense to you but uh it's it's not the one it's not
+the simple answer therefore I kept it a bit higher level but I'm afraid
+no I think the you you you touch the like a really important point I think for for everyone here as well and I just
+want to open the floor to everyone if you're a bunny like a comment or the questions
+okay then I think it's time to wrap up our Workshop today we already have been
+using most of the time so yeah so we have been talking about the
+current status and the future Trends and we pointed out the industry and the
+Academia collaboration and finally at the end we talked about what was the challenges and what could be the the
+opportunities in digitalization and I think today personally I feel like we
+have very different input from the different fields and when it comes to collaboration I think it feels like yeah
+we need our like specific roles and we we are working on that so that will be
+very important for everyone so maybe before I close this session I would like
+to first of all I would like to thank you for everyone especially for the panel for today and maybe do you have
+any comments for today's Workshop each panel maybe I can just start from Mahesh and asanyan and go to the
+Zoom
+yes I will leave it a couple of open
+openly I really enjoyed discussing with all the other candidates really good inputs from everyone
+the question that I'd like to get answers from not immediately but eventually
+when you presenter I think you had a really nice picture of this reference
+architecture and then and then I saw in one of the graphs that you had
+social social sustainability only one part of the access and financial
+sustainability on the other I would like to know how could this be aligned so
+that we don't have to choose between doing sustainable things and being more financially sustainable it's not like an
+axis maybe no yeah yes unfortunately
+yes and the other thing is I really I trust
+I tried and the main thing that they discussed in the EU website is that it's a way you strategize your business being
+more value driven or being more human-centric which is good and nice
+Definitely but how do we uh convinced the job Management in doing
+this moving away from the traditional business oriented to more
+people-oriented especially people within the factories oriented I
+don't know it's good I I buy real argument but it's it needs to be
+motivated in more than just just saying you need to be more human-centric you need to have
+a value proposition I think maybe uh if this work continues in the future maybe
+you'll have answers to these questions yeah that's our homework for after this Workshop
+but otherwise thoroughly enjoyed today thank you for everyone attending and the
+other panelists as well for great discussion yeah thank you very much I can just agree that it's a very it has
+been great discussions and great to hear like your opinions and uh quite happy to
+see that we we don't have the we're not the only ones that have these challenges
+that everyone have are having the same challenges as well and I think as we say it's it's a
+challenge to maybe convince the the management teams to be able to to like approach the uh
+from a human centered design even if we we can we ourselves we can get the
+results from from it the like if when we when you implement a
+industry 4.0 technology you will see the result directly but when you come to the
+5.0 you would see it
+so it's a challenge definitely I think that we will need to collaborate on on
+creating this as well or showing this value to the management and I really hope to
+get more insights and information from from the Academia and the other companies as well
+too how could we solve our problems together so I think this could be a great start
+or maybe Milestone yeah it's a good journey yeah
+thank you very much and I also like to hear something from
+online as well uh Sandra do you have any final comments
+uh like the other side I'm very happy to have been part of this discussion it's
+sometimes when you have projects you forget like you just run ahead and you don't really talk about your experience
+like we have done today uh which is really really important and value-adding
+so really thank you so much for all the different types of input I think what I
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bring with me are many things but I like the the thing that Mahesh said like not
+thinking about the social and economic stuff separate and also thinking about
+how to sort of mix the future more conceptual state with like
+the the current state like how can we sort of understand moving from one thing
+to the other because that seems to be very difficult thank you yeah I totally agree with that
+thank you very much uh wolf do you have any final comments
+first of all thanks a lot for arranging this workshop and this discussion it's
+been super interesting to hear a lot so wise people's experience so thanks a lot
+for that um I my reflection is um um we have a long way to go
+there's a lot of hard work here to make this transition happen but um with the
+likes of um of you guys and everybody on this panel I'm sure it will be possible
+to do so thanks a lot again yep thank you very much
+and Anna yes I would like to agree thank you very much for inviting me to this panel and
+and sharing the and put them insights from all of you especially from you at the Katie and the
+Rochelle with the literature review and those sorry that you conducted that frame today very well I think also that
+we we are standing in a point of time where we have a lot of challenges so I'm
+really looking forward to have contact for you afterwards and I can also recommend to to look into the inner
+development goals we talk about how to convince managers and the Business
+Leaders and I think also be complementary to the agenda 2030
+sdgs the inner development goals this is probably something that we can investigate together uh with the
+industry open there as well so maybe there's a spread to to follow up
+yeah definitely so thank you everyone and I here as you can see here uh I
+prepared some uh survey about this Workshop so if you can just like uh go
+to the QR code and check submit your like opinion about this workshop and as
+many people mentioned maybe this is just like a start or the journey that we are aiming to develop for further so it will
+be the start and then I hope we can have some more rooms for discussion discuss
+about these things in the future so thank you everyone and thank you from online as well and hope you enjoy the
+rest of the day and before we wrap up all the session I would like to take a picture for everyone so if you don't
+mind you can come to this uh the floor and if you don't mind an online I will
+put you in the screen so that we can take a picture together
+thank you everyone wait a second please so I can put the slide like this
+and then yes we have
+panels everyone together that's the biggest you could make
+as big as you know okay this is maybe maximum okay so please come closer yeah
+please come to here yeah
+clothes
+okay
+which is
+okay thank you very much
+yes perfect thank you very much
+yep thank you very much everyone I will close this session for now
+thank you bye-bye yep bye-bye bye-bye have a nice day
+fine
+thank you okay
+thank you
+um
