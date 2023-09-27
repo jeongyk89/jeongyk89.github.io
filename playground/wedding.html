@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<style>
+  body {
+    font-family: 'Arial, sans-serif';
+    background: linear-gradient(to right, #f0e68c, #ffa07a);
+    color: #333;
+  }
+  .container {
+    max-width: 600px;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    text-align: center;
+  }
+  .header, .footer {
+    position: relative;
+  }
+  .header img {
+    width: 100%;
+    border-radius: 15px 15px 0 0;
+  }
+  .header h1 {
+    font-size: 2em;
+    color: #8b0000;
+  }
+  .content {
+    margin: 20px 0;
+    color: #8b0000;
+  }
+  .content p {
+    font-size: 1.1em;
+    line-height: 1.6em;
+  }
+  .content img {
+    width: 100%;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+  }
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
+  }
+  .timeline-item {
+    background-color: #f9f9f9;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    width: 80%;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #8b0000;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    z-index: 1;
+  }
+  .timeline-item::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    background-color: #8b0000;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .timeline-item:first-child::after {
+    top: 50%;
+  }
+  .timeline-item:last-child::after {
+    bottom: 50%;
+  }
+  .timeline-content {
+    position: relative;
+    z-index: 2;
+  }
+  .footer {
+    margin-top: 20px;
+    color: #8b0000;
+  }
+  .footer a {
+    margin: 0 10px;
+    color: #8b0000;
+    text-decoration: none;
+  }
+  .footer a:hover {
+    color: #ff4500;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <!-- Add a banner image -->
+    <img src="YOUR_BANNER_IMAGE_URL_HERE" alt="Wedding Banner">
+    <h1>Your Wedding Invitation</h1>
+  </div>
+
+  <div class="content">
+    <p>Dear [Guest's Name],</p>
+    <p>We are thrilled to invite you to our wedding celebration!</p>
+
+    <!-- Add Details -->
+    <p>Date: <strong>[Your Wedding Date]</strong></p>
+    <p>Time: <strong>[Your Wedding Time]</strong></p>
+    <p>Venue: <strong>[Your Wedding Venue]</strong></p>
+
+    <!-- Add Picture of Couple -->
+    <p><img src="YOUR_COUPLE_PICTURE_URL_HERE" alt="Picture of Couple"></p>
+
+    <p>We hope to share this special day with you.</p>
+
+    <!-- Relationship Timeline -->
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <p><strong>First Meeting</strong></p>
+          <p>[Description and Date]</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <p><strong>First Date</strong></p>
+          <p>[Description and Date]</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <p><strong>First Date</strong></p>
+          <p>[Description and Date]</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <p><strong>First Date</strong></p>
+          <p>[Description and Date]</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <p><strong>First Date</strong></p>
+          <p>[Description and Date]</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-content">
+          <p><strong>First Date</strong></p>
+          <p>[Description and Date]</p>
+        </div>
+      </div>
+      <!-- Add more timeline items as necessary -->
+    </div>
+
+    <p>Love,<br><strong>[Your Names]</strong></p>
+  </div>
+
+  <div class="footer">
+    <p>RSVP by <strong>[RSVP Date]</strong></p>
+    <p>Contact Us: <strong>[Your Contact Information]</strong></p>
+    <!-- Add social icons if needed -->
+    <p>
+      <a href="YOUR_FACEBOOK_PROFILE_LINK" target="_blank"><i class="fab fa-facebook-f"></i></a>
+      <a href="YOUR_INSTAGRAM_PROFILE_LINK" target="_blank"><i class="fab fa-instagram"></i></a>
+      <a href="YOUR_TWITTER_PROFILE_LINK" target="_blank"><i class="fab fa-twitter"></i></a>
+    </p>
+  </div>
+</div>
+
+</body>
+</html>

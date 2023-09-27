@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive & Animated Temperature Data Visualization with Vega-Lite</title>
+    <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+</head>
+
+<body>
+    <div id="vis"></div>
+
+    <script type="text/javascript">
+        // Sample data (replace this with your actual data source)
+        const data = Array.from({ length: 90 }, (_, i) => ({
+            day: `Day ${i + 1}`,
+            temperature: Math.floor(Math.random() * (35 - 15 + 1)) + 15
+        }));
+
+        const spec = {
+            $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
+            data: { values: data },
+            mark: { type: 'bar', tooltip: true }, 
+            selection: {
+                brush: { type: 'interval', encodings: ['x'] } 
+            },
+            encoding: {
+                x: { 
+                    field: 'day', 
+                    type: 'ordinal', 
+                    title: 'Days', 
+                    scale: { domain: { selection: "brush" } },
+                    axis: { labelAngle: -45 } // Improved label angle for better visibility
+                },
+                y: { 
+                    field: 'temperature', 
+                    type: 'quantitative', 
+                    title: 'Temperature (°C)', 
+                    scale: { zero: true } 
+                },
+                color: { field: 'temperature', scale: { scheme: 'blues' }, legend: null }
+            },
+            width: 800,
+            height: 400,
+            config: {
+                view: { 
+                    continuousHeight: 300,
+                    continuousWidth: 400
+                },
+                mark: { 
+                    opacity: 0.7, 
+                    filled: true,
+                    // Animation transition for bars:
+                    transition: { duration: 2000, easing: 'cubic-in-out' } 
+                }
+            }
+        };
+
+        // Embed the visualization in the container with id 'vis'
+        vegaEmbed('#vis', spec);
+    </script>
+</body>
+
+</html>
