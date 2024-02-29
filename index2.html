@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="UTF-8">
+    <title>Yongkuk Jeong, PhD (정용국)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700|Roboto:400,500,700&display=swap' rel='stylesheet'>
+    <link rel="stylesheet" href="stylesheets/stylesheet.css">
+    <link rel="icon" href="img/icon_small.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js for publication years chart -->
+    <!-- Styles omitted for brevity -->
+</head>
+<body oncontextmenu="return false">
+    <div class="navbar">
+        <!-- Navigation Links -->
+        <a href="#profile">Profile</a>
+        <a href="#employment">Employment</a>
+        <a href="#education">Education</a>
+        <a href="#research-interests">Research Interests</a>
+        <a href="#awards-and-honors">Awards and Honors</a>
+    </div>
+
+    <section class="page-header">
+        <h1 class="project-name">Yongkuk Jeong</h1>
+        <h2 class="project-tagline">yongkuk at kth.se</h2>
+        <img src="img/YKJeong.png" width="150" alt="Yongkuk Jeong"/>
+        <p>Assistant Professor in Production Logistics<br>Department of Production Engineering<br>KTH Royal Institute of Technology, Sweden</p>
+    </section>
+    
+    <!-- Main Content Area (Content omitted for brevity) -->
+
+    <!-- Dynamic Charts Section -->
+    <section>
+        <h2>Insights</h2>
+        <div>
+            <h3>Publications Per Year</h3>
+            <canvas id="publicationsPerYearChart"></canvas>
+        </div>
+        <!-- Placeholder for future dynamic content like visitor counts by country -->
+    </section>
+
+    <script>
+        // Example data for publications per year
+        const publicationsData = {
+            2018: 4, 2019: 3, 2020: 5, 2021: 2, 2023: 3, 2024: 1
+        };
+        
+        const ctx = document.getElementById('publicationsPerYearChart').getContext('2d');
+        const publicationsPerYearChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: Object.keys(publicationsData),
+                datasets: [{
+                    label: '# of Publications',
+                    data: Object.values(publicationsData),
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
