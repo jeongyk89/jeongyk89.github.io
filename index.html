@@ -9,7 +9,9 @@
       <link rel="stylesheet" href="stylesheets/stylesheet.css">
       <link rel="icon" href="img/icon_small.png">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js for publication years chart -->
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+      <script src="https://d3js.org/d3.v5.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/d3-cloud/build/d3.layout.cloud.js"></script>
       <style>
          body, html {
          font-family: 'Figtree', sans-serif;
@@ -355,6 +357,13 @@
          <canvas id="publicationsAndConferencesChart"></canvas>
       </section>
       <section class="main-content">
+         <div class="anchor" id="word-cloud-anchor"></div>
+         <div id="word-cloud"></div>
+         <p style="font-size: 0.8em; text-align: center; margin-top: 10px;">
+            Word cloud created with <a href="https://www.jasondavies.com/wordcloud/">Jason Davies' Word Cloud Generator</a>, based on titles from my recent projects and publications
+        </p>
+            </section>
+      <section class="main-content">
          <!-- Profile -->
          <div class="anchor" id="profile-anchor"></div>
          <h3><a id="profile" class="anchor" href="#profile" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Links</h3>
@@ -450,5 +459,69 @@
              });
          });
       </script>
+     <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          var wordData = [
+              {text: "Logistics", size: 374},
+              {text: "Production", size: 308},
+              {text: "Simulation", size: 187},
+              {text: "Digital", size: 165},
+              {text: "Shipyard", size: 165},
+              {text: "Data", size: 110},
+              {text: "Framework", size: 99},
+              {text: "Smart", size: 99},
+              {text: "System", size: 88},
+              {text: "Design", size: 77},
+              {text: "Process", size: 77},
+              {text: "Planning", size: 77},
+              {text: "Ship", size: 66},
+              {text: "Assembly", size: 66},
+              {text: "Urban", size: 66},
+              {text: "Model", size: 66},
+              {text: "Analysis", size: 66},
+              {text: "Considering", size: 66}
+          ];
+      
+          // Define a color palette
+          var colors = ["#6a11cb", "#2575fc", "#12c2e9", "#c471ed", "#f64f59"];
+      
+          var layout = d3.layout.cloud()
+              .size([800, 400])
+              .words(wordData.map(function(d) {
+                  return {text: d.text, size: 10 + (d.size / 374 * 100)}; // Adjust size proportionally
+              }))
+              .padding(5)
+              .rotate(function() {
+            // Favor horizontal orientation
+            return 0; // This eliminates rotation, making all words horizontal
+        })
+              .fontSize(function(d) { return d.size; })
+              .on("end", draw);
+      
+          layout.start();
+      
+          function draw(words) {
+              d3.select("#word-cloud").append("svg")
+                  .attr("width", layout.size()[0])
+                  .attr("height", layout.size()[1])
+                  .append("g")
+                  .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
+                  .selectAll("text")
+                  .data(words)
+                  .enter().append("text")
+                  .style("font-size", function(d) { return d.size + "px"; })
+                  .style("font-family", "'Figtree', sans-serif")
+                  .attr("text-anchor", "middle")
+                  .attr("transform", function(d) {
+                      return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+                  })
+                  .text(function(d) { return d.text; })
+                  .style("fill", function(d, i) { return colors[i % colors.length]; }); // Cycle through colors for each word
+          }
+      });
+      </script>
+      
+      
+         
    </body>
 </html>
