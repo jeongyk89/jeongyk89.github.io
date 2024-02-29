@@ -484,22 +484,22 @@
               {text: "Urban", size: 66},
               {text: "Model", size: 66},
               {text: "Analysis", size: 66},
-              {text: "Considering", size: 66}
           ];
       
           // Define a color palette
           var colors = ["#6a11cb", "#2575fc", "#12c2e9", "#c471ed", "#f64f59"];
       
+          // Responsive sizing
+          var width = document.getElementById('word-cloud').offsetWidth;
+          var height = Math.max(400, width * 0.5); // Maintain aspect ratio
+      
           var layout = d3.layout.cloud()
-              .size([800, 400])
+              .size([width, height])
               .words(wordData.map(function(d) {
                   return {text: d.text, size: 10 + (d.size / 374 * 100)}; // Adjust size proportionally
               }))
               .padding(5)
-              .rotate(function() {
-            // Favor horizontal orientation
-            return 0; // This eliminates rotation, making all words horizontal
-        })
+              .rotate(function() { return 0; }) // This makes all words horizontal
               .fontSize(function(d) { return d.size; })
               .on("end", draw);
       
@@ -526,7 +526,5 @@
       });
       </script>
       
-      
-         
    </body>
 </html>
