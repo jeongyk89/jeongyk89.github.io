@@ -13,21 +13,25 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js for publication years chart -->
     <style>
-        body {
+        body, html {
             font-family: 'Figtree', sans-serif;
             padding-top: 60px; /* Adjusted padding to accommodate fixed navbar */
             background: #f5f5f5; /* Updated background for overall consistency */
+            margin: 0;
+            padding: 0;
         }
 
         .navbar {
-            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
-            overflow: hidden;
-            position: fixed;
-            top: 0;
-            width: 100%;
-            box-shadow: 0 2px 5px rgba(0,0,0,.2);
-            z-index: 1000;
-        }
+    background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+    overflow: hidden;
+    position: fixed;
+    top: -100px; /* Start hidden above the viewport */
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0,0,0,.2);
+    z-index: 1000;
+    transition: top 0.3s; /* Smooth transition for sliding in and out */
+}
+
 
         .navbar a {
             float: left;
@@ -91,8 +95,13 @@
         }
 
         @media (max-width: 600px) {
-            .navbar a {padding: 10px 15px; font-size: 15px;}
-        }
+    .navbar {
+        top: -120px; /* Adjust for mobile if navbar is thicker */
+    }
+    .navbar a {
+        padding: 20px 15px; /* Adjust if more padding is needed on mobile */
+    }
+}
 
         /* Add fancy animations */
         @keyframes fadeIn {
@@ -123,6 +132,12 @@
             box-shadow: 0 1px 3px rgba(0,0,0,.1);
             border-radius: 8px;
         }
+        .anchor {
+        display: block;
+        position: relative;
+        top: -60px; /* Adjust this value to match the height of your navbar */
+        visibility: hidden;
+    }
 
     </style>
 </head>
@@ -130,11 +145,11 @@
     <div class="navbar">
         <!-- Navigation Links -->
         <a href="#">Home</a>
-        <a href="#employment">Employment</a>
-        <a href="#education">Education</a>
-        <a href="#research-interests">Research Interests</a>
-        <a href="#awards-and-honors">Awards and Honors</a>
-        <a href="#profile">Links</a>
+        <a href="#employment-anchor">Employment</a>
+        <a href="#education-anchor">Education</a>
+        <a href="#research-interests-anchor">Research Interests</a>
+        <a href="#awards-and-honors-anchor">Awards and Honors</a>
+        <a href="#profile-anchor">Links</a>
     </div>
 
     <section class="page-header">
@@ -148,6 +163,7 @@
 <section class="main-content">
     
     <!-- Employment -->
+    <div class="anchor" id="employment-anchor"></div>
     <h3><a id="employment" class="anchor" href="#career" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Employment</h3>
     <ul>
         <li>Assistant Professor, Department of Production Engineering, KTH Royal Institute of Technology, Sweden, 2021-now</li>
@@ -155,12 +171,15 @@
         <li>Postdoctoral Researcher, Research Institute of Marine Systems Engineering, Seoul National University, South Korea, 2018-2019</li>
     </ul>
     <!-- Education -->
+    <div class="anchor" id="education-anchor"></div>
+
     <h3><a id="education" class="anchor" href="#education" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Education</h3>
     <ul>
         <li>Ph.D., Department of Naval Architecture and Ocean Engineering, Seoul National University, South Korea, 2018</li>
         <li>B.Sc., Department of Naval Architecture and Ocean Engineering, Seoul National University, South Korea, 2011</li>
     </ul>
     <!-- Research Interests -->
+    <div class="anchor" id="research-interests-anchor"></div>
     <h3><a id="research-interests" class="anchor" href="#research-interests" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Research Interests</h3>
     <ul>
         <li>Digitalization in production logistics</li>
@@ -168,6 +187,7 @@
         <li>Industry 5.0 <a href="https://youtu.be/0Xs3RpHfctU?si=Y4Tjkq4s8myfna2e">[LINK]</a></li>
     </ul>
         <!-- Awards and Honors -->
+        <div class="anchor" id="awards-and-honors-anchor"></div>
         <h3><a id="awards-and-honors" class="anchor" href="#awards-and-honors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Awards and Honors</h3>
         <ul>
             <li>Oct 2019, The Elmer L. Hann Award, Best Paper on Ship Production Delivered at the Ship Production Symposium, SNAME <a href="https://www.sname.org/elmer-l-hann-award">[LINK]</a></li>
@@ -363,6 +383,7 @@
     </section>
     <section class="main-content">
         <!-- Profile -->
+        <div class="anchor" id="profile-anchor"></div>
     <h3><a id="profile" class="anchor" href="#profile" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Links</h3>
     <ul>
         <li>KTH Profile <a href="https://www.kth.se/profile/yongkuk">[LINK]</a></li>
@@ -426,5 +447,37 @@
         });
     });
 </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var navbar = document.querySelector(".navbar");
+        var lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        var navbarHideTimeout;
+    
+        function hideNavbar() {
+            navbar.style.top = "-100px"; // Adjust this value to match the navbar height
+        }
+    
+        window.addEventListener("scroll", function() {
+            var currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+    
+            // Clear any existing timeout to ensure we don't hide the navbar while the user is still scrolling
+            clearTimeout(navbarHideTimeout);
+    
+            // Show the navbar when scrolling
+            navbar.style.top = "0";
+    
+            // If the current scroll position is the same as the last scroll position, it means the user has stopped scrolling
+            // Set a timeout to hide the navbar after a certain period of inactivity
+            navbarHideTimeout = setTimeout(hideNavbar, 1500); // Hide navbar after 1.5 seconds of inactivity
+    
+            lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; // For mobile or negative scrolling
+        }, false);
+    });
+    </script>
+    
+    
+
+
 </body>
 </html>
