@@ -9,6 +9,89 @@
 		<link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
 		<link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
 		<link rel="icon" href="img/icon_small.png" alt="Yongkuk Jeong"/>
+		<script>
+			// This script will allow us to toggle the visibility of collapsible content
+			function toggleCollapsible(elementId) {
+				var content = document.getElementById(elementId);
+				if (content.style.maxHeight) {
+					content.style.maxHeight = null;
+				} else {
+					content.style.maxHeight = content.scrollHeight + "px";
+				}
+			}
+			</script>
+		<style>
+			.toggle-button {
+        cursor: pointer;
+        background-color: #607D8B; /* Blue Grey 500 from Material Design palette */
+        color: white;
+        border: none;
+        padding: 10px 25px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+        font-family: 'Roboto', 'Segoe UI', sans-serif;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: background-color 0.3s, box-shadow 0.3s, transform 0.3s;
+        outline: none;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.32), 0 1px 2px rgba(0,0,0,0.24);
+    }
+
+    .toggle-button:hover {
+        background-color: #546E7A; /* Blue Grey 600 from Material Design palette */
+        box-shadow: 0 3px 6px rgba(0,0,0,0.32), 0 3px 6px rgba(0,0,0,0.24);
+    }
+
+    .toggle-button:active {
+        background-color: #455A64; /* Blue Grey 700 from Material Design palette */
+        box-shadow: 0 5px 10px rgba(0,0,0,0.32), 0 5px 10px rgba(0,0,0,0.24);
+        transform: translateY(1px);
+    }
+
+    /* Focus styles for accessibility */
+    .toggle-button:focus {
+        background-color: #546E7A;
+        box-shadow: 0 0 0 3px rgba(96,125,139,0.5);
+    }
+/* Styles for collapsible content */
+.collapsible {
+    background-color: #607D8B;
+    color: white;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.active, .collapsible:hover {
+    background-color: #455A64;
+}
+
+.collapsible:after {
+    content: '\002B';
+    color: white;
+    font-weight: bold;
+    float: right;
+    margin-left: 5px;
+}
+
+.active:after {
+    content: "\2212";
+}
+
+.collapsible-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+    background-color: #f1f1f1;
+    padding: 0 18px;
+}
+		</style>
 	</head>
 	<body oncontextmenu="return false">
 		<section class="page-header">
@@ -32,6 +115,7 @@
 				<li>Postdoc, Department of Sustainable Production Development, KTH Royal Institute of Technology, Sweden, 2019-2021</li>
 				<li>Postdoctoral Researcher, Research Institute of Marine Systems Engineering, Seoul National University, South Korea, 2018-2019</li>
 			</ul>
+
 			<h3><a id="education" class="anchor" href="#education" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Education</h3>
 			<ul>
 				<li>Ph.D., Department of Naval Architecture and Ocean Engineering, Seoul National University, South Korea, 2018</li>
@@ -50,6 +134,58 @@
 				<li>Manufacturing simulation</li>
 				<li>Discrete event system simulation</li>
 			</ul>
+			<h3><a id="selected-research-projects" class="anchor" href="#selected-research-projects" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Selected Research Projects</h3>
+    <ul>
+        <li>
+            <b>SHIFT-DT:</b> Sustainable, Holistic, Integrated Framework for Ship Design and Production Transformation through Digital Twins
+            <ul>
+                <li>Funded by Digital Futures (Swedish Funding Agency)</li>
+                <li>Leading the project as a Principal Investigator (PI) to establish a framework that can marry holistic ship design with digitalized ship production and logistics through digital twins</li>
+                <li>Jan 2024 – Dec 2025</li>
+            </ul>
+        </li>
+        <li>
+            <b>Dynamic SALSA:</b> Dynamic scheduling of assembly and logistics system using AI
+            <ul>
+                <li>Funded by Eureka SMART and Vinnova (Swedish Innovation Agency)</li>
+                <li>Building a computer vision-based platform for analyzing human operators and objects in a production logistics environment</li>
+                <li>Apr 2023 – Mar 2026</li>
+            </ul>
+        </li>
+        <li>
+            <b>TIMEBLY:</b> Time data management automation for manual assembly
+            <ul>
+                <li>Funded by Vinnova</li>
+                <li>Leading the human pose estimation and time series prediction analysis for manual assembly tasks using open-source libraries</li>
+                <li>Nov 2021 – Oct 2024</li>
+            </ul>
+        </li>
+        <li>
+            <b>DYNASTEEL:</b> Dynamic scheduling and transport visibility in steel production
+            <ul>
+                <li>Funded by Vinnova</li>
+                <li>Involved in human-centered system design process for autonomous transportation system including requirements analysis and prototyping</li>
+                <li>Mar 2022 – Dec 2022</li>
+            </ul>
+        </li>
+        <li>
+            <b>C-PALS:</b> Cyber-physical assembly and logistics system
+            <ul>
+                <li>Funded by Eureka SMART and Vinnova</li>
+                <li>Built a digital twin and real-time production logistics data visualization platform using open-source libraries</li>
+                <li>May 2019 – Aug 2022</li>
+            </ul>
+        </li>
+        <li>
+            <b>HUPMOBILE:</b> Holistic urban and per-urban mobility
+            <ul>
+                <li>Funded by Interreg Baltic Sea Region (EU)</li>
+                <li>Involved in participatory modelling and simulation process for urban mobility simulation with multiple stakeholders</li>
+                <li>Jan 2019 – Dec 2021</li>
+            </ul>
+        </li>
+        <!-- More projects can be listed similarly -->
+    </ul>
 			<h3><a id="papers-international" class="anchor" href="#papers-international" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Publications</h3>
 			<ul>
 				<li>2024</li>
@@ -164,8 +300,18 @@
 				<li>Jong-Gye Shin, Seung Hoon Nam, and <b>Yong-Kuk Jeong</b>, (2014), <span style="color:#1d6ab8">Generic Work Breakdown Structure for Sailing Yacht Lifecycle Management</span>, ICOR 2014, Fiji, 13-15 October, 2014</li>
 				</ul>
 			</ul>
+			
+			<h3><a id="awards-and-honors" class="anchor" href="#awards-and-honors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Awards and Honors</h3>
+			<ul id="AwardsHonors">
+				<li>Oct 2019, The Elmer L. Hann Award, Best Paper on Ship Production Delivered at the Ship Production Symposium, SNAME <a href="https://www.sname.org/elmer-l-hann-award">[LINK]</a></li>
+				<li>Mar 2012 - Aug 2013, STX Foundation</li>
+				<li>Nov 2012, Encouragement Award, Korean Institute of Industrial Engineers</li>
+				<li>Feb 2011, The Society of Naval Architects of Korea</li>
+				<li>Mar 2007 - Feb 2011, National Scholarship For Science and Engineering, Korea Student Aid Foundation (KOSAF)</li>
+			</ul>
 			<h3><a id="papers-domestic" class="anchor" href="#papers-domestic" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Publications (Domestic - South Korea)</h3>
-			<ul>
+			<button class="toggle-button" onclick="toggleVisibility('domesticPublications', this)">Show Domestic Publications</button>
+    		<ul id="domesticPublications" style="display: none;">
 				<li>Jin-Uk Jung, <b>Yong-Kuk Jeong</b>, SuHeon Ju, Jong-Gye Shin, and JongChul Kim, (2018), <span style="color:#1d6ab8">A Simplified Survivability Assessment Method and Spatial Layout Design Application for the Early Design Stage of Naval Vessels</span>, Journal of the Society of Naval Architects of Korea, 55(1), pp. 9-21 <a href="https://www.dbpia.co.kr/Journal/ArticleDetail/NODE07365588">[LINK: Paper]</a></li>
 				<li>Seon-Jung Baek, Dae-Kyun Oh, Dong Kun Lee, Philippe Lee, Cheolho Ryu, Jong-Hun Woo, and <b>Yong-Kuk Jeong</b>, (2017), <span style="color:#1d6ab8">A Process-centric Simulation Modeling Method Improving Product, Process, and Facility Information Representation Method</span>, Journal of the Korean Society of Marine Environment & Safety, 23(4), pp. 421-431 <a href="https://kosomes.jams.or.kr/po/volisse/sjPubsArtiPopView.kci?soceId=INS000000660&artiId=SJ0000000939&sereId=SER000000001&submCnt=1">[LINK: Paper]</a></li>
 				<li><b>Yong-Kuk Jeong</b>, Jong-Hun Woo, Dae-Kyun Oh, and Jong-Gye Shin, (2016), <span style="color:#1d6ab8">A Shipyard Simulation System using the Process-centric Simulation Modeling Methodology: Case Study of the Simulation Model for the Shipyard Master Plan Validation</span>, Transactions of the Society of CAD/CAM Engineers, 21(2), pp. 204-214 <a href="https://www.dbpia.co.kr/Journal/ArticleDetail/NODE06761937">[LINK: Paper]</a></li>
@@ -177,6 +323,8 @@
 				<li>Dong Kun Lee, Seung Hoon Nam, <b>Yong Kuk Jeong</b>, Jong Gye Shin, (2013), <span style="color:#1d6ab8">Development of a Web-Based Application for YWBS in Integrated Management Systems</span>, Journal of the Korean Institute of Industrial Engineers, 39(1), pp. 1-9 <a href="http://www.dbpia.co.kr/Journal/ArticleDetail/NODE02078979">[LINK: Paper]</a></li>
 			</ul>
 			<h3><a id="conference-domestic" class="anchor" href="#conference-domestic" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Conference (Domestic - South Korea)</h3>
+			<button class="toggle-button" onclick="toggleVisibility('domesticConference', this)">Show Domestic Conference</button>
+    		<ul id="domesticConference" style="display: none;">
 			<ul>
 				<li>이용길, 심휘강, 우종훈, <b>정용국</b>, 권기욱, 이필립, (2019), <span style="color:#1d6ab8">블록 조립 계획을 위한 시뮬레이션 시스템 구축</span>, 2019년 한국해양과학기술협의회 춘계공동학술대회</li>
 				<li>김영민, <b>정용국</b>, 심휘강, 신종계, 이동건, (2018), <span style="color:#1d6ab8">체계적인 조선소 생산 시스템 분석을 위한 computational shipyard dynamics와 적용 사례</span>, 2018년 대한조선학회 추계학술대회</li>
@@ -229,14 +377,20 @@
 				<li><b>정용국</b>, 남승훈, 이동건, 신종계, (2012), <span style="color:#1d6ab8">세일요트 통합 관리 시스템 구축을 위한 제품 정보 기반의 작업분류체계 설계</span>, 2012년 대한산업공학회 춘계학술대회</li>
 				<li><b>정용국</b>, 이동건, 신종계, (2011), <span style="color:#1d6ab8">레저보트 공장 설계 시스템 개발을 위한 배치 및 평가 방안 연구</span>, 2011년 한국정밀공학회 추계학술대회</li>
 			</ul>
-			<h3><a id="awards-and-honors" class="anchor" href="#awards-and-honors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Awards and Honors</h3>
-			<ul>
-				<li>Oct 2019, The Elmer L. Hann Award, Best Paper on Ship Production Delivered at the Ship Production Symposium, SNAME <a href="https://www.sname.org/elmer-l-hann-award">[LINK]</a></li>
-				<li>Mar 2012 - Aug 2013, STX Foundation</li>
-				<li>Nov 2012, Encouragement Award, Korean Institute of Industrial Engineers</li>
-				<li>Feb 2011, The Society of Naval Architects of Korea</li>
-				<li>Mar 2007 - Feb 2011, National Scholarship For Science and Engineering, Korea Student Aid Foundation (KOSAF)</li>
-			</ul>
+			<script>
+				function toggleVisibility(elementId, button) {
+					var x = document.getElementById(elementId);
+					if (x.style.display === "none") {
+						x.style.display = "block";
+						button.textContent = 'Hide ' + elementId.charAt(0).toUpperCase() + elementId.slice(1).replace(/([A-Z])/g, ' $1').trim(); // Add space before capital letters and trim
+					} else {
+						x.style.display = "none";
+						button.textContent = 'Show ' + elementId.charAt(0).toUpperCase() + elementId.slice(1).replace(/([A-Z])/g, ' $1').trim(); // Add space before capital letters and trim
+					}
+				}
+			</script>
+			
+			
 			<footer class="site-footer">
 				<span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
 			</footer>
