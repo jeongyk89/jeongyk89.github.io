@@ -455,32 +455,34 @@
     
         // Function to hide the navbar
         function hideNavbar() {
-            // Dynamically set the top property to the negative of the navbar's offsetHeight
             navbar.style.top = "-" + navbar.offsetHeight + "px";
         }
     
         window.addEventListener("scroll", function() {
             var currentScroll = window.pageYOffset || document.documentElement.scrollTop;
     
-            // Clear any existing timeout to ensure we don't hide the navbar while the user is still scrolling
             clearTimeout(navbarHideTimeout);
     
-            // Immediately hide the navbar if scrolling down, show if scrolling up
-            if (currentScroll > lastScrollTop){
-                // Scrolling down
-                hideNavbar();
-            } else {
-                // Scrolling up
-                navbar.style.top = "0";
-            }
+            navbar.style.top = "0"; // Show navbar on scroll
     
-            // Set a timeout to hide the navbar after a certain period of inactivity
-            navbarHideTimeout = setTimeout(hideNavbar, 1000); // Hide navbar after 1.5 seconds of inactivity
+            navbarHideTimeout = setTimeout(hideNavbar, 1000); // Hide navbar after 1 second of inactivity
     
-            lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; // For mobile or negative scrolling
+            lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
         }, false);
+    
+        // Keep navbar visible when mouse is over it
+        navbar.addEventListener("mouseover", function() {
+            clearTimeout(navbarHideTimeout);
+        });
+    
+        // Hide navbar when mouse leaves it, after a delay
+        navbar.addEventListener("mouseout", function() {
+            navbarHideTimeout = setTimeout(hideNavbar, 1000);
+        });
     });
     </script>
+    
+    
     
     
 
