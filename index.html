@@ -1,175 +1,195 @@
 <!DOCTYPE html>
 <html lang="en-us">
-   <head>
-      <meta charset="UTF-8">
-      <title>Yongkuk Jeong, PhD (정용국)</title>
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
-      <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400&display=swap" rel="stylesheet">
-      <link rel="stylesheet" href="stylesheets/stylesheet.css">
-      <link rel="icon" href="img/icon_small.png">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
-      <script src="https://d3js.org/d3.v5.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/d3-cloud/build/d3.layout.cloud.js"></script>
-      <style>
-         body, html {
-         font-family: 'Figtree', sans-serif;
-         padding-top: 60px; /* Adjusted padding to accommodate fixed navbar */
-         background: #f5f5f5; /* Updated background for overall consistency */
-         margin: 0;
-         padding: 0;
-         }
-         .navbar {
-         background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
-         overflow: hidden;
-         position: fixed;
-         top: -100px; /* Start hidden above the viewport */
-         width: 100%;
-         box-shadow: 0 2px 5px rgba(0,0,0,.2);
-         z-index: 1000;
-         transition: top 0.3s; /* Smooth transition for sliding in and out */
-         }
-         .navbar a {
-         float: left;
-         display: block;
-         color: white;
-         text-align: center;
-         padding: 14px 16px;
-         text-decoration: none;
-         font-size: 17px;
-         transition: background-color 0.3s;
-         }
-         .navbar a:hover, .navbar a:focus {
-         background-color: rgba(255,255,255,0.2);
-         }
-         .page-header {
-         background: linear-gradient(to right, #12c2e9, #c471ed, #f64f59);
-         color: white;
-         text-align: center;
-         padding: 50px 10px;
-         box-shadow: 0 4px 6px rgba(0,0,0,.1);
-         }
-         .collapsible {
-         background-color: #4CAF50;
-         color: white;
-         cursor: pointer;
-         padding: 14px 20px;
-         width: 100%;
-         border: none;
-         text-align: left;
-         outline: none;
-         font-size: 18px;
-         transition: background-color 0.3s ease;
-         }
-         .collapsible:hover, .collapsible:active {
-         background-color: #45a049;
-         }
-         .collapsible:after {
-         content: '\002B';
-         color: white;
-         font-weight: bold;
-         float: right;
-         margin-left: 5px;
-         }
-         .active:after {
-         content: "\2212";
-         }
-         .collapsible-content {
-         background-color: #f9f9f9;
-         padding: 0 18px;
-         max-height: 0;
-         overflow: hidden;
-         transition: max-height 0.2s ease-out;
-         margin-bottom: 15px;
-         }
-         @media (max-width: 600px) {
-         .navbar {
-         top: -120px; /* Adjust for mobile if navbar is thicker */
-         }
-         .navbar a {
-         padding: 20px 15px; /* Adjust if more padding is needed on mobile */
-         }
-         }
-         /* Add fancy animations */
-         @keyframes fadeIn {
-         from { opacity: 0; }
-         to { opacity: 1; }
-         }
-         .main-content {
-         padding: 20px;
-         background: #fff;
-         margin: 20px auto;
-         box-shadow: 0 1px 3px rgba(0,0,0,.1);
-         border-radius: 8px;
-         max-width: 800px;
-         }
-         .main-content, .page-header, .navbar {
-         animation: fadeIn 1s;
-         }
-         .chart-container {
-         width: 100%;
-         max-width: 800px;
-         margin: 20px auto;
-         padding: 20px;
-         background: #fff;
-         box-shadow: 0 1px 3px rgba(0,0,0,.1);
-         border-radius: 8px;
-         }
-         .anchor {
-         display: block;
-         position: relative;
-         top: -60px; /* Adjust this value to match the height of your navbar */
-         visibility: hidden;
-         }
-      </style>
-   </head>
-   <body oncontextmenu="return false">
-      <div class="navbar">
-         <!-- Navigation Links -->
-         <a href="#">Home</a>
-         <a href="#employment-anchor">Employment</a>
-         <a href="#education-anchor">Education</a>
-         <a href="#research-interests-anchor">Research Interests</a>
-         <a href="#awards-and-honors-anchor">Awards and Honors</a>
-         <a href="#word-cloud-anchor">Word Cloud</a>
-         <a href="#profile-anchor">Links</a>
-      </div>
-      <section class="page-header">
-         <h1 class="project-name">Yongkuk Jeong</h1>
-         <h2 class="project-tagline">yongkuk at kth.se</h2>
-         <a href="playground/color.html"><img src="img/YKJeong.png" width="150" alt="Yongkuk Jeong"/></a>
-         <p>Assistant Professor in Production Logistics<br>Department of Production Engineering<br>KTH Royal Institute of Technology, Sweden</p>
-      </section>
-      <!-- Main Content Area -->
-      <section class="main-content">
-         <!-- Employment -->
-         <div class="anchor" id="employment-anchor"></div>
-         <h3>Employment</h3>
-         <ul>
-            <li>Assistant Professor, Department of Production Engineering, KTH Royal Institute of Technology, Sweden, 2021-now</li>
-            <li>Postdoc, Department of Sustainable Production Development, KTH Royal Institute of Technology, Sweden, 2019-2021</li>
-            <li>Postdoctoral Researcher, Research Institute of Marine Systems Engineering, Seoul National University, South Korea, 2018-2019</li>
-         </ul>
-         <!-- Education -->
-         <div class="anchor" id="education-anchor"></div>
-         <h3>Education</h3>
-         <ul>
-            <li>Ph.D., Department of Naval Architecture and Ocean Engineering, Seoul National University, South Korea, 2018</li>
-            <li>B.Sc., Department of Naval Architecture and Ocean Engineering, Seoul National University, South Korea, 2011</li>
-         </ul>
-         <!-- Research Interests -->
-         <div class="anchor" id="research-interests-anchor"></div>
-         <h3>Research Interests</h3>
-         <ul>
-            <li>Digitalization in production logistics</li>
-            <li>Manufacturing simulation</li>
-            <li>Industry 5.0 <a href="https://youtu.be/0Xs3RpHfctU?si=Y4Tjkq4s8myfna2e">[LINK]</a></li>
-         </ul>
-         <!-- Awards and Honors -->
-         <div class="anchor" id="awards-and-honors-anchor"></div>
-         <h3>Awards and Honors</h3>
-         <ul>
+<head>
+    <meta charset="UTF-8">
+    <title>Yongkuk Jeong, PhD (정용국)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="stylesheets/stylesheet.css">
+    <link rel="icon" href="img/icon_small.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js for publication years chart -->
+    <style>
+        body, html {
+            font-family: 'Figtree', sans-serif;
+            padding-top: 60px; /* Adjusted padding to accommodate fixed navbar */
+            background: #f5f5f5; /* Updated background for overall consistency */
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+    background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+    overflow: hidden;
+    position: fixed;
+    top: -100px; /* Start hidden above the viewport */
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0,0,0,.2);
+    z-index: 1000;
+    transition: top 0.3s; /* Smooth transition for sliding in and out */
+}
+
+
+        .navbar a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar a:hover, .navbar a:focus {
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        .page-header {
+            background: linear-gradient(to right, #12c2e9, #c471ed, #f64f59);
+            color: white;
+            text-align: center;
+            padding: 50px 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,.1);
+        }
+
+        .collapsible {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            padding: 14px 20px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        .collapsible:hover, .collapsible:active {
+            background-color: #45a049;
+        }
+
+        .collapsible:after {
+            content: '\002B';
+            color: white;
+            font-weight: bold;
+            float: right;
+            margin-left: 5px;
+        }
+
+        .active:after {
+            content: "\2212";
+        }
+
+        .collapsible-content {
+            background-color: #f9f9f9;
+            padding: 0 18px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+    .navbar {
+        top: -120px; /* Adjust for mobile if navbar is thicker */
+    }
+    .navbar a {
+        padding: 20px 15px; /* Adjust if more padding is needed on mobile */
+    }
+}
+
+        /* Add fancy animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+
+
+        .main-content {
+            padding: 20px;
+            background: #fff;
+            margin: 20px auto;
+            box-shadow: 0 1px 3px rgba(0,0,0,.1);
+            border-radius: 8px;
+            max-width: 800px;
+        }
+
+        .main-content, .page-header, .navbar {
+            animation: fadeIn 1s;
+        }
+        .chart-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,.1);
+            border-radius: 8px;
+        }
+        .anchor {
+        display: block;
+        position: relative;
+        top: -60px; /* Adjust this value to match the height of your navbar */
+        visibility: hidden;
+    }
+
+    </style>
+</head>
+<body oncontextmenu="return false">
+    <div class="navbar">
+        <!-- Navigation Links -->
+        <a href="#">Home</a>
+        <a href="#employment-anchor">Employment</a>
+        <a href="#education-anchor">Education</a>
+        <a href="#research-interests-anchor">Research Interests</a>
+        <a href="#awards-and-honors-anchor">Awards and Honors</a>
+        <a href="#profile-anchor">Links</a>
+    </div>
+
+    <section class="page-header">
+        <h1 class="project-name">Yongkuk Jeong</h1>
+        <h2 class="project-tagline">yongkuk at kth.se</h2>
+        <a href="playground/color.html"><img src="img/YKJeong.png" width="150" alt="Yongkuk Jeong"/></a>
+        <p>Assistant Professor in Sustainable Production Logistics<br>Department of Production Engineering<br>KTH Royal Institute of Technology, Sweden</p>
+    </section>
+    
+    <!-- Main Content Area -->
+<section class="main-content">
+    
+    <!-- Employment -->
+    <div class="anchor" id="employment-anchor"></div>
+    <h3><a id="employment" class="anchor" href="#career" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Employment</h3>
+    <ul>
+        <li>Assistant Professor, Department of Production Engineering, KTH Royal Institute of Technology, Sweden, 2021-now</li>
+        <li>Postdoc, Department of Sustainable Production Development, KTH Royal Institute of Technology, Sweden, 2019-2021</li>
+        <li>Postdoctoral Researcher, Research Institute of Marine Systems Engineering, Seoul National University, South Korea, 2018-2019</li>
+    </ul>
+    <!-- Education -->
+    <div class="anchor" id="education-anchor"></div>
+
+    <h3><a id="education" class="anchor" href="#education" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Education</h3>
+    <ul>
+        <li>Ph.D., Department of Naval Architecture and Ocean Engineering, Seoul National University, South Korea, 2018</li>
+        <li>B.Sc., Department of Naval Architecture and Ocean Engineering, Seoul National University, South Korea, 2011</li>
+    </ul>
+    <!-- Research Interests -->
+    <div class="anchor" id="research-interests-anchor"></div>
+    <h3><a id="research-interests" class="anchor" href="#research-interests" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Research Interests</h3>
+    <ul>
+        <li>Digitalization in production logistics</li>
+        <li>Manufacturing simulation</li>
+        <li>Industry 5.0 <a href="https://youtu.be/0Xs3RpHfctU?si=Y4Tjkq4s8myfna2e">[LINK]</a></li>
+    </ul>
+        <!-- Awards and Honors -->
+        <div class="anchor" id="awards-and-honors-anchor"></div>
+        <h3><a id="awards-and-honors" class="anchor" href="#awards-and-honors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Awards and Honors</h3>
+        <ul>
             <li>Oct 2019, The Elmer L. Hann Award, Best Paper on Ship Production Delivered at the Ship Production Symposium, SNAME <a href="https://www.sname.org/elmer-l-hann-award">[LINK]</a></li>
             <li>Mar 2012 - Aug 2013, STX Foundation</li>
             <li>Nov 2012, Encouragement Award, Korean Institute of Industrial Engineers</li>
