@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dune Inspired Interactive Music with Drum Sequencer</title>
+    <script src="https://cdn.jsdelivr.net/npm/tone@14.8.8"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #333;
+        }
+        button, input[type=range] {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            outline: none;
+            border: none;
+        }
+        button {
+            cursor: pointer;
+            background-color: #ddd;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #ccc;
+        }
+        .control {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .label {
+            margin-right: 10px;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dune Inspired Interactive Music</h1>
+    <button id="playButton">Play Music</button>
+    <button id="stopButton">Stop Music</button>
+    <div class="control">
+        <span class="label">Volume:</span>
+        <input type="range" id="volumeControl" min="-60" max="0" value="-12" step="1">
+    </div>
+    <div class="control">
+        <button id="bassDrum">Bass Drum</button>
+        <button id="snare">Snare</button>
+        <button id="hiHat">Hi-Hat</button>
+    </div>
+    <button id="clearBeats">Clear Beats</button>
+    <canvas id="oscilloscope" width="800" height="150"></canvas>
+    <script>
+        const playButton = document.getElementById('playButton');
+        const stopButton = document.getElementById('stopButton');
+        const volumeControl = document.getElementById('volumeControl');
+        const bassDrum = document.getElementById('bassDrum');
+        const snare = document.getElementById('snare');
+        const hiHat = document.getElementById('hiHat');
+        const clearBeats = document.getElementById('clearBeats');
+        const canvas = document.getElementById('oscilloscope');
+        const ctx = canvas.getContext('2d');
+
+        let isPlaying = false;
+        let synth, analyser, drumSequence = [];
+        let drum;
+
+        playButton.addEventListener('click', async () => {
+            if (!isPlaying) {
+                await Tone.start();
+                console.log('Audio is ready');
+                setupMusic();
+            }
+        });
+
+        stopButton.addEventListener('click', function() {
+            if (isPlaying) {
+                Tone.Transport.stop();
+                console.log('Audio has stopped');
+                isPlaying = false;
+            }
+        });
+
+        volumeControl.addEventListener('input', function() {
+            Tone.Master.volume.value = this.value;
+        });
+
+        function addDrumBeat(note, color) {
+            drum.triggerAttackRelease(note, '8n');
+            drumSequence.push({ time: Tone.Transport.seconds, note, color });
+        }
+
+        bassDrum.addEventListener('click', () => addDrumBeat('C2', 'red'));
+        snare.addEventListener('click', () => addDrumBeat('G3', 'green'));
+        hiHat.addEventListener('click', () => addDrumBeat('B4', 'blue'));
+
+        clearBeats.addEventListener('click', () => drumSequence = []);
+
+        function setupMusic() {
+            synth = new Tone.Synth({
+                oscillator: { type: 'sine' },
+                envelope: { attack: 2, decay: 1, sustain: 0.5, release: 4 }
+            }).toDestination();
+
+            analyser = new Tone.Waveform();
+            synth.connect(analyser);
+
+            drum = new Tone.MembraneSynth().toMaster();
+
+            Tone.Transport.bpm.value = 60;
+            Tone.Transport.start();
+
+            Tone.Transport.scheduleRepeat(time => {
+                drumSequence.forEach(beat => {
+                    if (time >= beat.time && time < beat.time + 0.5) {
+                        drum.triggerAttackRelease(beat.note, '8n', time);
+                        ctx.fillStyle = beat.color;
+                    }
+                });
+            }, '1m');
+
+            isPlaying = true;
+            drawWaveform();
+        }
+
+        function drawWaveform() {
+            requestAnimationFrame(drawWaveform);
+            const values = analyser.getValue();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.lineJoin = 'round';
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = drumSequence.length ? drumSequence[drumSequence.length - 1].color : "#00BCD4";
+            ctx.moveTo(0, (values[0] + 1) * 75);
+            for (let i = 1, len = values.length; i < len; i++) {
+                const val = values[i] + 1;
+                const x = canvas.width * (i / len);
+                const y = val * 75;
+                ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+    </script>
+</body>
+</html>

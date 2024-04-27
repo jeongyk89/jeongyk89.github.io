@@ -1,483 +1,530 @@
 <!DOCTYPE html>
 <html lang="en-us">
-<head>
-    <meta charset="UTF-8">
-    <title>Yongkuk Jeong, PhD (정용국)</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="stylesheets/stylesheet.css">
-    <link rel="icon" href="img/icon_small.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js for publication years chart -->
-    <style>
-        body, html {
-            font-family: 'Figtree', sans-serif;
-            padding-top: 60px; /* Adjusted padding to accommodate fixed navbar */
-            background: #f5f5f5; /* Updated background for overall consistency */
-            margin: 0;
-            padding: 0;
-        }
-
-        .navbar {
-    background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
-    overflow: hidden;
-    position: fixed;
-    top: -100px; /* Start hidden above the viewport */
-    width: 100%;
-    box-shadow: 0 2px 5px rgba(0,0,0,.2);
-    z-index: 1000;
-    transition: top 0.3s; /* Smooth transition for sliding in and out */
-}
-
-
-        .navbar a {
-            float: left;
-            display: block;
-            color: white;
-            text-align: center;
-            padding: 14px 16px;
-            text-decoration: none;
-            font-size: 17px;
-            transition: background-color 0.3s;
-        }
-
-        .navbar a:hover, .navbar a:focus {
-            background-color: rgba(255,255,255,0.2);
-        }
-
-        .page-header {
-            background: linear-gradient(to right, #12c2e9, #c471ed, #f64f59);
-            color: white;
-            text-align: center;
-            padding: 50px 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,.1);
-        }
-
-        .collapsible {
-            background-color: #4CAF50;
-            color: white;
-            cursor: pointer;
-            padding: 14px 20px;
-            width: 100%;
-            border: none;
-            text-align: left;
-            outline: none;
-            font-size: 18px;
-            transition: background-color 0.3s ease;
-        }
-
-        .collapsible:hover, .collapsible:active {
-            background-color: #45a049;
-        }
-
-        .collapsible:after {
-            content: '\002B';
-            color: white;
-            font-weight: bold;
-            float: right;
-            margin-left: 5px;
-        }
-
-        .active:after {
-            content: "\2212";
-        }
-
-        .collapsible-content {
-            background-color: #f9f9f9;
-            padding: 0 18px;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.2s ease-out;
-            margin-bottom: 15px;
-        }
-
-        @media (max-width: 600px) {
-    .navbar {
-        top: -120px; /* Adjust for mobile if navbar is thicker */
-    }
-    .navbar a {
-        padding: 20px 15px; /* Adjust if more padding is needed on mobile */
-    }
-}
-
-        /* Add fancy animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-
-
-        .main-content {
-            padding: 20px;
-            background: #fff;
-            margin: 20px auto;
-            box-shadow: 0 1px 3px rgba(0,0,0,.1);
-            border-radius: 8px;
-            max-width: 800px;
-        }
-
-        .main-content, .page-header, .navbar {
-            animation: fadeIn 1s;
-        }
-        .chart-container {
-            width: 100%;
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 20px;
-            background: #fff;
-            box-shadow: 0 1px 3px rgba(0,0,0,.1);
-            border-radius: 8px;
-        }
-        .anchor {
-        display: block;
-        position: relative;
-        top: -60px; /* Adjust this value to match the height of your navbar */
-        visibility: hidden;
-    }
-
-    </style>
-</head>
-<body oncontextmenu="return false">
-    <div class="navbar">
-        <!-- Navigation Links -->
-        <a href="#">Home</a>
-        <a href="#employment-anchor">Employment</a>
-        <a href="#education-anchor">Education</a>
-        <a href="#research-interests-anchor">Research Interests</a>
-        <a href="#awards-and-honors-anchor">Awards and Honors</a>
-        <a href="#profile-anchor">Links</a>
-    </div>
-
-    <section class="page-header">
-        <h1 class="project-name">Yongkuk Jeong</h1>
-        <h2 class="project-tagline">yongkuk at kth.se</h2>
-        <img src="img/YKJeong.png" width="150" alt="Yongkuk Jeong"/>
-        <p>Assistant Professor in Production Logistics<br>Department of Production Engineering<br>KTH Royal Institute of Technology, Sweden</p>
-    </section>
-    
-    <!-- Main Content Area -->
-<section class="main-content">
-    
-    <!-- Employment -->
-    <div class="anchor" id="employment-anchor"></div>
-    <h3><a id="employment" class="anchor" href="#career" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Employment</h3>
-    <ul>
-        <li>Assistant Professor, Department of Production Engineering, KTH Royal Institute of Technology, Sweden, 2021-now</li>
-        <li>Postdoc, Department of Sustainable Production Development, KTH Royal Institute of Technology, Sweden, 2019-2021</li>
-        <li>Postdoctoral Researcher, Research Institute of Marine Systems Engineering, Seoul National University, South Korea, 2018-2019</li>
-    </ul>
-    <!-- Education -->
-    <div class="anchor" id="education-anchor"></div>
-
-    <h3><a id="education" class="anchor" href="#education" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Education</h3>
-    <ul>
-        <li>Ph.D., Department of Naval Architecture and Ocean Engineering, Seoul National University, South Korea, 2018</li>
-        <li>B.Sc., Department of Naval Architecture and Ocean Engineering, Seoul National University, South Korea, 2011</li>
-    </ul>
-    <!-- Research Interests -->
-    <div class="anchor" id="research-interests-anchor"></div>
-    <h3><a id="research-interests" class="anchor" href="#research-interests" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Research Interests</h3>
-    <ul>
-        <li>Digitalization in production logistics</li>
-        <li>Manufacturing simulation</li>
-        <li>Industry 5.0 <a href="https://youtu.be/0Xs3RpHfctU?si=Y4Tjkq4s8myfna2e">[LINK]</a></li>
-    </ul>
-        <!-- Awards and Honors -->
-        <div class="anchor" id="awards-and-honors-anchor"></div>
-        <h3><a id="awards-and-honors" class="anchor" href="#awards-and-honors" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Awards and Honors</h3>
-        <ul>
+   <head>
+      <meta charset="UTF-8">
+      <title>Yongkuk Jeong, PhD (정용국)</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+      <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400&display=swap" rel="stylesheet">
+      <link rel="stylesheet" href="stylesheets/stylesheet.css">
+      <link rel="icon" href="img/icon_small.png">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+      <script src="https://d3js.org/d3.v5.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/d3-cloud/build/d3.layout.cloud.js"></script>
+      <style>
+         body, html {
+         font-family: 'Figtree', sans-serif;
+         padding-top: 60px; /* Adjusted padding to accommodate fixed navbar */
+         background: #f5f5f5; /* Updated background for overall consistency */
+         margin: 0;
+         padding: 0;
+         }
+         .navbar {
+         background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+         overflow: hidden;
+         position: fixed;
+         top: -100px; /* Start hidden above the viewport */
+         width: 100%;
+         box-shadow: 0 2px 5px rgba(0,0,0,.2);
+         z-index: 1000;
+         transition: top 0.3s; /* Smooth transition for sliding in and out */
+         }
+         .navbar a {
+         float: left;
+         display: block;
+         color: white;
+         text-align: center;
+         padding: 14px 16px;
+         text-decoration: none;
+         font-size: 17px;
+         transition: background-color 0.3s;
+         }
+         .navbar a:hover, .navbar a:focus {
+         background-color: rgba(255,255,255,0.2);
+         }
+         .page-header {
+         background: linear-gradient(to right, #12c2e9, #c471ed, #f64f59);
+         color: white;
+         text-align: center;
+         padding: 50px 10px;
+         box-shadow: 0 4px 6px rgba(0,0,0,.1);
+         }
+         .collapsible {
+         background-color: #4CAF50;
+         color: white;
+         cursor: pointer;
+         padding: 14px 20px;
+         width: 100%;
+         border: none;
+         text-align: left;
+         outline: none;
+         font-size: 18px;
+         transition: background-color 0.3s ease;
+         }
+         .collapsible:hover, .collapsible:active {
+         background-color: #45a049;
+         }
+         .collapsible:after {
+         content: '\002B';
+         color: white;
+         font-weight: bold;
+         float: right;
+         margin-left: 5px;
+         }
+         .active:after {
+         content: "\2212";
+         }
+         .collapsible-content {
+         background-color: #f9f9f9;
+         padding: 0 18px;
+         max-height: 0;
+         overflow: hidden;
+         transition: max-height 0.2s ease-out;
+         margin-bottom: 15px;
+         }
+         @media (max-width: 600px) {
+         .navbar {
+         top: -120px; /* Adjust for mobile if navbar is thicker */
+         }
+         .navbar a {
+         padding: 20px 15px; /* Adjust if more padding is needed on mobile */
+         }
+         }
+         /* Add fancy animations */
+         @keyframes fadeIn {
+         from { opacity: 0; }
+         to { opacity: 1; }
+         }
+         .main-content {
+         padding: 20px;
+         background: #fff;
+         margin: 20px auto;
+         box-shadow: 0 1px 3px rgba(0,0,0,.1);
+         border-radius: 8px;
+         max-width: 800px;
+         }
+         .main-content, .page-header, .navbar {
+         animation: fadeIn 1s;
+         }
+         .chart-container {
+         width: 100%;
+         max-width: 800px;
+         margin: 20px auto;
+         padding: 20px;
+         background: #fff;
+         box-shadow: 0 1px 3px rgba(0,0,0,.1);
+         border-radius: 8px;
+         }
+         .anchor {
+         display: block;
+         position: relative;
+         top: -60px; /* Adjust this value to match the height of your navbar */
+         visibility: hidden;
+         }
+      </style>
+   </head>
+   <body oncontextmenu="return false">
+      <div class="navbar">
+         <!-- Navigation Links -->
+         <a href="#">Home</a>
+         <a href="#employment-anchor">Employment</a>
+         <a href="#education-anchor">Education</a>
+         <a href="#research-interests-anchor">Research Interests</a>
+         <a href="#awards-and-honors-anchor">Awards and Honors</a>
+         <a href="#word-cloud-anchor">Word Cloud</a>
+         <a href="#profile-anchor">Links</a>
+      </div>
+      <section class="page-header">
+         <h1 class="project-name">Yongkuk Jeong</h1>
+         <h2 class="project-tagline">yongkuk at kth.se</h2>
+         <a href="playground/color.html"><img src="img/YKJeong.png" width="150" alt="Yongkuk Jeong"/></a>
+         <p>Assistant Professor in Production Logistics<br>Department of Production Engineering<br>KTH Royal Institute of Technology, Sweden</p>
+      </section>
+      <!-- Main Content Area -->
+      <section class="main-content">
+         <!-- Employment -->
+         <div class="anchor" id="employment-anchor"></div>
+         <h3>Employment</h3>
+         <ul>
+            <li>Assistant Professor, Department of Production Engineering, KTH Royal Institute of Technology, Sweden, 2021-now</li>
+            <li>Postdoc, Department of Sustainable Production Development, KTH Royal Institute of Technology, Sweden, 2019-2021</li>
+            <li>Postdoctoral Researcher, Research Institute of Marine Systems Engineering, Seoul National University, South Korea, 2018-2019</li>
+         </ul>
+         <!-- Education -->
+         <div class="anchor" id="education-anchor"></div>
+         <h3>Education</h3>
+         <ul>
+            <li>Ph.D., Department of Naval Architecture and Ocean Engineering, Seoul National University, South Korea, 2018</li>
+            <li>B.Sc., Department of Naval Architecture and Ocean Engineering, Seoul National University, South Korea, 2011</li>
+         </ul>
+         <!-- Research Interests -->
+         <div class="anchor" id="research-interests-anchor"></div>
+         <h3>Research Interests</h3>
+         <ul>
+            <li>Digitalization in production logistics</li>
+            <li>Manufacturing simulation</li>
+            <li>Industry 5.0 <a href="https://youtu.be/0Xs3RpHfctU?si=Y4Tjkq4s8myfna2e">[LINK]</a></li>
+         </ul>
+         <!-- Awards and Honors -->
+         <div class="anchor" id="awards-and-honors-anchor"></div>
+         <h3>Awards and Honors</h3>
+         <ul>
             <li>Oct 2019, The Elmer L. Hann Award, Best Paper on Ship Production Delivered at the Ship Production Symposium, SNAME <a href="https://www.sname.org/elmer-l-hann-award">[LINK]</a></li>
             <li>Mar 2012 - Aug 2013, STX Foundation</li>
             <li>Nov 2012, Encouragement Award, Korean Institute of Industrial Engineers</li>
             <li>Feb 2011, The Society of Naval Architects of Korea</li>
             <li>Mar 2007 - Feb 2011, National Scholarship For Science and Engineering, Korea Student Aid Foundation (KOSAF)</li>
-        </ul>
-    <!-- Selected Research Projects -->
-    <button class="collapsible" href="#selected-research-projects">Selected Research Projects</button>
-    <div class="collapsible-content">
-        <ul>
-            <li>
-                <b>SHIFT-DT:</b> Sustainable, Holistic, Integrated Framework for Ship Design and Production Transformation through Digital Twins <a href="https://www.digitalfutures.kth.se/research/research-pairs/ongoing-research-pairs-projects/shift-dt-sustainable-holistic-integrated-framework-for-ship-design-and-production-transformation-through-digital-twins/">[LINK]</a>
-                <ul>
-                    <li>Funded by Digital Futures (Swedish Funding Agency)</li>
-                    <li>Leading the project as a Principal Investigator (PI) to establish a framework that can marry holistic ship design with digitalized ship production and logistics through digital twins</li>
-                    <li>Jan 2024 – Dec 2025</li>
-                </ul>
-            </li>
-            <li>
-                <b>Dynamic SALSA:</b> Dynamic scheduling of assembly and logistics system using AI <a href="https://www.vinnova.se/p/eureka-smart-dynamic-salsa/">[LINK]</a>
-                <ul>
-                    <li>Funded by Eureka SMART and Vinnova (Swedish Innovation Agency)</li>
-                    <li>Building a computer vision-based platform for analyzing human operators and objects in a production logistics environment</li>
-                    <li>Apr 2023 – Mar 2026</li>
-                </ul>
-            </li>
-            <li>
-                <b>TIMEBLY:</b> Time data management automation for manual assembly <a href="https://www.vinnova.se/en/p/time-data-management-automation-for-manual-assembly---timebly/">[LINK]</a>
-                <ul>
-                    <li>Funded by Vinnova</li>
-                    <li>Leading the human pose estimation and time series prediction analysis for manual assembly tasks using open-source libraries</li>
-                    <li>Nov 2021 – Oct 2024</li>
-                </ul>
-            </li>
-            <li>
-                <b>DYNASTEEL:</b> Dynamic scheduling and transport visibility in steel production <a href="https://www.vinnova.se/p/dynasteel/">[LINK]</a>
-                <ul>
-                    <li>Funded by Vinnova</li>
-                    <li>Involved in human-centered system design process for autonomous transportation system including requirements analysis and prototyping</li>
-                    <li>Mar 2022 – Dec 2022</li>
-                </ul>
-            </li>
-            <li>
-                <b>C-PALS:</b> Cyber-physical assembly and logistics system <a href="https://www.vinnova.se/p/e-smart-c-pals/">[LINK]</a>
-                <ul>
-                    <li>Funded by Eureka SMART and Vinnova</li>
-                    <li>Built a digital twin and real-time production logistics data visualization platform using open-source libraries</li>
-                    <li>May 2019 – Aug 2022</li>
-                </ul>
-            </li>
-            <li>
-                <b>HUPMOBILE:</b> Holistic urban and per-urban mobility <a href="https://www.hupmobile-project.eu/">[LINK]</a>
-                <ul>
-                    <li>Funded by Interreg Baltic Sea Region (EU)</li>
-                    <li>Involved in participatory modelling and simulation process for urban mobility simulation with multiple stakeholders</li>
-                    <li>Jan 2019 – Dec 2021</li>
-                </ul>
-            </li>
-            <!-- More projects can be listed similarly -->
-        </ul>
-        </div>
-
-    <!-- Publications -->
-    <button class="collapsible" href="#publications">Publications</button>
-    <div class="collapsible-content">
-        <ul>
-            <li>2024</li>
+         </ul>
+         <!-- Selected Research Projects -->
+         <button class="collapsible" href="#selected-research-projects">Selected Research Projects</button>
+         <div class="collapsible-content">
             <ul>
-                <li>Jannicke Baalsrud Hauge and <b>Yongkuk Jeong</b> (2024), <span style="color:#1d6ab8">From novice to expert: advancing step-by-step simulation guideline for urban logistics with an open-source simulation tool</span>, The International Journal of Logistics Management, <a href="https://doi.org/10.1108/IJLM-02-2023-0056">[Link: Paper]</a></li>
+               <li>
+                  <b>SHIFT-DT:</b> Sustainable, Holistic, Integrated Framework for Ship Design and Production Transformation through Digital Twins <a href="https://www.digitalfutures.kth.se/research/research-pairs/ongoing-research-pairs-projects/shift-dt-sustainable-holistic-integrated-framework-for-ship-design-and-production-transformation-through-digital-twins/">[LINK]</a>
+                  <ul>
+                     <li>Funded by Digital Futures (Swedish Funding Agency)</li>
+                     <li>Leading the project as a Principal Investigator (PI) to establish a framework that can marry holistic ship design with digitalized ship production and logistics through digital twins</li>
+                     <li>Jan 2024 – Dec 2025</li>
+                  </ul>
+               </li>
+               <li>
+                  <b>Dynamic SALSA:</b> Dynamic scheduling of assembly and logistics system using AI <a href="https://www.vinnova.se/p/eureka-smart-dynamic-salsa/">[LINK]</a>
+                  <ul>
+                     <li>Funded by Eureka SMART and Vinnova (Swedish Innovation Agency)</li>
+                     <li>Building a computer vision-based platform for analyzing human operators and objects in a production logistics environment</li>
+                     <li>Apr 2023 – Mar 2026</li>
+                  </ul>
+               </li>
+               <li>
+                  <b>TIMEBLY:</b> Time data management automation for manual assembly <a href="https://www.vinnova.se/en/p/time-data-management-automation-for-manual-assembly---timebly/">[LINK]</a>
+                  <ul>
+                     <li>Funded by Vinnova</li>
+                     <li>Leading the human pose estimation and time series prediction analysis for manual assembly tasks using open-source libraries</li>
+                     <li>Nov 2021 – Oct 2024</li>
+                  </ul>
+               </li>
+               <li>
+                  <b>DYNASTEEL:</b> Dynamic scheduling and transport visibility in steel production <a href="https://www.vinnova.se/p/dynasteel/">[LINK]</a>
+                  <ul>
+                     <li>Funded by Vinnova</li>
+                     <li>Involved in human-centered system design process for autonomous transportation system including requirements analysis and prototyping</li>
+                     <li>Mar 2022 – Dec 2022</li>
+                  </ul>
+               </li>
+               <li>
+                  <b>C-PALS:</b> Cyber-physical assembly and logistics system <a href="https://www.vinnova.se/p/e-smart-c-pals/">[LINK]</a>
+                  <ul>
+                     <li>Funded by Eureka SMART and Vinnova</li>
+                     <li>Built a digital twin and real-time production logistics data visualization platform using open-source libraries</li>
+                     <li>May 2019 – Aug 2022</li>
+                  </ul>
+               </li>
+               <li>
+                  <b>HUPMOBILE:</b> Holistic urban and per-urban mobility <a href="https://www.hupmobile-project.eu/">[LINK]</a>
+                  <ul>
+                     <li>Funded by Interreg Baltic Sea Region (EU)</li>
+                     <li>Involved in participatory modelling and simulation process for urban mobility simulation with multiple stakeholders</li>
+                     <li>Jan 2019 – Dec 2021</li>
+                  </ul>
+               </li>
+               <!-- More projects can be listed similarly -->
             </ul>
-            <li>2023</li>
+         </div>
+         <!-- Publications -->
+         <button class="collapsible" href="#publications">Publications</button>
+         <div class="collapsible-content">
             <ul>
-                <li><b>Yongkuk Jeong</b> (2023), <span style="color:#1d6ab8">Digitalization in Production Logistics: How AI, Digital Twins, and Simulation Are Driving the Shift from Model-based to Data-driven Approaches</span>, International Journal of Precision Engineering and Manufacturing-Smart Technology, 1(2) <a href="https://doi.org/10.57062/ijpem-st.2023.0052">[Link: Paper]</a></li>
-                <li>Erik Flores-García, <b>Yongkuk Jeong</b>, Sichao Liu, Magnus Wiktorsson, and Lihui Wang (2023), <span style="color:#1d6ab8">Enabling Industrial Internet of Things-based Digital Servitization in Smart Production Logistics</span>, International Journal of Production Research, 61(12) <a href="https://doi.org/10.1080/00207543.2022.2081099">[Link: Paper]</a></li>
+               <li>2024</li>
+               <ul>
+                  <li>Jannicke Baalsrud Hauge and <b>Yongkuk Jeong</b> (2024), <span style="color:#1d6ab8">From novice to expert: advancing step-by-step simulation guideline for urban logistics with an open-source simulation tool</span>, The International Journal of Logistics Management, <a href="https://doi.org/10.1108/IJLM-02-2023-0056">[Link: Paper]</a></li>
+               </ul>
+               <li>2023</li>
+               <ul>
+                  <li><b>Yongkuk Jeong</b> (2023), <span style="color:#1d6ab8">Digitalization in Production Logistics: How AI, Digital Twins, and Simulation Are Driving the Shift from Model-based to Data-driven Approaches</span>, International Journal of Precision Engineering and Manufacturing-Smart Technology, 1(2) <a href="https://doi.org/10.57062/ijpem-st.2023.0052">[Link: Paper]</a></li>
+                  <li>Erik Flores-García, <b>Yongkuk Jeong</b>, Sichao Liu, Magnus Wiktorsson, and Lihui Wang (2023), <span style="color:#1d6ab8">Enabling Industrial Internet of Things-based Digital Servitization in Smart Production Logistics</span>, International Journal of Production Research, 61(12) <a href="https://doi.org/10.1080/00207543.2022.2081099">[Link: Paper]</a></li>
+               </ul>
+               <li>2021</li>
+               <ul>
+                  <li>Jannicke Baalsrud Hauge, Seyoum Eshetu Birkie, and <b>Yongkuk Jeong</b> (2021), <span style="color:#1d6ab8">Developing a holistic decision support framework: From production logistics to sustainable freight transport in an urban environment</span>, Transportation Research Interdisciplinary Perspectives, 12 <a href="https://doi.org/10.1016/j.trip.2021.100496">[Link: Paper]</a></li>
+                  <li>Jannicke Baalsrud Hauge, Masoud Zafarzadeh, <b>Yongkuk Jeong</b>, Yi Li, Wajid Ali Khilji, Christian Larsen, and Magnus Wiktorsson (2021), <span style="color:#1d6ab8">Digital twin testbed and practical applications in production logistics with real-time location data</span>, International Journal of Industrial Engineering and Management, 12(2)  <a href="http://doi.org/10.24867/IJIEM-2021-2-282">[Link: Paper]</a></li>
+                  <li>Huiqiang Shen, Yonggil Lee, <b>Yong-Kuk Jeong</b>, and Jong Hun Woo (2021), <span style="color:#1d6ab8">Analysis on Hull Block Erection Process Considering Variability</span>, Journal of Ship Production and Design, 37(2) <a href="https://doi.org/10.5957/JSPD.07190036">[Link: Paper]</a></li>
+                  <li>Jong Hun Woo, Haoyu Zhu, Dong Kun Lee, Hyun Chung, and <b>Yongkuk Jeong</b> (2021), <span style="color:#1d6ab8">Assessment Framework of Smart Shipyard Maturity Level via Data Envelopment Analysis</span>, Sustainability, 13(4)  <a href="https://doi.org/10.3390/su13041964">[Link: Paper]</a></li>
+               </ul>
+               <li>2020</li>
+               <ul>
+                  <li>Byeongseop Kim, <b>Yongkuk Jeong</b>, and Jong Gye Shin, (2020), <span style="color:#1d6ab8">Spatial arrangement using deep reinforcement learning to minimise rearrangement in ship block stockyards</span>, International Journal of Production Research, 58(16), pp. 5062-5076 <a href="https://doi.org/10.1080/00207543.2020.1748247">[Link: Paper]</a></li>
+                  <li>Jong Gye Shin, Youngmin Kim, <b>Yong-Kuk Jeong</b>, Jong Hun Woo, and Cheolho Ryu, (2020), <span style="color:#1d6ab8">Model-based Computational Shipyard Dynamics and its Applications</span>, Journal of Ship Production and Design, 36(1), pp. 87-95 <a href="https://www.onepetro.org/journal-paper/SNAME-JSPD-2020-36-1-87">[Link: Paper]</a></li>
+                  <li>Suheon Ju, Saenal Sung, Huiqiang Shen, <b>Yong-Kuk Jeong</b>, and Jong-Gye Shin, (2020), <span style="color:#1d6ab8">System development for establishing shipyard mid-term production plans using backward process-centric simulation</span>, International Journal of Naval Architecture and Ocean Engineering, 12, pp. 20-37 <a href="https://doi.org/10.1016/j.ijnaoe.2019.05.005">[Link: Paper]</a></li>
+               </ul>
+               <li>2019</li>
+               <ul>
+                  <li>Masoud Zafarzadeh, Magnus Wiktorsson, Jannicke Baalsrud Hauge, and <b>Yongkuk Jeong</b> (2019), <span style="color:#1d6ab8">Data-Driven Production Logistics - An Industrial Case Study on Potential and Challenges</span>, Smart and Sustainable Manufacturing Systems, 3(1), pp. 53-78 <a href="https://doi.org/10.1520/SSMS20190048">[Link: Paper]</a></li>
+                  <li><b>Yong-Kuk Jeong</b>, Youngmin Kim, Su Heon Ju, Jong-Gye Shin, Jong-Choel Kim, and Jong Hun Woo, (2019), <span style="color:#1d6ab8">A Spatial Layout Optimization Program considering the Survivability of a Naval Vessel in the Early Design Stage</span>, Journal of Ship Production and Design, 35(2), pp. 126-138 <a href="https://www.onepetro.org/journal-paper/SNAME-JSPD-2019-35-2-126">[Link: Paper]</a></li>
+               </ul>
+               <li>2018</li>
+               <ul>
+                  <li>Jong Moo Lee, <b>Yong-Kuk Jeong</b>, and Jong Hun Woo, (2018), <span style="color:#1d6ab8">Development of an Evaluation Framework of Production Planning for the Shipbuilding Industry</span>, International Journal of Computer Integrated Manufacturing, 31(9), pp. 831-847 <a href="https://www.tandfonline.com/doi/full/10.1080/0951192X.2018.1449968">[Link: Paper]</a></li>
+                  <li>Youngmin Kim, Jong Hun Woo, <b>Yong-Kuk Jeong</b>, and Jong-Gye Shin, (2018), <span style="color:#1d6ab8">Computational Shipyard Dynamics</span>, Journal of Ship Production and Design, 34(4), pp. 355-367 <a href="https://www.onepetro.org/journal-paper/SNAME-JSPD-2018-34-4-355">[Link: Paper]</a></li>
+                  <li><b>Yong-Kuk Jeong</b>, SuHeon Ju, Huiqiang Shen, Dong Kun Lee, Jong Gye Shin, and Cheolho Ryu, (2018), <span style="color:#1d6ab8">An analysis of shipyard spatial arrangement planning problem and a spatial arrangement algorithm considering free space and unplaced block</span>, International Journal of Advanced Manufacturing Technology, 95, pp. 4307–4325 <a href="https://link.springer.com/article/10.1007%2Fs00170-017-1525-1">[LINK: Paper]</a></li>
+                  <li><b>Yong-Kuk Jeong</b>, Philippe Lee, and Jong Hun Woo, (2018), <span style="color:#1d6ab8">Shipyard Block Logistics Simulation Using Process-centric Discrete Event Simulation Method</span>, Journal of Ship Production and Design, 34(2), pp. 168-179 <a href="https://www.onepetro.org/journal-paper/SNAME-JSPD-2018-34-2-168">[LINK: Paper]</a></li>
+               </ul>
+               <li>~ 2017</li>
+               <ul>
+                  <li>Jong Hun Woo, Youngmin Kim, <b>Yong-Kuk Jeong</b>, and Jong-Gye Shin, (2017), <span style="color:#1d6ab8">A Research on Simulation Framework for the Advancement of Supplying Management Competency</span>, Journal of Ship Production and Design, 33(1), pp. 60-79 <a href="https://www.onepetro.org/journal-paper/SNAME-JSPD-2017-33-1-60">[LINK: Paper]</a></li>
+                  <li>SeungHoon Nam, Dong Kun Lee, <b>Yong-Kuk Jeong</b>, Philippe Lee, and Jong-Gye Shin, (2016), <span style="color:#1d6ab8">Environmental Impact Assessment of Composite Small Craft Manufacturing Using the Work Breakdown Structure</span>, International Journal of Precision Engineering and Manufacturing–Green Technology, 3(3), pp. 261-272 <a href="http://link.springer.com/article/10.1007/s40684-016-0034-2">[LINK: Paper]</a></li>
+                  <li>Dong Kun Lee, <b>Yong-Kuk Jeong</b>, Jong Gye Shin, and Dae-Kyun Oh, (2014), <span style="color:#1d6ab8">Optimized Design of Electric Propulsion System for Small Crafts using the Differential Evolution Algorithm</span>, International Journal of Precision Engineering and Manufacturing-Green Technology, 1(3), pp. 229-240 <a href="http://link.springer.com/article/10.1007/s40684-014-0029-9">[LINK: Paper]</a></li>
+                  <li>Dong Kun Lee, Jong Gye Shin, Youngmin Kim, and <b>Yong Kuk Jeong</b>, (2014), <span style="color:#1d6ab8">Simulation-based Work Plan Verification in Shipyards</span>, Journal of Ship Production and Design, 30(2), pp. 49-57 <a href="https://www.onepetro.org/journal-paper/SNAME-JSPD-2014-30-2-49">[LINK: Paper]</a></li>
+               </ul>
             </ul>
-            <li>2021</li>
+         </div>
+         <!-- Conferences -->
+         <button class="collapsible" href="#conference">Conference</button>
+         <div class="collapsible-content">
             <ul>
-                <li>Jannicke Baalsrud Hauge, Seyoum Eshetu Birkie, and <b>Yongkuk Jeong</b> (2021), <span style="color:#1d6ab8">Developing a holistic decision support framework: From production logistics to sustainable freight transport in an urban environment</span>, Transportation Research Interdisciplinary Perspectives, 12 <a href="https://doi.org/10.1016/j.trip.2021.100496">[Link: Paper]</a></li>
-                <li>Jannicke Baalsrud Hauge, Masoud Zafarzadeh, <b>Yongkuk Jeong</b>, Yi Li, Wajid Ali Khilji, Christian Larsen, and Magnus Wiktorsson (2021), <span style="color:#1d6ab8">Digital twin testbed and practical applications in production logistics with real-time location data</span>, International Journal of Industrial Engineering and Management, 12(2)  <a href="http://doi.org/10.24867/IJIEM-2021-2-282">[Link: Paper]</a></li>
-                <li>Huiqiang Shen, Yonggil Lee, <b>Yong-Kuk Jeong</b>, and Jong Hun Woo (2021), <span style="color:#1d6ab8">Analysis on Hull Block Erection Process Considering Variability</span>, Journal of Ship Production and Design, 37(2) <a href="https://doi.org/10.5957/JSPD.07190036">[Link: Paper]</a></li>
-                <li>Jong Hun Woo, Haoyu Zhu, Dong Kun Lee, Hyun Chung, and <b>Yongkuk Jeong</b> (2021), <span style="color:#1d6ab8">Assessment Framework of Smart Shipyard Maturity Level via Data Envelopment Analysis</span>, Sustainability, 13(4)  <a href="https://doi.org/10.3390/su13041964">[Link: Paper]</a></li>
+               <li>2023</li>
+               <ul>
+                  <li><b>Yongkuk Jeong</b>, Erik Flores-García, Simon Piontek, and Magnus Wiktorsson (2023), <span style="color:#1d6ab8">Implementing transmission of data for digital twins in human-centered cyber-physical systems</span>, CIRP CMS 2023, Cape Town, South Africa, 24-26 October, 2023</li>
+                  <li>Erik Flores-García, So Hyun Nam, <b>Yongkuk Jeong</b>, Magnus Wiktorsson, and Jong Hun Woo (2023), <span style="color:#1d6ab8">Beyond the Lab: Exploring the Socio-Technical Implications of Machine Learning in Biopharmaceutical Manufacturing</span>, APMS 2023, Trondheim, Norway, 17-21 September, 2023</li>
+                  <li><b>Yongkuk Jeong</b>, Magnus Wiktorsson, Donggyun Park, Jesper Gans, and Linda Svensson (2023), <span style="color:#1d6ab8">Data Preparation for AI-Assisted Video Analysis in Manual Assembly Task: A Step Towards Industry 5.0</span>, APMS 2023, Trondheim, Norway, 17-21 September, 2023</li>
+                  <li><b>Yongkuk Jeong</b> and Jannicke Baalsrud Hauge (2023), <span style="color:#1d6ab8">Digitalization in production logistics towards Industry 5.0: Anaylsis of industrial project cases</span>, ISL 2023, Enschede, Netherlands, 9-12 July, 2023</li>
+                  <li><b>Yongkuk Jeong</b>, Tarun Kumar Agrawal, and Kiwook Jung (2023), <span style="color:#1d6ab8">Digital servitization in battery reuse and recycling business based on blockchain platform technologies</span>, EurOMA 2023, Leuven, Belgium, 3-5 July, 2023</li>
+                  <li>Masoud Zafarzadeh, <b>Yongkuk Jeong</b>, Magnus Wiktorsson (2023), <span style="color:#1d6ab8">Data flow structure for multimodal human-robot collaboration in material handling</span>, IEEE ICE/ITMC, Edinburgh, Scotland, 19-22 June, 2023</li>
+                  </li>
+               </ul>
+               <li>2022</li>
+               <ul>
+                  <li>Amita Singh, Erik Flores Garcia, <b>Yongkuk Jeong</b>, and Magnus Wiktorsson (2022), <span style="color:#1d6ab8">A Rubric for Implementing Explainable AI in Production Logistics</span>, APMS 2022, Gyeongju, South Korea, 25-29 September, 2022</li>
+                  <li><b>Yongkuk Jeong</b>, Erik Flores-García, Dong Hoon Kwak, Jong Hun Woo, Magnus Wiktorsson, Sichao Liu, Xi Vincent Wang, and Lihui Wang (2022), <span style="color:#1d6ab8">Digital Twin-Based Services and Data Visualization of Material Handling Equipment in Smart Production Logistics Environment</span>, APMS 2022, Gyeongju, South Korea, 25-29 September, 2022</li>
+                  <li>Erik Flores-García, <b>Yongkuk Jeong</b>, Magnus Wiktorsson, Dong Hoon Kwak, Jong Hun Woo, Thomas Schmitt, and Lars Hanson (2022), <span style="color:#1d6ab8">Characterizing Digital Dashboards for Smart Production Logistics</span>, APMS 2022, Gyeongju, South Korea, 25-29 September, 2022</li>
+                  <li>Jannicke Baalsrud Hauge and <b>Yongkuk Jeong</b> (2022), <span style="color:#1d6ab8">A step-by-step guideline to overcome challenges modelling urban logistics scenarios using SUMO</span>, ISL 2022, Cork, Ireland, 10-13 July, 2022</li>
+                  <li><b>Yongkuk Jeong</b> and Erik Flores-García (2022), <span style="color:#1d6ab8">Cyber-Physical system as a service for the manufacturing industry - collaboration work between Sweden and South Korea</span>, The Swedish Manufacturing R&D Clusters’ Annual Conference, Katrineholm, Sweden, 18-19 May, 2022</li>
+                  <li><b>Yongkuk Jeong</b>, Gianpiero Canessa, Erik Flores-García, Tarun Kumar Agrawal, and Magnus Wiktorsson (2022), <span style="color:#1d6ab8">An optimization model with stochastic variables for flexible production logistics planning</span>, SPS 2022, Skövde, Sweden, 26-29 April, 2022</li>
+                  <li>Erik Flores-García, Maheshwaran Gopalakrishnan, <b>Yongkuk Jeong</b> and Magnus Wiktorsson (2022), <span style="color:#1d6ab8">IIoT-enabled Digital Services for Maintenance Planning in Smart Production Logistics using Maintenance Opportunity Window</span>, SPS 2022, Skövde, Sweden, 26-29 April, 2022</li>
+               </ul>
+               <li>2021</li>
+               <ul>
+                  <li>Erik Flores-García, <b>Yongkuk Jeong</b>, Magnus Wiktorsson, Sichao Liu, Lihui Wang, and GooYoung Kim (2021), <span style="color:#1d6ab8">Digital twin-based services for smart production logistics</span>, WSC 2021, Phoenix, AZ, USA, 13-15 December, 2021</li>
+                  <li><b>Yongkuk Jeong</b>, Tarun Kumar Agrawal, Erik Flores-García, and Magnus Wiktorsson (2021), <span style="color:#1d6ab8">A reinforcement learning model for material handling task assignment and route planning in dynamic production logistics environment</span>, CIRP CMS 2021, Online, 22-24 September, 2021</li>
+                  <li>Erik Flores-García, <b>Yongkuk Jeong</b>, and Magnus Wiktorsson (2021), <span style="color:#1d6ab8">Applying Machine Learning for Adaptive Scheduling and Execution of Material Handling in Smart Production Logistics</span>, APMS 2021, Nates, France (Online), 5-9 September, 2021</li>
+                  <li>Amita Singh, <b>Yongkuk Jeong</b>, Jannicke Baalsrud Hauge, and Seyoum Eshetu Birkie (2021), <span style="color:#1d6ab8">Urban production logistics planning considering environmental sustainability perspectives: Turku city case</span>, ISL 2021, Online, 12-13 July, 2021</li>
+                  <li>Erik Flores-García, <b>Yongkuk Jeong</b>, and Magnus Wiktorsson (2021), <span style="color:#1d6ab8">Exploring the challenges for generating, handling, and using real-time location information in Smart Production Logistics</span>, EurOMA 2021, Online, 5-7 July, 2021</li>
+               </ul>
+               <li>2020</li>
+               <ul>
+                  <li><b>Yongkuk Jeong</b>, Erik Flores-García, and Magnus Wiktorsson (2020), <span style="color:#1d6ab8">A Design of Digital Twins for Supporting Decision-making in Production Logistics</span>, WSC 2020, Orlando, Florida, USA (Online), 14-18 December, 2020 <a href="https://informs-sim.org/wsc20papers/277.pdf">[LINK: Paper]</a> <a href="https://youtu.be/hcBWFXwF8H4">[LINK: Presentation]</a></li>
+                  <li><b>Yongkuk Jeong</b> (2020), <span style="color:#1d6ab8">Digitalization and Digital Twin Applications in Production Logistics for Sustainable Production Development</span>, PRESM 2020, Seoul, South Korea (Online), 15-18 November, 2020</li>
+                  <li><b>Yongkuk Jeong</b>, Magnus Wiktorsson, and Peter Almström (2020), <span style="color:#1d6ab8">Towards automatic validation of operation times in manual processes: Two industrial cases</span>, PLAN Conference 2020, Södertälje, Sweden (Online), 21 October, 2020</li>
+                  <li>Erik Flores-García, <b>Yongkuk Jeong</b>, Sichao Liu, Goo-Young Kim, and Magnus Wiktorsson (2020), <span style="color:#1d6ab8">Digital Twin-based Services for Future Production Logistics Settings</span>, PLAN Conference 2020, Södertälje, Sweden (Online), 21 October, 2020</li>
+                  <li>Ravi Kalaiarasan, Magnus Wiktorsson, Jan Olhager, and <b>Yongkuk Jeong</b> (2020), <span style="color:#1d6ab8">Production Logistics Visibility – definitions, status and research agenda</span>, SPS 2020, Jönköping, Sweden (Online), 7-8 October, 2020 <a href="https://doi.org/10.3233/ATDE200188">[LINK: Paper]</a></li>
+                  <li><b>Yongkuk Jeong</b>, Amita Singh, Masoud Zafarzadeh, Magnus Wiktorsson, and Jannicke Baalsrud Hauge (2020), <span style="color:#1d6ab8">Data-driven manufacturing simulation: Towards a CPS-based approach</span>, SPS 2020, Jönköping, Sweden (Online), 7-8 October, 2020 <a href="https://doi.org/10.3233/ATDE200197">[LINK: Paper]</a></li>
+                  <li>Erik Flores-García and <b>Yongkuk Jeong</b> (2020), <span style="color:#1d6ab8">Cyber Physical Assembly and Logistics</span>, The Swedish Manufacturing R&D Clusters’ Annual Conference, Katrineholm, Sweden (Online), 30 September - 1 October, 2020</li>
+                  <li>Jannicke Baalsrud Hauge, Masoud Zafarzadeh, <b>Yongkuk Jeong</b>, Yi Li, Wajid Ali Khilji, and Magnus Wiktorsson (2020), <span style="color:#1d6ab8">Digital and Physical Testbed for Production Logistics Operations</span>, APMS 2020, Novi Sad, Serbia (Online), 30 August - 3 September, 2020 <a href="https://doi.org/10.1007/978-3-030-57993-7_71">[LINK: Paper]</a></li>
+                  <li>Jo Wessel Strandhagen, <b>Yongkuk Jeong</b>, Jong Hun Woo, Marco Semini, Magnus Wiktorsson, Jan Ola Strandhagen, and Erlend Alfnes (2020), <span style="color:#1d6ab8">Factors Affecting Shipyard Operations and Logistics: A Framework and Comparison of Shipbuilding Approaches</span>, APMS 2020, Novi Sad, Serbia (Online), 30 August - 3 September, 2020 <a href="https://doi.org/10.1007/978-3-030-57997-5_61">[LINK: Paper]</a></li>
+                  <li>Jannicke Baalsrud Hauge, Masoud Zafarzadeh, <b>Yongkuk Jeong</b>, Yi Li, Wajid Ali Khilji, and Magnus Wiktorsson (2020), <span style="color:#1d6ab8">Employing digital twins within production logistics</span>, 2020 IEEE ICE/ITMC, Cardiff, United Kingdom, 15 - 17 June, 2020 <a href="https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9198540">[LINK: Paper]</a></li>
+               </ul>
+               <li>2019</li>
+               <ul>
+                  <li>Jong Gye Shin, Youngmin Kim, Jong Hun Woo, Seunghyeok Son, Huiqiang Shen, Byeong-seop Kim, Cheolho Ryu, and <b>Yong-Kuk Jeong</b> (2019), <span style="color:#1d6ab8">Smart Shipyard Platform with Computational Shipyard Dynamics and its Application to Forming Shop</span>, SNAME Maritime Convention 2019, Tacoma, WA, 30 October - 1 November, 2019</li>
+                  <li><b>Yong-Kuk Jeong</b> and Magnus Wiktorsson (2019), <span style="color:#1d6ab8">Process-Centric versus Resource-Centric Modelling: Initial findings and future research directions</span>, i3CDE 2019, Penang, Malaysia, 8-10 July, 2019</li>
+                  <li><b>Yong-Kuk Jeong</b>, Huiqiang Shen, Youngmin Kim, Young-Ki Min, Jong Gye Shin, Philippe Lee, Jong Hun Woo, Yong Gil Lee (2019), <span style="color:#1d6ab8">Discrete Event Simulation for Strategic Shipyard Planning</span>, COMPIT 2019, Tullamore, Ireland, 25-27 March, 2019</li>
+               </ul>
+               <li>2018</li>
+               <ul>
+                  <li>Huiqiang Shen, <b>Yong-Kuk Jeong</b>, Jong Gye Shin, Philippe Lee, Jong Hun Woo, Yong Gil Lee, Sang Hun Kim, Ju Hyeon Jeong, (2018), <span style="color:#1d6ab8">Key Performance Indicators and Analysis Method for Ship Block Logistics Flow in Shipyards</span>, WSC 2018, Gothenburg, Sweden, 9-12 December, 2018</li>
+                  <li>Jong Gye Shin, Youngmin Kim, <b>Yong-Kuk Jeong</b>, Jong Hun Woo, Cheolho Ryu, (2018), <span style="color:#1d6ab8">Model-based Computational Dynamics and its Applications</span>, SNAME Maritime Convention 2018, Providence, RI, 24-27 October, 2018</li>
+                  <li>Beongseop Kim, <b>Yong-Kuk Jeong</b>, Seunghyeok Son, Su Heon Ju, Huiqiang Shen, Jong Gye Shin, (2018), <span style="color:#1d6ab8">A Shipyard Green Logistics Concept and a Strategic Simulation to Reduce the Transportation Distance of Assembly Blocks in Shipyard</span>, PRESM 2018, Sapporo, Japan, 3-7 July, 2018</li>
+                  <li>Jong Hun Woo, Jaeho Choi, Ji Hye Kim, <b>Yong-Kuk Jeong</b>, Philippe Lee, and Jong Ho Nam, (2018), <span style="color:#1d6ab8">Machine Learning in Ship Production</span>, COMPIT 2018, Pavone, Italy, 14-16 May, 2018</li>
+                  <li><b>Yong-Kuk Jeong</b>, Jong Hun Woo, Philippe Lee, Youngmin Kim, Young-Ki Min, Jong Gye Shin, Yong Gil Lee, and Cheolho Ryu, (2018), <span style="color:#1d6ab8">Shipyard DES Simulation Framework and its Applications</span>, COMPIT 2018, Pavone, Italy, 14-16 May, 2018</li>
+               </ul>
+               <li>~ 2017</li>
+               <ul>
+                  <li><b>Yong-Kuk Jeong</b>, Hui-Qiang Shen, SeungHoon Nam, Youngmin Kim, Jong-Gye Shin, Philippe Lee, Jae Ho Choi, and Jong Hun Woo, (2017), <span style="color:#1d6ab8">Verification and Validation of Shipyard Logistics Simulation System and Its Use Case Identification</span>, WSC 2017, Las Vegas, NV, 3-6 December, 2017</li>
+                  <li>Hui-Qiang Shen, <b>Yong-Kuk Jeong</b>, Seung-Hoon Nam, Youngmin Kim, Jong-Gye Shin, Dong Kun Lee, and Daekyun Oh, (2017), <span style="color:#1d6ab8">A Hierarchical Simulation Model for Workload Analysis of Ship Block Erection Process</span>, WSC 2017, Las Vegas, NV, 3-6 December, 2017</li>
+                  <li>Su Heon Ju, <b>Yong-Kuk Jeong</b>, Seunghyeok Son, Young Gi Min, Jong-Gye, Shin, JongChul Kim, Jong Hun Woo, and Philippe Lee, (2017), <span style="color:#1d6ab8">A layout design framework considering relations between internal space and external shape of naval vessels at the conceptual design</span>, ISOPE 2017, San Francisco, CA, June 25−30, 2017</li>
+                  <li><b>Yong-Kuk Jeong</b>, Seung Hoon Nam, Youngmin Kim, Jong-Gye Shin, Young-Ki Min, Jong Hun Woo, Jae-Ho Choi, Sang-Hoon Kim, and Dae-Kyun Oh, (2017), <span style="color:#1d6ab8">A modeling and simulation method for multi-layered supply chain management in shipbuilding industries</span>, ACM SIGSIM PADS 2017, NTU Singapore, 24-26 May, 2017</li>
+                  <li>Byeongseop Kim, <b>Yong-Kuk Jeong</b>, Seunghyeok Son, Philippe Lee, Yonggil Lee, and Jong Hun Woo, (2017), <span style="color:#1d6ab8">The Extended Process-Centric Modeling Method for Logistics Simulation in Shipyards Considering Stock Areas</span>, COMPIT 2017, Cardiff UK, 15-17 May, 2017</li>
+                  <li><b>Yong-Kuk Jeong</b>, Byeong-Seop Kim, Jong-Gye Shin, Philippe Lee, Jong Hun Woo, and Jong Moo Lee, (2016), <span style="color:#1d6ab8">A Ship Block Logistics Support System based on the Shipyard Simulation Framework</span>, WSC 2016, Arlington VA, 11-14 December, 2016</li>
+                  <li>Seung-hyoek Son, Youngmin Kim, Inhyuck Hwang, Hui Giang Shen, <b>Yong-Kuk Jeong</b>, Cheolho Ryu, Jong-Gye Shin, (2015), <span style="color:#1d6ab8">Design and Development of Manufacturing Information Calculation System for Formation of Curved Hull Plates</span>, MOTSP 2015, Brela Croatia, 10-12 June, 2015</li>
+                  <li><b>Yong-Kuk Jeong</b>, Philippe Lee, SeungHoon Nam, Dong Kun Lee, Jong-Gye Shin, (2015), <span style="color:#1d6ab8">Development of the Methodology for Environmental Impact of Composite Boats Manufacturing Process</span>, CIRP LCE 2015, Sydney Australia, 7-9 April, 2015 <a href="http://ecoreport.codeplex.com/">[LINK: Application]</a></li>
+                  <li>Jong-Gye Shin, Dong Hyun Ahn, Seung Hoon Nam, and <b>Yong-Kuk Jeong</b>, (2014), <span style="color:#1d6ab8">An Introduction to Small boat PLM Technology</span>, ICOR 2014, Fiji, 13-15 October, 2014</li>
+                  <li>Jong-Gye Shin, Seung Hoon Nam, and <b>Yong-Kuk Jeong</b>, (2014), <span style="color:#1d6ab8">Generic Work Breakdown Structure for Sailing Yacht Lifecycle Management</span>, ICOR 2014, Fiji, 13-15 October, 2014</li>
+               </ul>
             </ul>
-            <li>2020</li>
-            <ul>
-                <li>Byeongseop Kim, <b>Yongkuk Jeong</b>, and Jong Gye Shin, (2020), <span style="color:#1d6ab8">Spatial arrangement using deep reinforcement learning to minimise rearrangement in ship block stockyards</span>, International Journal of Production Research, 58(16), pp. 5062-5076 <a href="https://doi.org/10.1080/00207543.2020.1748247">[Link: Paper]</a></li>
-                <li>Jong Gye Shin, Youngmin Kim, <b>Yong-Kuk Jeong</b>, Jong Hun Woo, and Cheolho Ryu, (2020), <span style="color:#1d6ab8">Model-based Computational Shipyard Dynamics and its Applications</span>, Journal of Ship Production and Design, 36(1), pp. 87-95 <a href="https://www.onepetro.org/journal-paper/SNAME-JSPD-2020-36-1-87">[Link: Paper]</a></li>
-                <li>Suheon Ju, Saenal Sung, Huiqiang Shen, <b>Yong-Kuk Jeong</b>, and Jong-Gye Shin, (2020), <span style="color:#1d6ab8">System development for establishing shipyard mid-term production plans using backward process-centric simulation</span>, International Journal of Naval Architecture and Ocean Engineering, 12, pp. 20-37 <a href="https://doi.org/10.1016/j.ijnaoe.2019.05.005">[Link: Paper]</a></li>
-            </ul>
-            <li>2019</li>
-            <ul>
-                <li>Masoud Zafarzadeh, Magnus Wiktorsson, Jannicke Baalsrud Hauge, and <b>Yongkuk Jeong</b> (2019), <span style="color:#1d6ab8">Data-Driven Production Logistics - An Industrial Case Study on Potential and Challenges</span>, Smart and Sustainable Manufacturing Systems, 3(1), pp. 53-78 <a href="https://doi.org/10.1520/SSMS20190048">[Link: Paper]</a></li>
-                <li><b>Yong-Kuk Jeong</b>, Youngmin Kim, Su Heon Ju, Jong-Gye Shin, Jong-Choel Kim, and Jong Hun Woo, (2019), <span style="color:#1d6ab8">A Spatial Layout Optimization Program considering the Survivability of a Naval Vessel in the Early Design Stage</span>, Journal of Ship Production and Design, 35(2), pp. 126-138 <a href="https://www.onepetro.org/journal-paper/SNAME-JSPD-2019-35-2-126">[Link: Paper]</a></li>
-            </ul>
-            <li>2018</li>
-            <ul>
-                <li>Jong Moo Lee, <b>Yong-Kuk Jeong</b>, and Jong Hun Woo, (2018), <span style="color:#1d6ab8">Development of an Evaluation Framework of Production Planning for the Shipbuilding Industry</span>, International Journal of Computer Integrated Manufacturing, 31(9), pp. 831-847 <a href="https://www.tandfonline.com/doi/full/10.1080/0951192X.2018.1449968">[Link: Paper]</a></li>
-                <li>Youngmin Kim, Jong Hun Woo, <b>Yong-Kuk Jeong</b>, and Jong-Gye Shin, (2018), <span style="color:#1d6ab8">Computational Shipyard Dynamics</span>, Journal of Ship Production and Design, 34(4), pp. 355-367 <a href="https://www.onepetro.org/journal-paper/SNAME-JSPD-2018-34-4-355">[Link: Paper]</a></li>
-                <li><b>Yong-Kuk Jeong</b>, SuHeon Ju, Huiqiang Shen, Dong Kun Lee, Jong Gye Shin, and Cheolho Ryu, (2018), <span style="color:#1d6ab8">An analysis of shipyard spatial arrangement planning problem and a spatial arrangement algorithm considering free space and unplaced block</span>, International Journal of Advanced Manufacturing Technology, 95, pp. 4307–4325 <a href="https://link.springer.com/article/10.1007%2Fs00170-017-1525-1">[LINK: Paper]</a></li>
-                <li><b>Yong-Kuk Jeong</b>, Philippe Lee, and Jong Hun Woo, (2018), <span style="color:#1d6ab8">Shipyard Block Logistics Simulation Using Process-centric Discrete Event Simulation Method</span>, Journal of Ship Production and Design, 34(2), pp. 168-179 <a href="https://www.onepetro.org/journal-paper/SNAME-JSPD-2018-34-2-168">[LINK: Paper]</a></li>
-            </ul>
-            <li>~ 2017</li>
-            <ul>
-                <li>Jong Hun Woo, Youngmin Kim, <b>Yong-Kuk Jeong</b>, and Jong-Gye Shin, (2017), <span style="color:#1d6ab8">A Research on Simulation Framework for the Advancement of Supplying Management Competency</span>, Journal of Ship Production and Design, 33(1), pp. 60-79 <a href="https://www.onepetro.org/journal-paper/SNAME-JSPD-2017-33-1-60">[LINK: Paper]</a></li>
-                <li>SeungHoon Nam, Dong Kun Lee, <b>Yong-Kuk Jeong</b>, Philippe Lee, and Jong-Gye Shin, (2016), <span style="color:#1d6ab8">Environmental Impact Assessment of Composite Small Craft Manufacturing Using the Work Breakdown Structure</span>, International Journal of Precision Engineering and Manufacturing–Green Technology, 3(3), pp. 261-272 <a href="http://link.springer.com/article/10.1007/s40684-016-0034-2">[LINK: Paper]</a></li>
-                <li>Dong Kun Lee, <b>Yong-Kuk Jeong</b>, Jong Gye Shin, and Dae-Kyun Oh, (2014), <span style="color:#1d6ab8">Optimized Design of Electric Propulsion System for Small Crafts using the Differential Evolution Algorithm</span>, International Journal of Precision Engineering and Manufacturing-Green Technology, 1(3), pp. 229-240 <a href="http://link.springer.com/article/10.1007/s40684-014-0029-9">[LINK: Paper]</a></li>
-                <li>Dong Kun Lee, Jong Gye Shin, Youngmin Kim, and <b>Yong Kuk Jeong</b>, (2014), <span style="color:#1d6ab8">Simulation-based Work Plan Verification in Shipyards</span>, Journal of Ship Production and Design, 30(2), pp. 49-57 <a href="https://www.onepetro.org/journal-paper/SNAME-JSPD-2014-30-2-49">[LINK: Paper]</a></li>
-            </ul>
-        </ul>
-    </div>
-
-    <!-- Conferences -->
-    <button class="collapsible" href="#conference">Conference</button>
-    <div class="collapsible-content">
-        <ul>
-            <li>2023</li>
-            <ul>
-                <li><b>Yongkuk Jeong</b>, Erik Flores-García, Simon Piontek, and Magnus Wiktorsson (2023), <span style="color:#1d6ab8">Implementing transmission of data for digital twins in human-centered cyber-physical systems</span>, CIRP CMS 2023, Cape Town, South Africa, 24-26 October, 2023</li>
-                <li>Erik Flores-García, So Hyun Nam, <b>Yongkuk Jeong</b>, Magnus Wiktorsson, and Jong Hun Woo (2023), <span style="color:#1d6ab8">Beyond the Lab: Exploring the Socio-Technical Implications of Machine Learning in Biopharmaceutical Manufacturing</span>, APMS 2023, Trondheim, Norway, 17-21 September, 2023</li>
-                <li><b>Yongkuk Jeong</b>, Magnus Wiktorsson, Donggyun Park, Jesper Gans, and Linda Svensson (2023), <span style="color:#1d6ab8">Data Preparation for AI-Assisted Video Analysis in Manual Assembly Task: A Step Towards Industry 5.0</span>, APMS 2023, Trondheim, Norway, 17-21 September, 2023</li>
-                <li><b>Yongkuk Jeong</b> and Jannicke Baalsrud Hauge (2023), <span style="color:#1d6ab8">Digitalization in production logistics towards Industry 5.0: Anaylsis of industrial project cases</span>, ISL 2023, Enschede, Netherlands, 9-12 July, 2023</li>
-                <li><b>Yongkuk Jeong</b>, Tarun Kumar Agrawal, and Kiwook Jung (2023), <span style="color:#1d6ab8">Digital servitization in battery reuse and recycling business based on blockchain platform technologies</span>, EurOMA 2023, Leuven, Belgium, 3-5 July, 2023</li>
-                <li>Masoud Zafarzadeh, <b>Yongkuk Jeong</b>, Magnus Wiktorsson (2023), <span style="color:#1d6ab8">Data flow structure for multimodal human-robot collaboration in material handling</span>, IEEE ICE/ITMC, Edinburgh, Scotland, 19-22 June, 2023</li></li>
-            </ul>
-            <li>2022</li>
-            <ul>
-                <li>Amita Singh, Erik Flores Garcia, <b>Yongkuk Jeong</b>, and Magnus Wiktorsson (2022), <span style="color:#1d6ab8">A Rubric for Implementing Explainable AI in Production Logistics</span>, APMS 2022, Gyeongju, South Korea, 25-29 September, 2022</li>
-                <li><b>Yongkuk Jeong</b>, Erik Flores-García, Dong Hoon Kwak, Jong Hun Woo, Magnus Wiktorsson, Sichao Liu, Xi Vincent Wang, and Lihui Wang (2022), <span style="color:#1d6ab8">Digital Twin-Based Services and Data Visualization of Material Handling Equipment in Smart Production Logistics Environment</span>, APMS 2022, Gyeongju, South Korea, 25-29 September, 2022</li>
-                <li>Erik Flores-García, <b>Yongkuk Jeong</b>, Magnus Wiktorsson, Dong Hoon Kwak, Jong Hun Woo, Thomas Schmitt, and Lars Hanson (2022), <span style="color:#1d6ab8">Characterizing Digital Dashboards for Smart Production Logistics</span>, APMS 2022, Gyeongju, South Korea, 25-29 September, 2022</li>
-                <li>Jannicke Baalsrud Hauge and <b>Yongkuk Jeong</b> (2022), <span style="color:#1d6ab8">A step-by-step guideline to overcome challenges modelling urban logistics scenarios using SUMO</span>, ISL 2022, Cork, Ireland, 10-13 July, 2022</li>					
-                <li><b>Yongkuk Jeong</b> and Erik Flores-García (2022), <span style="color:#1d6ab8">Cyber-Physical system as a service for the manufacturing industry - collaboration work between Sweden and South Korea</span>, The Swedish Manufacturing R&D Clusters’ Annual Conference, Katrineholm, Sweden, 18-19 May, 2022</li>
-                <li><b>Yongkuk Jeong</b>, Gianpiero Canessa, Erik Flores-García, Tarun Kumar Agrawal, and Magnus Wiktorsson (2022), <span style="color:#1d6ab8">An optimization model with stochastic variables for flexible production logistics planning</span>, SPS 2022, Skövde, Sweden, 26-29 April, 2022</li>
-                <li>Erik Flores-García, Maheshwaran Gopalakrishnan, <b>Yongkuk Jeong</b> and Magnus Wiktorsson (2022), <span style="color:#1d6ab8">IIoT-enabled Digital Services for Maintenance Planning in Smart Production Logistics using Maintenance Opportunity Window</span>, SPS 2022, Skövde, Sweden, 26-29 April, 2022</li>		
-            </ul>
-            <li>2021</li>
-            <ul>
-                <li>Erik Flores-García, <b>Yongkuk Jeong</b>, Magnus Wiktorsson, Sichao Liu, Lihui Wang, and GooYoung Kim (2021), <span style="color:#1d6ab8">Digital twin-based services for smart production logistics</span>, WSC 2021, Phoenix, AZ, USA, 13-15 December, 2021</li>
-                <li><b>Yongkuk Jeong</b>, Tarun Kumar Agrawal, Erik Flores-García, and Magnus Wiktorsson (2021), <span style="color:#1d6ab8">A reinforcement learning model for material handling task assignment and route planning in dynamic production logistics environment</span>, CIRP CMS 2021, Online, 22-24 September, 2021</li>
-                <li>Erik Flores-García, <b>Yongkuk Jeong</b>, and Magnus Wiktorsson (2021), <span style="color:#1d6ab8">Applying Machine Learning for Adaptive Scheduling and Execution of Material Handling in Smart Production Logistics</span>, APMS 2021, Nates, France (Online), 5-9 September, 2021</li>
-                <li>Amita Singh, <b>Yongkuk Jeong</b>, Jannicke Baalsrud Hauge, and Seyoum Eshetu Birkie (2021), <span style="color:#1d6ab8">Urban production logistics planning considering environmental sustainability perspectives: Turku city case</span>, ISL 2021, Online, 12-13 July, 2021</li>
-                <li>Erik Flores-García, <b>Yongkuk Jeong</b>, and Magnus Wiktorsson (2021), <span style="color:#1d6ab8">Exploring the challenges for generating, handling, and using real-time location information in Smart Production Logistics</span>, EurOMA 2021, Online, 5-7 July, 2021</li>
-            </ul>
-            <li>2020</li>
-            <ul>
-                <li><b>Yongkuk Jeong</b>, Erik Flores-García, and Magnus Wiktorsson (2020), <span style="color:#1d6ab8">A Design of Digital Twins for Supporting Decision-making in Production Logistics</span>, WSC 2020, Orlando, Florida, USA (Online), 14-18 December, 2020 <a href="https://informs-sim.org/wsc20papers/277.pdf">[LINK: Paper]</a> <a href="https://youtu.be/hcBWFXwF8H4">[LINK: Presentation]</a></li>
-                <li><b>Yongkuk Jeong</b> (2020), <span style="color:#1d6ab8">Digitalization and Digital Twin Applications in Production Logistics for Sustainable Production Development</span>, PRESM 2020, Seoul, South Korea (Online), 15-18 November, 2020</li>
-                <li><b>Yongkuk Jeong</b>, Magnus Wiktorsson, and Peter Almström (2020), <span style="color:#1d6ab8">Towards automatic validation of operation times in manual processes: Two industrial cases</span>, PLAN Conference 2020, Södertälje, Sweden (Online), 21 October, 2020</li>
-                <li>Erik Flores-García, <b>Yongkuk Jeong</b>, Sichao Liu, Goo-Young Kim, and Magnus Wiktorsson (2020), <span style="color:#1d6ab8">Digital Twin-based Services for Future Production Logistics Settings</span>, PLAN Conference 2020, Södertälje, Sweden (Online), 21 October, 2020</li>
-                <li>Ravi Kalaiarasan, Magnus Wiktorsson, Jan Olhager, and <b>Yongkuk Jeong</b> (2020), <span style="color:#1d6ab8">Production Logistics Visibility – definitions, status and research agenda</span>, SPS 2020, Jönköping, Sweden (Online), 7-8 October, 2020 <a href="https://doi.org/10.3233/ATDE200188">[LINK: Paper]</a></li>
-                <li><b>Yongkuk Jeong</b>, Amita Singh, Masoud Zafarzadeh, Magnus Wiktorsson, and Jannicke Baalsrud Hauge (2020), <span style="color:#1d6ab8">Data-driven manufacturing simulation: Towards a CPS-based approach</span>, SPS 2020, Jönköping, Sweden (Online), 7-8 October, 2020 <a href="https://doi.org/10.3233/ATDE200197">[LINK: Paper]</a></li>
-                <li>Erik Flores-García and <b>Yongkuk Jeong</b> (2020), <span style="color:#1d6ab8">Cyber Physical Assembly and Logistics</span>, The Swedish Manufacturing R&D Clusters’ Annual Conference, Katrineholm, Sweden (Online), 30 September - 1 October, 2020</li>
-                <li>Jannicke Baalsrud Hauge, Masoud Zafarzadeh, <b>Yongkuk Jeong</b>, Yi Li, Wajid Ali Khilji, and Magnus Wiktorsson (2020), <span style="color:#1d6ab8">Digital and Physical Testbed for Production Logistics Operations</span>, APMS 2020, Novi Sad, Serbia (Online), 30 August - 3 September, 2020 <a href="https://doi.org/10.1007/978-3-030-57993-7_71">[LINK: Paper]</a></li>
-                <li>Jo Wessel Strandhagen, <b>Yongkuk Jeong</b>, Jong Hun Woo, Marco Semini, Magnus Wiktorsson, Jan Ola Strandhagen, and Erlend Alfnes (2020), <span style="color:#1d6ab8">Factors Affecting Shipyard Operations and Logistics: A Framework and Comparison of Shipbuilding Approaches</span>, APMS 2020, Novi Sad, Serbia (Online), 30 August - 3 September, 2020 <a href="https://doi.org/10.1007/978-3-030-57997-5_61">[LINK: Paper]</a></li>
-                <li>Jannicke Baalsrud Hauge, Masoud Zafarzadeh, <b>Yongkuk Jeong</b>, Yi Li, Wajid Ali Khilji, and Magnus Wiktorsson (2020), <span style="color:#1d6ab8">Employing digital twins within production logistics</span>, 2020 IEEE ICE/ITMC, Cardiff, United Kingdom, 15 - 17 June, 2020 <a href="https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=9198540">[LINK: Paper]</a></li>
-            </ul>
-            <li>2019</li>
-            <ul>
-                <li>Jong Gye Shin, Youngmin Kim, Jong Hun Woo, Seunghyeok Son, Huiqiang Shen, Byeong-seop Kim, Cheolho Ryu, and <b>Yong-Kuk Jeong</b> (2019), <span style="color:#1d6ab8">Smart Shipyard Platform with Computational Shipyard Dynamics and its Application to Forming Shop</span>, SNAME Maritime Convention 2019, Tacoma, WA, 30 October - 1 November, 2019</li>
-                <li><b>Yong-Kuk Jeong</b> and Magnus Wiktorsson (2019), <span style="color:#1d6ab8">Process-Centric versus Resource-Centric Modelling: Initial findings and future research directions</span>, i3CDE 2019, Penang, Malaysia, 8-10 July, 2019</li>
-                <li><b>Yong-Kuk Jeong</b>, Huiqiang Shen, Youngmin Kim, Young-Ki Min, Jong Gye Shin, Philippe Lee, Jong Hun Woo, Yong Gil Lee (2019), <span style="color:#1d6ab8">Discrete Event Simulation for Strategic Shipyard Planning</span>, COMPIT 2019, Tullamore, Ireland, 25-27 March, 2019</li>
-            </ul>
-            <li>2018</li>
-            <ul>
-                <li>Huiqiang Shen, <b>Yong-Kuk Jeong</b>, Jong Gye Shin, Philippe Lee, Jong Hun Woo, Yong Gil Lee, Sang Hun Kim, Ju Hyeon Jeong, (2018), <span style="color:#1d6ab8">Key Performance Indicators and Analysis Method for Ship Block Logistics Flow in Shipyards</span>, WSC 2018, Gothenburg, Sweden, 9-12 December, 2018</li>
-                <li>Jong Gye Shin, Youngmin Kim, <b>Yong-Kuk Jeong</b>, Jong Hun Woo, Cheolho Ryu, (2018), <span style="color:#1d6ab8">Model-based Computational Dynamics and its Applications</span>, SNAME Maritime Convention 2018, Providence, RI, 24-27 October, 2018</li>
-                <li>Beongseop Kim, <b>Yong-Kuk Jeong</b>, Seunghyeok Son, Su Heon Ju, Huiqiang Shen, Jong Gye Shin, (2018), <span style="color:#1d6ab8">A Shipyard Green Logistics Concept and a Strategic Simulation to Reduce the Transportation Distance of Assembly Blocks in Shipyard</span>, PRESM 2018, Sapporo, Japan, 3-7 July, 2018</li>
-                <li>Jong Hun Woo, Jaeho Choi, Ji Hye Kim, <b>Yong-Kuk Jeong</b>, Philippe Lee, and Jong Ho Nam, (2018), <span style="color:#1d6ab8">Machine Learning in Ship Production</span>, COMPIT 2018, Pavone, Italy, 14-16 May, 2018</li>
-                <li><b>Yong-Kuk Jeong</b>, Jong Hun Woo, Philippe Lee, Youngmin Kim, Young-Ki Min, Jong Gye Shin, Yong Gil Lee, and Cheolho Ryu, (2018), <span style="color:#1d6ab8">Shipyard DES Simulation Framework and its Applications</span>, COMPIT 2018, Pavone, Italy, 14-16 May, 2018</li>
-            </ul>
-            <li>~ 2017</li>
-            <ul>
-            <li><b>Yong-Kuk Jeong</b>, Hui-Qiang Shen, SeungHoon Nam, Youngmin Kim, Jong-Gye Shin, Philippe Lee, Jae Ho Choi, and Jong Hun Woo, (2017), <span style="color:#1d6ab8">Verification and Validation of Shipyard Logistics Simulation System and Its Use Case Identification</span>, WSC 2017, Las Vegas, NV, 3-6 December, 2017</li>
-            <li>Hui-Qiang Shen, <b>Yong-Kuk Jeong</b>, Seung-Hoon Nam, Youngmin Kim, Jong-Gye Shin, Dong Kun Lee, and Daekyun Oh, (2017), <span style="color:#1d6ab8">A Hierarchical Simulation Model for Workload Analysis of Ship Block Erection Process</span>, WSC 2017, Las Vegas, NV, 3-6 December, 2017</li>
-            <li>Su Heon Ju, <b>Yong-Kuk Jeong</b>, Seunghyeok Son, Young Gi Min, Jong-Gye, Shin, JongChul Kim, Jong Hun Woo, and Philippe Lee, (2017), <span style="color:#1d6ab8">A layout design framework considering relations between internal space and external shape of naval vessels at the conceptual design</span>, ISOPE 2017, San Francisco, CA, June 25−30, 2017</li>
-            <li><b>Yong-Kuk Jeong</b>, Seung Hoon Nam, Youngmin Kim, Jong-Gye Shin, Young-Ki Min, Jong Hun Woo, Jae-Ho Choi, Sang-Hoon Kim, and Dae-Kyun Oh, (2017), <span style="color:#1d6ab8">A modeling and simulation method for multi-layered supply chain management in shipbuilding industries</span>, ACM SIGSIM PADS 2017, NTU Singapore, 24-26 May, 2017</li>
-            <li>Byeongseop Kim, <b>Yong-Kuk Jeong</b>, Seunghyeok Son, Philippe Lee, Yonggil Lee, and Jong Hun Woo, (2017), <span style="color:#1d6ab8">The Extended Process-Centric Modeling Method for Logistics Simulation in Shipyards Considering Stock Areas</span>, COMPIT 2017, Cardiff UK, 15-17 May, 2017</li>
-            <li><b>Yong-Kuk Jeong</b>, Byeong-Seop Kim, Jong-Gye Shin, Philippe Lee, Jong Hun Woo, and Jong Moo Lee, (2016), <span style="color:#1d6ab8">A Ship Block Logistics Support System based on the Shipyard Simulation Framework</span>, WSC 2016, Arlington VA, 11-14 December, 2016</li>
-            <li>Seung-hyoek Son, Youngmin Kim, Inhyuck Hwang, Hui Giang Shen, <b>Yong-Kuk Jeong</b>, Cheolho Ryu, Jong-Gye Shin, (2015), <span style="color:#1d6ab8">Design and Development of Manufacturing Information Calculation System for Formation of Curved Hull Plates</span>, MOTSP 2015, Brela Croatia, 10-12 June, 2015</li>
-            <li><b>Yong-Kuk Jeong</b>, Philippe Lee, SeungHoon Nam, Dong Kun Lee, Jong-Gye Shin, (2015), <span style="color:#1d6ab8">Development of the Methodology for Environmental Impact of Composite Boats Manufacturing Process</span>, CIRP LCE 2015, Sydney Australia, 7-9 April, 2015 <a href="http://ecoreport.codeplex.com/">[LINK: Application]</a></li>
-            <li>Jong-Gye Shin, Dong Hyun Ahn, Seung Hoon Nam, and <b>Yong-Kuk Jeong</b>, (2014), <span style="color:#1d6ab8">An Introduction to Small boat PLM Technology</span>, ICOR 2014, Fiji, 13-15 October, 2014</li>
-            <li>Jong-Gye Shin, Seung Hoon Nam, and <b>Yong-Kuk Jeong</b>, (2014), <span style="color:#1d6ab8">Generic Work Breakdown Structure for Sailing Yacht Lifecycle Management</span>, ICOR 2014, Fiji, 13-15 October, 2014</li>
-            </ul>
-        </ul>
-    </div>
-
-
-</section>
-    <!-- Chart Section -->
-    <section class="chart-container">
-    
-        <canvas id="publicationsAndConferencesChart"></canvas>
-    </section>
-    <section class="main-content">
-        <!-- Profile -->
-        <div class="anchor" id="profile-anchor"></div>
-    <h3><a id="profile" class="anchor" href="#profile" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Links</h3>
-    <ul>
-        <li>KTH Profile <a href="https://www.kth.se/profile/yongkuk">[LINK]</a></li>
-        <li>Google Scholar <a href="https://scholar.google.co.kr/citations?user=y59QYYIAAAAJ&hl=ko">[LINK]</a></li>
-        <li>Scopus <a href="https://www.scopus.com/authid/detail.uri?origin=resultslist&authorId=56151145200&zone=">[LINK]</a></li>
-        <li>ORCID ID <a href="https://orcid.org/0000-0003-1878-773X">[LINK]</a></li>
-        <li>CV <a href="docs/Public_CV_Yongkuk Jeong_Simple.pdf">[LINK]</a></li>
-    </ul>
-        </section>
-
-   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Manually entered data for publications and conferences count
-        const labels = ['2018', '2019', '2020', '2021', '2022', '2023', '2024'];
-        const pubData = [4, 2, 3, 4, 0, 2, 1]; // Example counts for publications per year
-        const confData = [5, 3, 10, 5, 7, 6, 0]; // Example counts for conferences per year
-
-        const ctx = document.getElementById('publicationsAndConferencesChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Publications',
-                    data: pubData,
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 0
-                }, {
-                    label: 'Conferences',
-                    data: confData,
-                    backgroundColor: 'rgba(255, 206, 86, 0.5)',
-                    borderColor: 'rgba(255, 206, 86, 1)',
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    });
-</script>
-    
-    
-
-<!-- Collapsible Sections Script -->
-<script>
-    document.querySelectorAll('.collapsible').forEach(button => {
-        button.addEventListener('click', function() {
-            this.classList.toggle('active');
-            var content = this.nextElementSibling;
-            if (content.style.maxHeight){
-                content.style.maxHeight = null;
-            } else {
-                content.style.maxHeight = content.scrollHeight + "px";
-            } 
-        });
-    });
-</script>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var navbar = document.querySelector(".navbar");
-        var lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        var navbarHideTimeout;
-    
-        function hideNavbar() {
-            navbar.style.top = "-100px"; // Adjust this value to match the navbar height
-        }
-    
-        window.addEventListener("scroll", function() {
-            var currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-    
-            // Clear any existing timeout to ensure we don't hide the navbar while the user is still scrolling
-            clearTimeout(navbarHideTimeout);
-    
-            // Show the navbar when scrolling
-            navbar.style.top = "0";
-    
-            // If the current scroll position is the same as the last scroll position, it means the user has stopped scrolling
-            // Set a timeout to hide the navbar after a certain period of inactivity
-            navbarHideTimeout = setTimeout(hideNavbar, 1500); // Hide navbar after 1.5 seconds of inactivity
-    
-            lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; // For mobile or negative scrolling
-        }, false);
-    });
-    </script>
-    
-    
-
-
-</body>
+         </div>
+      </section>
+      <!-- Chart Section -->
+      <section class="chart-container">
+         <canvas id="publicationsAndConferencesChart"></canvas>
+      </section>
+      <section class="main-content">
+         <div class="anchor" id="word-cloud-anchor"></div>
+         <h3>Word Cloud</h3>
+         <div id="word-cloud"></div>
+         <p style="font-size: 0.8em; text-align: center; margin-top: 10px;">
+            Word cloud created with <a href="https://www.jasondavies.com/wordcloud/">Jason Davies' Word Cloud Generator</a>, based on titles from my recent projects and publications
+        </p>
+            </section>
+      <section class="main-content">
+         <!-- Profile -->
+         <div class="anchor" id="profile-anchor"></div>
+         <h3>Links</h3>
+         <ul>
+            <li>KTH Profile <a href="https://www.kth.se/profile/yongkuk">[LINK]</a></li>
+            <li>Google Scholar <a href="https://scholar.google.co.kr/citations?user=y59QYYIAAAAJ&hl=ko">[LINK]</a></li>
+            <li>Scopus <a href="https://www.scopus.com/authid/detail.uri?origin=resultslist&authorId=56151145200&zone=">[LINK]</a></li>
+            <li>ORCID ID <a href="https://orcid.org/0000-0003-1878-773X">[LINK]</a></li>
+            <li>CV <a href="docs/Public_CV_Yongkuk Jeong_Simple.pdf">[LINK]</a></li>
+         </ul>
+      </section>
+      <footer style="text-align:center; padding:20px; background-color:#f5f5f5; color:black; font-size:0.8em;">
+         © 2021-2024 Yongkuk Jeong, All rights reserved.
+     </footer>
+      <script>
+         document.addEventListener('DOMContentLoaded', function() {
+             // Manually entered data for publications and conferences count
+             const labels = ['2018', '2019', '2020', '2021', '2022', '2023', '2024'];
+             const pubData = [4, 2, 3, 4, 0, 2, 1]; // Example counts for publications per year
+             const confData = [5, 3, 10, 5, 7, 6, 0]; // Example counts for conferences per year
+         
+             const ctx = document.getElementById('publicationsAndConferencesChart').getContext('2d');
+             new Chart(ctx, {
+                 type: 'bar',
+                 data: {
+                     labels: labels,
+                     datasets: [{
+                         label: 'Publications',
+                         data: pubData,
+                         backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                         borderColor: 'rgba(54, 162, 235, 1)',
+                         borderWidth: 0
+                     }, {
+                         label: 'Conferences',
+                         data: confData,
+                         backgroundColor: 'rgba(255, 206, 86, 0.5)',
+                         borderColor: 'rgba(255, 206, 86, 1)',
+                         borderWidth: 0
+                     }]
+                 },
+                 options: {
+                     scales: {
+                         y: {
+                             beginAtZero: true
+                         }
+                     }
+                 }
+             });
+         });
+      </script>
+      <!-- Collapsible Sections Script -->
+      <script>
+         document.querySelectorAll('.collapsible').forEach(button => {
+             button.addEventListener('click', function() {
+                 this.classList.toggle('active');
+                 var content = this.nextElementSibling;
+                 if (content.style.maxHeight){
+                     content.style.maxHeight = null;
+                 } else {
+                     content.style.maxHeight = content.scrollHeight + "px";
+                 } 
+             });
+         });
+      </script>
+      <script>
+         document.addEventListener("DOMContentLoaded", function() {
+             var navbar = document.querySelector(".navbar");
+             var lastScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+             var navbarHideTimeout;
+         
+             // Function to hide the navbar
+             function hideNavbar() {
+                 navbar.style.top = "-" + navbar.offsetHeight + "px";
+             }
+         
+             window.addEventListener("scroll", function() {
+                 var currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+         
+                 clearTimeout(navbarHideTimeout);
+         
+                 navbar.style.top = "0"; // Show navbar on scroll
+         
+                 navbarHideTimeout = setTimeout(hideNavbar, 1000); // Hide navbar after 1 second of inactivity
+         
+                 lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+             }, false);
+         
+             // Keep navbar visible when mouse is over it
+             navbar.addEventListener("mouseover", function() {
+                 clearTimeout(navbarHideTimeout);
+             });
+         
+             // Hide navbar when mouse leaves it, after a delay
+             navbar.addEventListener("mouseout", function() {
+                 navbarHideTimeout = setTimeout(hideNavbar, 1000);
+             });
+         });
+      </script>
+     <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          var wordData = [
+              {text: "Logistics", size: 374},
+              {text: "Production", size: 308},
+              {text: "Simulation", size: 187},
+              {text: "Digital", size: 165},
+              {text: "Shipyard", size: 165},
+              {text: "Data", size: 110},
+              {text: "Framework", size: 99},
+              {text: "Smart", size: 99},
+              {text: "System", size: 88},
+              {text: "Design", size: 77},
+              {text: "Process", size: 77},
+              {text: "Planning", size: 77},
+              {text: "Ship", size: 66},
+              {text: "Assembly", size: 66},
+              {text: "Urban", size: 66},
+              {text: "Model", size: 66},
+              {text: "Analysis", size: 66},
+          ];
+      
+          // Define a color palette
+          var colors = ["#6a11cb", "#2575fc", "#12c2e9", "#c471ed", "#f64f59"];
+      
+          // Responsive sizing
+          var width = document.getElementById('word-cloud').offsetWidth;
+          var height = Math.max(400, width * 0.5); // Maintain aspect ratio
+      
+          var layout = d3.layout.cloud()
+              .size([width, height])
+              .words(wordData.map(function(d) {
+                  return {text: d.text, size: 10 + (d.size / 374 * 100)}; // Adjust size proportionally
+              }))
+              .padding(5)
+              .rotate(function() { return 0; }) // This makes all words horizontal
+              .fontSize(function(d) { return d.size; })
+              .on("end", draw);
+      
+          layout.start();
+      
+          function draw(words) {
+              d3.select("#word-cloud").append("svg")
+                  .attr("width", layout.size()[0])
+                  .attr("height", layout.size()[1])
+                  .append("g")
+                  .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
+                  .selectAll("text")
+                  .data(words)
+                  .enter().append("text")
+                  .style("font-size", function(d) { return d.size + "px"; })
+                  .style("font-family", "'Figtree', sans-serif")
+                  .attr("text-anchor", "middle")
+                  .attr("transform", function(d) {
+                      return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+                  })
+                  .text(function(d) { return d.text; })
+                  .style("fill", function(d, i) { return colors[i % colors.length]; }); // Cycle through colors for each word
+          }
+      });
+      </script>
+      
+   </body>
 </html>

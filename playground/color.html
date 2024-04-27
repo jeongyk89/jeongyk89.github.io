@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Gradient Color Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        @keyframes gradientAnimation {
+            0% { background-size: 100% 100%; }
+            50% { background-size: 200% 200%; }
+            100% { background-size: 100% 100%; }
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            font-family: 'Roboto', sans-serif;
+            background-size: 200% 200%;
+            animation: gradientAnimation 15s ease infinite;
+        }
+
+        .color-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.8);
+        }
+
+        .color-block {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #FFF;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .color-block:hover {
+            transform: scale(1.1);
+        }
+
+        .refresh-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div id="colorContainer" class="color-container">
+        <!-- Color blocks will be generated here -->
+    </div>
+    <button id="refreshButton" class="refresh-button">Generate New Colors</button>
+    <script>
+        function generateRandomColor() {
+            return '#' + Math.floor(Math.random()*16777215).toString(16);
+        }
+
+        function generateGradient(colors) {
+            const typeChoice = Math.random() > 0.5 ? 'linear' : 'radial';
+            const angle = Math.floor(Math.random() * 360);
+            if (typeChoice === 'linear') {
+                return `linear-gradient(${angle}deg, ${colors.join(', ')})`;
+            } else {
+                const position = Math.random() > 0.5 ? 'circle' : 'ellipse';
+                return `radial-gradient(${position} at center, ${colors.join(', ')})`;
+            }
+        }
+
+        function updateBackground(colors) {
+            const gradient = generateGradient(colors);
+            document.body.style.backgroundImage = gradient;
+        }
+
+        function generateColorCombination() {
+            const container = document.getElementById('colorContainer');
+            container.innerHTML = ''; // Clear previous colors
+            const colors = [];
+            for (let i = 0; i < 4; i++) { // Generate 5 colors
+                const color = generateRandomColor();
+                colors.push(color);
+                const colorBlock = document.createElement('div');
+                colorBlock.className = 'color-block';
+                colorBlock.style.backgroundColor = color;
+                colorBlock.innerText = color;
+                colorBlock.onclick = function() { navigator.clipboard.writeText(color); };
+                container.appendChild(colorBlock);
+            }
+            updateBackground(colors);
+        }
+
+        document.getElementById('refreshButton').addEventListener('click', generateColorCombination);
+
+        // Initial color generation on page load
+        generateColorCombination();
+    </script>
+</body>
+</html>
