@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="UTF-8">
+    <title>Yongkuk Jeong, PhD (정용국)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="stylesheets/stylesheet.css">
+    <link rel="icon" href="img/icon_small.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js for publication years chart -->
+    <style>
+        body, html {
+            font-family: 'Figtree', sans-serif;
+            padding-top: 60px;
+            background: #f8f8f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%);
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            box-shadow: 0 2px 5px rgba(0,0,0,.2);
+            z-index: 1000;
+            transition: top 0.3s;
+        }
+
+        .navbar a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar a:hover, .navbar a:focus {
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        .page-header {
+            background: linear-gradient(to right, #12c2e9, #c471ed, #f64f59);
+            color: white;
+            text-align: center;
+            padding: 50px 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,.1);
+        }
+
+        .collapsible {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            padding: 14px 20px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        .collapsible:hover, .collapsible:active {
+            background-color: #45a049;
+        }
+
+        .collapsible:after {
+            content: '\002B';
+            color: white;
+            font-weight: bold;
+            float: right;
+            margin-left: 5px;
+        }
+
+        .active:after {
+            content: "\2212";
+        }
+
+        .collapsible-content {
+            background-color: #f9f9f9;
+            padding: 0 18px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.2s ease-out;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .navbar a {
+                padding: 20px 15px;
+            }
+        }
+
+        .main-content {
+            padding: 20px;
+            background: #fff;
+            margin: 40px auto;
+            box-shadow: 0 1px 3px rgba(0,0,0,.1);
+            border-radius: 8px;
+            max-width: 800px;
+        }
+
+        .main-content, .page-header, .navbar {
+            animation: fadeIn 1s;
+        }
+
+        .chart-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,.1);
+            border-radius: 8px;
+        }
+
+        .anchor {
+            display: block;
+            position: relative;
+            top: -60px;
+            visibility: hidden;
+        }
+
+        footer {
+            text-align:center;
+            padding:20px;
+            background-color:#f8f8f8;
+            color:black;
+            font-size:0.8em;
+            border-top: 1px solid #ccc;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+    </style>
+</head>
+<body oncontextmenu="return false">
+    <div class="navbar">
+        <!-- Navigation Links -->
+        <a href="#">Home</a>
+        <a href="#employment-anchor">Employment</a>
+        <a href="#education-anchor">Education</a>
+        <a href="#research-interests-anchor">Research Interests</a>
+        <a href="#awards-and-honors-anchor">Awards and Honors</a>
+        <a href="#profile-anchor">Links</a>
+    </div>
+
+    <section class="page-header">
+        <h1 class="project-name">Yongkuk Jeong</h1>
+        <h2 class="project-tagline">yongkuk at kth.se</h2>
+        <a href="playground/color.html"><img src="img/YKJeong.png" width="150" alt="Yongkuk Jeong"/></a>
+        <p>Assistant Professor in Sustainable Production Logistics<br>Department of Production Engineering<br>KTH Royal Institute of Technology, Sweden</p>
+    </section>
+    
+    <!-- Main Content Area -->
+    <section class="main-content">
+        <!-- Biography -->
+        <h3>Biography</h3>
+        <p>
+            Dr. Yongkuk Jeong is an Assistant Professor at KTH Royal Institute of Technology, specializing in sustainable production logistics. His research combines AI, digital twins, and simulation to transform the field of production and logistics. He is passionate about leveraging cutting-edge technologies to create innovative solutions that drive the next generation of manufacturing.
+        </p>
+
+        <!-- Employment -->
+        <div class="anchor" id="employment-anchor"></div>
+        <h3>Employment</h3>
+        <ul>
+            <li>Assistant Professor, KTH Royal Institute of Technology, Sweden, 2021-now</li>
+            <li>Postdoc, KTH Royal Institute of Technology, Sweden, 2019-2021</li>
+            <li>Postdoctoral Researcher, Seoul National University, South Korea, 2018-2019</li>
+        </ul>
+
+        <!-- Education -->
+        <div class="anchor" id="education-anchor"></div>
+        <h3>Education</h3>
+        <ul>
+            <li>Ph.D., Seoul National University, South Korea, 2018</li>
+            <li>B.Sc., Seoul National University, South Korea, 2011</li>
+        </ul>
+
+        <!-- Research Interests -->
+        <div class="anchor" id="research-interests-anchor"></div>
+        <h3>Research Interests</h3>
+        <p>
+            Dr. Jeong's research focuses on the digitalization of production logistics, leveraging technologies such as AI and digital twins to optimize manufacturing systems. He is particularly interested in:
+        </p>
+        <ul>
+            <li>Digitalization in production logistics</li>
+            <li>Manufacturing simulation</li>
+            <li>Industry 5.0 <a href="https://youtu.be/0Xs3RpHfctU?si=Y4Tjkq4s8myfna2e">[LINK]</a></li>
+        </ul>
+
+        <!-- Awards and Honors -->
+        <div class="anchor" id="awards-and-honors-anchor"></div>
+        <h3>Awards and Honors</h3>
+        <ul>
+            <li>Elmer L. Hann Award, Best Paper on Ship Production, SNAME, 2019 <a href="https://www.sname.org/elmer-l-hann-award">[LINK]</a></li>
+            <li>STX Foundation Scholarship, 2012-2013</li>
+            <li>Korean Institute of Industrial Engineers Encouragement Award, 2012</li>
+        </ul>
+
+        <!-- Selected Research Projects -->
+        <button class="collapsible">Selected Research Projects</button>
+        <div class="collapsible-content">
+            <ul>
+                <li><b>SHIFT-DT:</b> Sustainable, Holistic, Integrated Framework for Ship Design and Production Transformation through Digital Twins. <a href="https://www.digitalfutures.kth.se/research/research-pairs/ongoing-research-pairs-projects/shift-dt-sustainable-holistic-integrated-framework-for-ship-design-and-production-transformation-through-digital-twins/">[LINK]</a></li>
+                <li><b>Dynamic SALSA:</b> Dynamic scheduling of assembly and logistics system using AI. <a href="https://www.vinnova.se/p/eureka-smart-dynamic-salsa/">[LINK]</a></li>
+            </ul>
+        </div>
+
+        <!-- Publications -->
+        <button class="collapsible">Publications</button>
+        <div class="collapsible-content">
+            <ul>
+                <li><b>2024:</b> Machine learning in smart production logistics: a review of technological capabilities. <a href="https://doi.org/10.1080/00207543.2024.2381145">[LINK]</a></li>
+            </ul>
+        </div>
+
+        <!-- Word Cloud -->
+        <div class="anchor" id="word-cloud-anchor"></div>
+        <h3>Word Cloud</h3>
+        <div id="word-cloud"></div>
+        <p style="font-size: 0.8em; text-align: center; margin-top: 10px;">
+            Word cloud created with <a href="https://www.jasondavies.com/wordcloud/">Jason Davies' Word Cloud Generator</a>, based on titles from my recent projects and publications
+        </p>
+    </section>
+
+    <!-- Chart Section -->
+    <section class="chart-container">
+        <canvas id="publicationsAndConferencesChart"></canvas>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        © 2021-2024 Yongkuk Jeong, All rights reserved.
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const labels = ['2018', '2019', '2020', '2021', '2022', '2023', '2024'];
+            const pubData = [4, 2, 3, 4, 0, 2, 2];
+            const confData = [5, 3, 10, 5, 7, 6, 5];
+
+            const ctx = document.getElementById('publicationsAndConferencesChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Publications',
+                        data: pubData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                    }, {
+                        label: 'Conferences',
+                        data: confData,
+                        backgroundColor: 'rgba(255, 206, 86, 0.5)',
+                        borderColor: 'rgba(255, 206, 86, 1)',
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+
+        // Collapsible Sections Script
+        document.querySelectorAll('.collapsible').forEach(button => {
+            button.addEventListener('click', function() {
+                this.classList.toggle('active');
+                var content = this.nextElementSibling;
+                if (content.style.maxHeight){
+                    content.style.maxHeight = null;
+                } else {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                } 
+            });
+        });
+
+        // Word Cloud
+        document.addEventListener('DOMContentLoaded', function() {
+            var wordData = [
+                {text: "Logistics", size: 374},
+                {text: "Production", size: 308},
+                {text: "Simulation", size: 187},
+                {text: "Digital", size: 165},
+                {text: "Shipyard", size: 165},
+                {text: "Data", size: 110},
+                {text: "Framework", size: 99},
+                {text: "Smart", size: 99},
+                {text: "System", size: 88},
+                {text: "Design", size: 77},
+            ];
+
+            var colors = ["#6a11cb", "#2575fc", "#12c2e9", "#c471ed", "#f64f59"];
+            var width = document.getElementById('word-cloud').offsetWidth;
+            var height = Math.max(400, width * 0.5);
+
+            var layout = d3.layout.cloud()
+                .size([width, height])
+                .words(wordData.map(function(d) {
+                    return {text: d.text, size: 10 + (d.size / 374 * 100)};
+                }))
+                .padding(5)
+                .rotate(function() { return 0; })
+                .fontSize(function(d) { return d.size; })
+                .on("end", draw);
+
+            layout.start();
+
+            function draw(words) {
+                d3.select("#word-cloud").append("svg")
+                    .attr("width", layout.size()[0])
+                    .attr("height", layout.size()[1])
+                    .append("g")
+                    .attr("transform", "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")")
+                    .selectAll("text")
+                    .data(words)
+                    .enter().append("text")
+                    .style("font-size", function(d) { return d.size + "px"; })
+                    .style("font-family", "'Figtree', sans-serif")
+                    .attr("text-anchor", "middle")
+                    .attr("transform", function(d) {
+                        return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+                    })
+                    .text(function(d) { return d.text; })
+                    .style("fill", function(d, i) { return colors[i % colors.length]; });
+            }
+        });
+    </script>
+</body>
+</html>

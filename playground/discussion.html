@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Project Discussion Network</title>
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <style type="text/css">
+    #mynetwork {
+      width: 100%;
+      height: 600px;
+      border: 1px solid lightgray;
+    }
+    #node-info {
+      margin-top: 20px;
+      font-family: Arial, sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Project Discussion Network</h2>
+<div id="mynetwork"></div>
+<div id="node-info">
+  <h3>Node Information</h3>
+  <p>Click on a node to see more information here.</p>
+</div>
+
+<script type="text/javascript">
+  // Node details data
+  var nodeDetails = {
+    1: {
+      title: "Digital Human Model vs. Pose Estimation",
+      description: "This node explores the comparison between Digital Human Models (DHMs) and AI-based human pose estimation techniques. DHMs are often used in ergonomic studies and human factor analysis, while AI pose estimation provides real-time data from video feeds.",
+      connections: ["Human Pose Estimation", "Digital Human Model"]
+    },
+    2: {
+      title: "MTM-Based Analysis",
+      description: "MTM (Methods-Time Measurement) is used to analyze manual tasks in assembly lines. This node represents discussions about how multimodal LLMs can be integrated with MTM for real-time task analysis.",
+      connections: ["Multimodal LLM", "Digital Human Model"]
+    },
+    3: {
+      title: "Integration of LLMs and Digital Twins",
+      description: "The integration of Large Language Models (LLMs) and Digital Twins allows for enhanced decision-making, predictive analytics, and task optimization. This node connects Digital Twins with LLM-based automation systems.",
+      connections: ["Digital Twins", "Multimodal LLM", "Task Optimization"]
+    },
+    4: {
+      title: "Next Project Ideas",
+      description: "This node discusses future project opportunities, including the integration of AI, digital twins, and MTM into more advanced manufacturing workflows.",
+      connections: ["AI Motion Interpretation"]
+    },
+    5: {
+      title: "Community-Based Insights",
+      description: "Community-based insights represent feedback from forums, discussions, and social media regarding advancements in AI and Digital Twin technology.",
+      connections: ["Social Media Trends"]
+    },
+    6: {
+      title: "Digital Twins",
+      description: "Digital Twins are virtual replicas of physical systems. This node represents discussions about how Digital Twins can be integrated with other technologies to enhance monitoring and predictive analysis.",
+      connections: ["Task Optimization"]
+    },
+    7: {
+      title: "Multimodal LLM",
+      description: "Multimodal Large Language Models can interpret and generate content across different modalities (text, image, video). This node connects to human pose estimation and task analysis in assembly lines.",
+      connections: ["AI Motion Interpretation", "Digital Twins"]
+    },
+    8: {
+      title: "Human Pose Estimation",
+      description: "This node focuses on AI models trained to estimate human poses from video data, which can be used for ergonomic studies, MTM analysis, and integration into digital human models.",
+      connections: ["AI Motion Interpretation"]
+    },
+    9: {
+      title: "Digital Human Model",
+      description: "Digital Human Models (DHMs) simulate human interactions in virtual environments. This node represents the application of DHMs in ergonomic studies and workplace optimization.",
+      connections: ["MTM-Based Analysis"]
+    },
+    10: {
+      title: "Task Optimization",
+      description: "Task optimization involves improving workflows and efficiency using AI, Digital Twins, and MTM-based analysis. This node connects Digital Twins with real-time optimization techniques.",
+      connections: ["Digital Twins"]
+    },
+    11: {
+      title: "Social Media Trends",
+      description: "This node represents the insights gathered from social media platforms that influence AI and technology discussions.",
+      connections: ["Community-Based Insights"]
+    },
+    12: {
+      title: "AI Motion Interpretation",
+      description: "AI Motion Interpretation focuses on the use of AI to analyze human movements in various tasks. It connects to pose estimation and task optimization nodes.",
+      connections: ["Human Pose Estimation", "Multimodal LLM"]
+    }
+  };
+
+  // Create an array with nodes
+  var nodes = new vis.DataSet([
+    { id: 1, label: "Digital Human Model vs. Pose Estimation" },
+    { id: 2, label: "MTM-Based Analysis" },
+    { id: 3, label: "Integration of LLMs and Digital Twins" },
+    { id: 4, label: "Next Project Ideas" },
+    { id: 5, label: "Community-Based Insights" },
+    { id: 6, label: "Digital Twins" },
+    { id: 7, label: "Multimodal LLM" },
+    { id: 8, label: "Human Pose Estimation" },
+    { id: 9, label: "Digital Human Model" },
+    { id: 10, label: "Task Optimization" },
+    { id: 11, label: "Social Media Trends" },
+    { id: 12, label: "AI Motion Interpretation" }
+  ]);
+
+  // Create an array with edges
+  var edges = new vis.DataSet([
+    { from: 1, to: 8 },
+    { from: 1, to: 9 },
+    { from: 2, to: 7 },
+    { from: 2, to: 9 },
+    { from: 3, to: 6 },
+    { from: 3, to: 7 },
+    { from: 3, to: 10 },
+    { from: 4, to: 12 },
+    { from: 5, to: 11 },
+    { from: 6, to: 10 },
+    { from: 7, to: 12 },
+    { from: 8, to: 12 }
+  ]);
+
+  // Create a network
+  var container = document.getElementById("mynetwork");
+  var data = {
+    nodes: nodes,
+    edges: edges
+  };
+  var options = {
+    nodes: {
+      shape: 'dot',
+      size: 20,
+      font: {
+        size: 14
+      },
+      borderWidth: 2
+    },
+    edges: {
+      width: 2
+    },
+    physics: {
+      stabilization: false
+    }
+  };
+  var network = new vis.Network(container, data, options);
+
+  // Event listener for node click
+  network.on("click", function (params) {
+    if (params.nodes.length > 0) {
+      var nodeId = params.nodes[0];
+      var nodeInfo = nodeDetails[nodeId];
+      var nodeInfoHtml = `
+        <h3>${nodeInfo.title}</h3>
+        <p>${nodeInfo.description}</p>
+        <strong>Connected to:</strong>
+        <ul>${nodeInfo.connections.map(c => `<li>${c}</li>`).join('')}</ul>
+      `;
+      document.getElementById("node-info").innerHTML = nodeInfoHtml;
+    } else {
+      document.getElementById("node-info").innerHTML = "<h3>Node Information</h3><p>Click on a node to see more information here.</p>";
+    }
+  });
+
+</script>
+
+</body>
+</html>

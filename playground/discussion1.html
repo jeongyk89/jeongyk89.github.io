@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Network with Predictions</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        .node {
+            stroke: #fff;
+            stroke-width: 1.5px;
+        }
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <svg width="960" height="600"></svg>
+
+    <script>
+        const width = 960;
+        const height = 600;
+
+        // Sample Data with Nodes and Links (Replace with Dynamic Data)
+        const graph = {
+            nodes: [
+                { id: "Meeting Discussion", group: 1 },
+                { id: "Input Data Node", group: 2 },
+                { id: "FM Korea Example", group: 3 },
+                { id: "User Feedback", group: 4 },
+                { id: "Next Potential Node", group: 5 }
+            ],
+            links: [
+                { source: "Meeting Discussion", target: "Input Data Node", value: 1 },
+                { source: "Input Data Node", target: "FM Korea Example", value: 0.8 },
+                { source: "FM Korea Example", target: "User Feedback", value: 0.6 },
+                { source: "User Feedback", target: "Next Potential Node", value: 0.9 }
+            ]
+        };
+
+        // Force Simulation for the Network
+        const simulation = d3.forceSimulation(graph.nodes)
+            .force("link", d3.forceLink(graph.links).id(d => d.id).distance(d => 200 * (1 - d.value)))
+            .force("charge", d3.forceManyBody())
+            .force("center", d3.forceCenter(width / 2, height / 2));
+
+        // Add SVG Elements for Links
+        const svg = d3.select("svg");
+        const link = svg.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(graph.links)
+            .enter().append("line")
+            .attr("class", "link")
+            .style("stroke-width", d => d.value * 5);
+
+        // Add SVG Elements for Nodes
+        const node = svg.append("g")
+            .attr("class", "nodes")
+            .selectAll("circle")
+            .data(graph.nodes)
+            .enter().append("circle")
+            .attr("r", 10)
+            .attr("fill", d => d3.schemeCategory10[d.group])
+            .call(d3.drag()
+                .on("start", dragStarted)
+                .on("drag", dragged)
+                .on("end", dragEnded));
+
+        // Tooltip for Detailed Info
+        node.append("title")
+            .text(d => d.id);
+
+        // Update Positions
+        simulation.on("tick", () => {
+            link.attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            node.attr("cx", d => d.x)
+                .attr("cy", d => d.y);
+        });
+
+        // Functions for Dragging
+        function dragStarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragEnded(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+
+        // Functionality for Interactive User Input and Predictions
+        node.on("click", function (event, d) {
+            alert("Node Selected: " + d.id + "\n" +
+                  "This node is connected because it shares context with the previous node.");
+            // Here we could fetch and display more data related to this node, and run an analysis.
+            // Add logic to display next probable connections or nodes based on the prediction model.
+        });
+
+    </script>
+</body>
+</html>
