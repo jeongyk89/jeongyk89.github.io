@@ -80,7 +80,7 @@
       </nav>
       <div style="display:flex;gap:8px">
         <button class="btn btn-ghost" id="ordersBtn">주문 리스트</button>
-        <!--<button class="btn btn-ghost" id="trackBtn">추적 놀이</button>-->
+        <button class="btn btn-ghost" id="trackBtn">추적 놀이</button>
         <button class="btn btn-primary" id="orderBtn">주문하기</button>
       </div>
     </div>
@@ -294,7 +294,7 @@
     // ==== Orders utils ====
     const getOrders=()=>{try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')}catch{return []}};
     const setOrders=(arr)=>localStorage.setItem(STORAGE_KEY,JSON.stringify(arr));
-    const steps=['주문 접수','과일 수확 중','신선 포장','우진이 출발!','배달 중','도착!'];
+    const steps=['주문 접수','딸기 따는 중','신선 포장','우진이 출발!','배달 중','도착!'];
     const stepClass=['s0','s1','s2','s3','s4','s5'];
 
     // ==== Header buttons & modals ====
