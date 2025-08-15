@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>유빌리 딸기 택배</title>
+  <style>
+    :root{
+      --rose-50:#fff1f2; --rose-100:#ffe4e6; --rose-500:#f43f5e; --rose-600:#e11d48; --rose-700:#be123c;
+      --stone-900:#0c0a09; --stone-700:#44403c; --stone-600:#57534e; --stone-300:#d6d3d1;
+      --gray:#e5e7eb; --blue:#3b82f6; --purple:#8b5cf6; --orange:#f97316; --teal:#14b8a6; --green:#16a34a;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family: ui-rounded, system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;color:var(--stone-900);background:linear-gradient(#ffeef2,#fff)}
+    a{text-decoration:none;color:inherit}
+    .container{max-width:1100px;margin:0 auto;padding:0 16px}
+    .btn{border:0;border-radius:14px;padding:10px 14px;font-weight:700;cursor:pointer}
+    .btn-primary{background:var(--rose-600);color:#fff}
+    .btn-primary:hover{background:var(--rose-700)}
+    .btn-ghost{background:#fff;border:1px solid var(--rose-100)}
+    .btn-soft{background:#f8fafc;border:1px solid #e2e8f0}
+    header{position:sticky;top:0;backdrop-filter:blur(6px);background:rgba(255,240,244,.8);border-bottom:1px solid var(--rose-100);z-index:50}
+    header .wrap{height:64px;display:flex;align-items:center;justify-content:space-between}
+    nav{display:none;gap:18px}
+    @media(min-width:640px){nav{display:flex}}
+    h1{font-size:36px;margin:0}
+    h2{font-size:26px;margin:0 0 14px 0;color:var(--rose-700)}
+    section{padding:56px 0}
+    .cards{display:grid;gap:16px}
+    @media(min-width:768px){.cards{grid-template-columns:repeat(3,1fr)}}
+    .card{background:#fff;border-radius:18px;box-shadow:0 8px 24px rgba(0,0,0,.06);padding:20px}
+    .hero{padding:48px 0;background:linear-gradient(var(--rose-100),var(--rose-50))}
+    .grid2{display:grid;gap:24px}
+    @media(min-width:768px){.grid2{grid-template-columns:1fr 1fr}}
+    .strawdy{display:grid;grid-template-columns:repeat(5,64px);gap:12px;place-content:center}
+    .berry{width:64px;height:80px;border-radius:38px;background:var(--rose-500);position:relative;box-shadow:0 8px 16px rgba(244,63,94,.25)}
+    .berry::before{content:'';position:absolute;left:50%;transform:translateX(-50%);top:-16px;width:34px;height:24px;background:#22c55e;border-radius:16px 16px 4px 4px}
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:16px;z-index:100}
+    .modal.open{display:flex}
+    .dialog{background:#fff;border-radius:20px;max-width:860px;width:100%;padding:20px;box-shadow:0 16px 50px rgba(0,0,0,.2)}
+    .row{display:grid;gap:12px}
+    @media(min-width:640px){.row-2{grid-template-columns:1fr 1fr} .row-3{grid-template-columns:1fr 1fr 1fr}}
+    label span{display:block;font-size:13px;font-weight:700;color:var(--stone-700)}
+    .field{width:100%;padding:12px 14px;border:1px solid var(--stone-300);border-radius:12px;outline:none}
+    .progress{height:10px;border-radius:999px;background:#eee;overflow:hidden}
+    .bar{height:100%;width:0;background:var(--rose-500);transition:width .25s}
+    .footer{background:#fff;border-top:1px solid var(--rose-100);padding:28px 0;margin-top:24px;font-size:14px;color:var(--stone-600)}
+    .list{padding-left:18px}
+    .review{font-weight:700}
+    .orders{display:grid;gap:12px;max-height:60vh;overflow:auto;margin-top:10px}
+    .order{border:1px solid #e5e7eb;border-radius:14px;padding:12px;display:grid;gap:8px;background:#fff}
+    .order-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+    .order-meta{display:flex;gap:10px;flex-wrap:wrap;font-size:13px;color:#475569}
+    .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-weight:700;font-size:12px;color:#fff}
+    .s0{background:var(--gray);color:#0f172a}
+    .s1{background:var(--blue)}
+    .s2{background:var(--purple)}
+    .s3{background:var(--orange)}
+    .s4{background:var(--teal)}
+    .s5{background:var(--green)}
+    .actions{display:flex;gap:6px;flex-wrap:wrap}
+    .order .progress{height:8px}
+    .muted{color:#6b7280;font-size:12px}
+    .danger{background:#fee2e2;border:1px solid #fecaca}
+    .inline{display:flex;gap:8px;align-items:center}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container wrap">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div aria-hidden="true" style="width:40px;height:40px;border-radius:12px;background:conic-gradient(from 0deg,#ff9aa2,#ff5d73,#ff3b5e)"></div>
+        <strong>유빌리 딸기 택배</strong>
+      </div>
+      <nav>
+        <a href="#about">소개</a>
+        <a href="#how">배달</a>
+        <a href="#menu">메뉴/가격</a>
+        <a href="#safety">안전</a>
+      </nav>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" id="ordersBtn">주문 리스트</button>
+        <button class="btn btn-ghost" id="trackBtn">추적 놀이</button>
+        <button class="btn btn-primary" id="orderBtn">주문하기</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="hero">
+      <div class="container grid2">
+        <div>
+          <h1>다섯 살 우진이가 운영하는 <span style="color:var(--rose-700)">유빌리 딸기 택배</span></h1>
+          <p style="color:var(--stone-700);font-size:18px;margin-top:10px">싱싱한 🍓를 조심조심 상자에 담아, 빠르고 즐겁게 배달해요! 부모님과 함께 주문해 주세요.</p>
+          <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-primary" id="orderBtn2">지금 주문하기</button>
+            <a class="btn btn-ghost" href="#how">배달 방법 보기</a>
+          </div>
+        </div>
+        <div class="card" style="display:grid;place-items:center">
+          <div class="strawdy">
+            <div class="berry"></div><div class="berry"></div><div class="berry"></div><div class="berry"></div><div class="berry"></div>
+          </div>
+          <p style="margin-top:10px;color:#777;font-size:13px">귀여운 딸기 행진!</p>
+        </div>
+      </div>
+    </div>
+
+    <section id="about" class="container">
+      <h2>가게 소개</h2>
+      <div class="cards">
+        <div class="card">
+          <div style="font-size:36px">🧒🏻</div>
+          <h3>사장님: 이우진(5세)</h3>
+          <p style="color:var(--stone-700)">인사 잘하고 상자도 잘 들어요. 힘은 가볍지만 마음은 든든해요!</p>
+        </div>
+        <div class="card">
+          <div style="font-size:36px">👨‍👩‍👧‍👦</div>
+          <h3>함께 운영해요</h3>
+          <p style="color:var(--stone-700)">보호자와 함께 안전하게 운영합니다. 결제·주소 확인 등은 모두 보호자가 해요.</p>
+        </div>
+        <div class="card">
+          <div style="font-size:36px">💌</div>
+          <h3>행복 배달</h3>
+          <p style="color:var(--stone-700)">싱싱한 딸기와 함께 감사 편지 스티커도 보내드려요.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="how" class="container">
+      <h2>어떻게 배달해요?</h2>
+      <div class="cards">
+        <div class="card"><div style="font-size:36px">🧺</div><h3>수확</h3><p>깨끗한 곳에서 신선한 딸기를 고릅니다.</p></div>
+        <div class="card"><div style="font-size:36px">📦</div><h3>포장</h3><p>푹신한 종이와 아이 사랑으로 포장!</p></div>
+        <div class="card"><div style="font-size:36px">🚚</div><h3>배달</h3><p>안전벨트 하고 조심조심 출발!</p></div>
+      </div>
+    </section>
+
+    <section id="menu" class="container">
+      <h2>메뉴 / 가격</h2>
+      <div class="cards">
+        <div class="card"><h3>작은 상자</h3><p>대략 0.5 kg</p><p style="font-weight:800;font-size:22px">₩ 8,000</p><button class="btn btn-primary smallOrder">주문하기</button></div>
+        <div class="card"><h3>보통 상자</h3><p>대략 1 kg</p><p style="font-weight:800;font-size:22px">₩ 14,000</p><button class="btn btn-primary smallOrder">주문하기</button></div>
+        <div class="card"><h3>행복 상자</h3><p>대략 2 kg</p><p style="font-weight:800;font-size:22px">₩ 26,000</p><button class="btn btn-primary smallOrder">주문하기</button></div>
+      </div>
+    </section>
+
+    <section id="safety" class="container">
+      <h2>안전 · 보호자 안내</h2>
+      <div class="card">
+        <ul class="list">
+          <li>모든 주문·연락은 반드시 <b>보호자</b>가 진행해 주세요.</li>
+          <li>개인정보는 주문 확인에만 사용하며, 사이트에 저장하지 않아요. (데모에서는 브라우저에 임시 저장)</li>
+          <li>알레르기나 요청 사항은 주문 메모에 꼭 적어주세요.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="container">
+      <h2>작은 리뷰</h2>
+      <div class="cards">
+        <div class="card"><p class="review">“딸기가 달고 싱싱해요!”</p><p>— 우진이가 직접 고른대요.</p></div>
+        <div class="card"><p class="review">“상자가 귀여워요”</p><p>— 스티커가 포인트!</p></div>
+        <div class="card"><p class="review">“배달이 빠르네요”</p><p>— 길에서는 항상 조심조심~</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container" style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><strong>유빌리 딸기 택배</strong><div style="color:var(--stone-600);font-size:13px">© <span id="year"></span> Woojin Delivery. All smiles reserved 😊</div></div>
+      <div style="color:var(--stone-600);font-size:13px">*학습/놀이용 데모 페이지</div>
+    </div>
+  </footer>
+
+  <!-- 주문 모달 -->
+  <div class="modal" id="orderModal" aria-hidden="true">
+    <div class="dialog">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 style="margin:0">주문하기</h3>
+        <button class="btn btn-ghost" id="closeOrder">닫기</button>
+      </div>
+      <form id="orderForm" class="row" autocomplete="on">
+        <div class="row row-2">
+          <label><span>보호자 성함 *</span><input required class="field" name="guardian"></label>
+          <label><span>연락처 *</span><input required class="field" name="phone" placeholder="010-0000-0000"></label>
+        </div>
+        <label><span>주소 *</span><input required class="field" name="address"></label>
+        <div class="row row-3">
+          <label><span>상자 크기</span>
+            <select class="field" name="size">
+              <option>작은 상자</option><option selected>보통 상자</option><option>행복 상자</option>
+            </select>
+          </label>
+          <label><span>수량</span><input type="number" min="1" max="9" value="1" class="field" name="qty"></label>
+          <label><span>희망 배송일</span><input type="date" class="field" name="date"></label>
+        </div>
+
+        <div class="row row-3">
+          <label><span>과일 선택</span>
+            <select class="field" name="fruit" id="fruitSelect"></select>
+          </label>
+          <label><span>새 과일 추가</span>
+            <div class="inline">
+              <input class="field" id="fruitAddInput" placeholder="예: 포도, 블루베리 등">
+              <button class="btn btn-soft" type="button" id="fruitAddBtn">추가</button>
+            </div>
+          </label>
+          <label id="fruitEtcWrap" style="display:none"><span>기타 과일 (직접 입력)</span>
+            <input class="field" name="fruitEtc" placeholder="자세한 품종/메모 등">
+          </label>
+        </div>
+
+        <label><span>메모</span><textarea rows="3" class="field" name="memo" placeholder="알레르기/요청사항 등을 적어주세요"></textarea></label>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <p style="color:var(--stone-600);font-size:13px">제출하면 브라우저에만 임시 저장됩니다. (데모)</p>
+          <button class="btn btn-primary" type="submit">제출</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 추적 놀이 모달 (개별) -->
+  <div class="modal" id="trackModal" aria-hidden="true">
+    <div class="dialog">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 style="margin:0">배송 추적 놀이</h3>
+        <button class="btn btn-ghost" id="closeTrack">닫기</button>
+      </div>
+      <div style="margin-top:10px">
+        <div style="display:flex;justify-content:space-between;color:var(--stone-600);font-size:13px">
+          <span id="stepLabel">주문 접수</span>
+          <span><span id="stepNow">1</span> / <span id="stepTotal">6</span></span>
+        </div>
+        <div class="progress" style="margin-top:6px"><div id="bar" class="bar"></div></div>
+        <div style="margin-top:12px;display:flex;gap:8px">
+          <button class="btn btn-ghost" id="prevStep">이전</button>
+          <button class="btn btn-primary" id="nextStep">다음</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 주문 리스트 모달 (관리자 뷰) -->
+  <div class="modal" id="ordersModal" aria-hidden="true">
+    <div class="dialog">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <h3 style="margin:0">주문 리스트</h3>
+        <div class="actions">
+          <button class="btn btn-soft" id="exportCsv">CSV로 내보내기</button>
+          <button class="btn btn-ghost" id="closeOrders">닫기</button>
+        </div>
+      </div>
+      <div class="muted" style="margin-top:6px">각 주문의 진행 단계를 직접 바꿀 수 있어요. 색깔로 상태가 표시됩니다.</div>
+      <div class="orders" id="ordersContainer"></div>
+      <div class="muted" style="margin-top:6px">* 데이터는 이 브라우저의 localStorage에만 저장됩니다.</div>
+    </div>
+  </div>
+
+  <script>
+    // ==== Storage keys ====
+    const STORAGE_KEY='jubilee-orders';
+    const FRUITS_KEY='jubilee-fruits';
+
+    // ==== Fruits preset & utils ====
+    const DEFAULT_FRUITS=[
+      {label:'🍓 딸기', value:'딸기'},
+      {label:'🍑 복숭아', value:'복숭아'},
+      {label:'🍇 포도', value:'포도'},
+      {label:'🫐 블루베리', value:'블루베리'},
+      {label:'🍎 사과', value:'사과'},
+      {label:'🍊 귤', value:'귤'},
+      {label:'🍌 바나나', value:'바나나'},
+      {label:'✍️ 기타(직접 입력)', value:'etc'}
+    ];
+    const FRUIT_ICON_MAP={
+      '딸기':'🍓','복숭아':'🍑','포도':'🍇','블루베리':'🫐','사과':'🍎','귤':'🍊','바나나':'🍌'
+    };
+    const fruitIcon=(name)=> FRUIT_ICON_MAP[name] || '🍇';
+
+    const getFruits=()=>{
+      try{
+        const saved=JSON.parse(localStorage.getItem(FRUITS_KEY)||'[]');
+        // Merge saved with defaults ensuring 'etc' at end
+        const filteredDefaults=DEFAULT_FRUITS.filter(d=>!saved.some(s=>s.value===d.value));
+        const merged=[...saved, ...filteredDefaults.filter(d=>d.value!=='etc')];
+        // ensure etc last
+        if(!merged.some(x=>x.value==='etc')) merged.push({label:'✍️ 기타(직접 입력)', value:'etc'});
+        return merged;
+      }catch{return DEFAULT_FRUITS}
+    };
+    const setFruits=(arr)=>localStorage.setItem(FRUITS_KEY, JSON.stringify(arr));
+
+    // ==== Orders utils ====
+    const getOrders=()=>{try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]')}catch{return []}};
+    const setOrders=(arr)=>localStorage.setItem(STORAGE_KEY,JSON.stringify(arr));
+    const steps=['주문 접수','딸기 따는 중','신선 포장','우진이 출발!','배달 중','도착!'];
+    const stepClass=['s0','s1','s2','s3','s4','s5'];
+
+    // ==== Header buttons & modals ====
+    const orderBtn=document.getElementById('orderBtn');
+    const orderBtn2=document.getElementById('orderBtn2');
+    const trackBtn=document.getElementById('trackBtn');
+    const ordersBtn=document.getElementById('ordersBtn');
+    const orderModal=document.getElementById('orderModal');
+    const trackModal=document.getElementById('trackModal');
+    const ordersModal=document.getElementById('ordersModal');
+    const closeOrder=document.getElementById('closeOrder');
+    const closeTrack=document.getElementById('closeTrack');
+    const closeOrders=document.getElementById('closeOrders');
+    document.querySelectorAll('.smallOrder').forEach(b=>b.addEventListener('click',()=>open(orderModal)));
+    orderBtn.onclick=orderBtn2.onclick=()=>open(orderModal);
+    trackBtn.onclick=()=>open(trackModal);
+    ordersBtn.onclick=()=>{renderOrders(); open(ordersModal);};
+    closeOrder.onclick=()=>close(orderModal);
+    closeTrack.onclick=()=>close(trackModal);
+    closeOrders.onclick=()=>close(ordersModal);
+    function open(el){el.classList.add('open')}
+    function close(el){el.classList.remove('open')}
+    window.addEventListener('keydown',e=>{if(e.key==='Escape'){[orderModal,trackModal,ordersModal].forEach(close)}});
+
+    // ==== Order form ====
+    const form=document.getElementById('orderForm');
+    const fruitSelect=document.getElementById('fruitSelect');
+    const fruitEtcWrap=document.getElementById('fruitEtcWrap');
+    const fruitAddInput=document.getElementById('fruitAddInput');
+    const fruitAddBtn=document.getElementById('fruitAddBtn');
+
+    function renderFruitOptions(){
+      const fruits=getFruits();
+      fruitSelect.innerHTML='';
+      fruits.forEach(f=>{
+        const op=document.createElement('option');
+        op.value=f.value; op.textContent=f.label;
+        fruitSelect.appendChild(op);
+      });
+      onFruitChange();
+    }
+
+    function onFruitChange(){
+      fruitEtcWrap.style.display = fruitSelect.value==='etc' ? 'block' : 'none';
+    }
+    fruitSelect.addEventListener('change', onFruitChange);
+
+    fruitAddBtn.addEventListener('click', ()=>{
+      const name=(fruitAddInput.value||'').trim();
+      if(!name) return;
+      // Prevent duplicates and reserved 'etc'
+      if(name==='기타' || name.toLowerCase()==='etc') return alert('이 이름은 사용할 수 없어요.');
+      const fruits=getFruits().filter(f=>f.value!=='etc'); // remove etc temporarily
+      if(fruits.some(f=>f.value===name)){ alert('이미 있는 과일이에요.'); return; }
+      const icon=FRUIT_ICON_MAP[name] || '🍍'; // unknown gets pineapple icon for fun
+      fruits.push({label:`${icon} ${name}`, value:name});
+      fruits.push({label:'✍️ 기타(직접 입력)', value:'etc'});
+      setFruits(fruits);
+      fruitAddInput.value='';
+      renderFruitOptions();
+      fruitSelect.value=name;
+      onFruitChange();
+    });
+
+    renderFruitOptions();
+
+    form.addEventListener('submit',(e)=>{
+      e.preventDefault();
+      const data=Object.fromEntries(new FormData(form).entries());
+      const fruitFinal = data.fruit==='etc' ? (data.fruitEtc||'기타') : data.fruit;
+      const order={
+        id: Date.now(),
+        guardian: data.guardian?.trim(),
+        phone: data.phone?.trim(),
+        address: data.address?.trim(),
+        size: data.size,
+        qty: Number(data.qty||1),
+        date: data.date||'',
+        memo: data.memo?.trim(),
+        fruit: fruitFinal,
+        progress: 0
+      };
+      try{
+        const arr=getOrders(); arr.push(order); setOrders(arr);
+        alert('주문이 접수되었어요! 감사합니다.');
+        form.reset(); renderFruitOptions();
+        close(orderModal);
+      }catch(err){ alert('저장이 되지 않았어요.'); }
+    });
+
+    // ==== Single tracking play (demo) ====
+    let idx=0;
+    const label=document.getElementById('stepLabel');
+    const now=document.getElementById('stepNow');
+    const total=document.getElementById('stepTotal');
+    total.textContent=steps.length;
+    const bar=document.getElementById('bar');
+    function renderDemo(){label.textContent=steps[idx]; now.textContent=idx+1; bar.style.width=((idx+1)/steps.length*100)+'%';}
+    renderDemo();
+    document.getElementById('prevStep').onclick=()=>{idx=Math.max(0,idx-1);renderDemo()}
+    document.getElementById('nextStep').onclick=()=>{idx=Math.min(steps.length-1,idx+1);renderDemo()}
+
+    // ==== Orders admin view ====
+    const ordersContainer=document.getElementById('ordersContainer');
+
+    function renderOrders(){
+      const arr=getOrders();
+      ordersContainer.innerHTML='';
+      if(arr.length===0){
+        const empty=document.createElement('div');
+        empty.className='order danger';
+        empty.textContent='아직 주문이 없어요.';
+        ordersContainer.appendChild(empty);
+        return;
+      }
+      arr.sort((a,b)=>b.id-a.id);
+      for(const o of arr){
+        const wrap=document.createElement('div');
+        wrap.className='order';
+
+        const head=document.createElement('div');
+        head.className='order-head';
+        const title=document.createElement('div');
+        const shortId = String(o.id).slice(-6);
+        const icon = fruitIcon(o.fruit);
+        title.innerHTML = `<strong>${icon} ${o.fruit}</strong> · ${o.size} · x${o.qty} <span class="muted">#${shortId}</span>`;
+
+        const status=document.createElement('div');
+        const pill=document.createElement('span');
+        pill.className='pill '+ stepClass[o.progress??0];
+        pill.innerHTML = `${o.progress+1}/${steps.length} · ${steps[o.progress??0]}`;
+        status.appendChild(pill);
+
+        head.appendChild(title);
+        head.appendChild(status);
+
+        const meta=document.createElement('div');
+        meta.className='order-meta';
+        meta.innerHTML = `👤 ${o.guardian||'-'} · 📞 ${o.phone||'-'} · 🗓️ ${o.date||'-'} · 📍 ${o.address||'-'}`;
+
+        const prog=document.createElement('div');
+        prog.className='progress';
+        const b=document.createElement('div');
+        b.className='bar';
+        b.style.width = (((o.progress??0)+1)/steps.length*100)+'%';
+        prog.appendChild(b);
+
+        const ctrls=document.createElement('div');
+        ctrls.className='actions';
+        const prev=document.createElement('button');
+        prev.className='btn btn-soft';
+        prev.textContent='이전';
+        const next=document.createElement('button');
+        next.className='btn btn-primary';
+        next.textContent='다음';
+        const select=document.createElement('select');
+        select.className='field';
+        select.style.width='auto';
+        steps.forEach((s,i)=>{
+          const op=document.createElement('option');
+          op.value=i; op.textContent=`${i+1}. ${s}`;
+          if(i===(o.progress??0)) op.selected=true;
+          select.appendChild(op);
+        });
+        const del=document.createElement('button');
+        del.className='btn btn-ghost';
+        del.textContent='삭제';
+
+        ctrls.appendChild(prev);
+        ctrls.appendChild(next);
+        ctrls.appendChild(select);
+        ctrls.appendChild(del);
+
+        wrap.appendChild(head);
+        wrap.appendChild(meta);
+        wrap.appendChild(prog);
+        wrap.appendChild(ctrls);
+        ordersContainer.appendChild(wrap);
+
+        prev.onclick=()=>{ updateProgress(o.id, Math.max(0, (o.progress??0)-1)); };
+        next.onclick=()=>{ updateProgress(o.id, Math.min(steps.length-1, (o.progress??0)+1)); };
+        select.onchange=(e)=>{ updateProgress(o.id, parseInt(e.target.value,10)); };
+        del.onclick=()=>{
+          if(confirm('이 주문을 삭제할까요?')){
+            const arr=getOrders().filter(x=>x.id!==o.id); setOrders(arr); renderOrders();
+          }
+        };
+      }
+    }
+
+    function updateProgress(id, p){
+      const arr=getOrders();
+      const i=arr.findIndex(x=>x.id===id);
+      if(i>-1){
+        arr[i].progress=p;
+        setOrders(arr);
+        renderOrders();
+      }
+    }
+
+    // ==== CSV export ====
+    document.getElementById('exportCsv').addEventListener('click', ()=>{
+      const rows=getOrders();
+      if(rows.length===0){ alert('내보낼 주문이 없어요.'); return; }
+      const header=['id','guardian','phone','address','size','qty','date','memo','fruit','progress','progressLabel'];
+      const lines=[header.join(',')];
+      rows.forEach(o=>{
+        const vals=[
+          o.id, q(o.guardian), q(o.phone), q(o.address),
+          q(o.size), o.qty, q(o.date), q(o.memo), q(o.fruit),
+          o.progress, q(steps[o.progress||0])
+        ];
+        lines.push(vals.join(','));
+      });
+      const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'});
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download='orders.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+    function q(v){ if(v==null) return ''; const s=String(v).replaceAll('"','""'); return `"${s}"`; }
+
+    // year
+    document.getElementById('year').textContent=new Date().getFullYear();
+  </script>
+</body>
+</html>
