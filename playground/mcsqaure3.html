@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>엠씨스퀘어‑스타일 사운드 생성기</title>
+  <meta name="theme-color" content="#0f1522" />
+  <style>
+    /* ========== THEME (CSS variables) ========== */
+    :root{ --bg:#0f1522; --bg-grad:linear-gradient(180deg,#0b1220,#111a2d); --card:#151e2f; --ink:#eaf1ff; --muted:#a9b6d3; --acc:#77c6ff; --acc2:#7affc8; --border:#1f2940; }
+    body.theme-neon{ --bg:#080911; --bg-grad:radial-gradient(1200px 500px at 10% -10%, #0ef, transparent), radial-gradient(900px 600px at 110% 110%, #9b7bff22, transparent), #000; --card:#0c0f1f; --ink:#f5fbff; --muted:#a6b3ff; --acc:#9b7bff; --acc2:#55ffd1; --border:#232a4c; }
+    body.theme-minimal{ --bg:#0f1115; --bg-grad:linear-gradient(180deg,#0f1115,#0f1115); --card:#13161f; --ink:#e9eef9; --muted:#b8c0d4; --acc:#7bbcf7; --acc2:#98f5d0; --border:#222836; }
+
+    /* ========== Base ========== */
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg-grad);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",sans-serif;transition:background .4s,color .4s}
+    header{padding:24px 16px;text-align:center}
+    h1{margin:0;font-size:clamp(20px,4vw,28px)}
+    main{max-width:1120px;margin:0 auto;padding:16px;display:grid;gap:16px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);transition:background .4s,border .4s}
+    .card h2{margin:.2rem 0 1rem;font-size:1.05rem;color:#dce7ff}
+    label{display:block;margin:.55rem 0 .35rem;color:var(--muted);font-size:.9rem}
+    input[type="range"],select{width:100%}
+    input[type="number"]{width:100%;padding:8px;border-radius:10px;border:1px solid var(--border);background:#0e1526;color:var(--ink)}
+    .row{display:flex;gap:10px;align-items:center}
+    .row>*{flex:1}
+    .btn{appearance:none;border:none;background:linear-gradient(90deg,var(--acc),#7ea6ff);color:#041432;font-weight:700;border-radius:12px;padding:12px 16px;cursor:pointer;box-shadow:0 8px 20px rgba(110,193,255,.35)}
+    .btn.secondary{background:linear-gradient(90deg,#384767,#2a395a);color:#cfe1ff}
+    .badge{display:inline-block;background:#1b2741;color:#cfe1ff;border:1px solid #263356;padding:4px 8px;border-radius:999px;font-size:.8rem}
+    .muted{color:var(--muted);font-size:.9rem}
+
+    /* ========== Visual (Scope/FFT) ========== */
+    .visual{position:relative;border-radius:16px;padding:12px}
+    .tabs{display:flex;gap:8px;margin-bottom:8px}
+    .tab{flex:0 0 auto;text-align:center;padding:8px 12px;border-radius:8px;background:#1a253e;border:1px solid #263356;cursor:pointer;user-select:none;color:#cfe1ff}
+    .tab.active{background:#2e3e5a;border-color:#4aa3ff;color:#fff}
+    canvas{width:100%;display:block;border:1px solid #223355;border-radius:12px;box-shadow:inset 0 0 40px rgba(0,0,0,.35)}
+    .scope-overlay{position:absolute;inset:12px;pointer-events:none}
+    .scope-overlay .gridline{position:absolute;left:0;right:0;height:1px;background:rgba(126,166,255,.15)}
+    .scope-overlay .center{top:calc(50% - .5px)}
+    .scope-overlay .hz{position:absolute;top:16px;right:16px;background:#0e1730b3;border:1px solid #223355;color:#cfe1ff;font-size:.8rem;padding:4px 8px;border-radius:8px}
+
+    /* Theme picker */
+    .themer{display:inline-flex;gap:8px;align-items:center;background:#13203b;border:1px solid #223355;padding:6px 10px;border-radius:10px;margin-left:10px}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>엠씨스퀘어‑스타일 사운드 생성기</h1>
+    <div class="muted" style="display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap">
+      <span>바이노럴 / 아이소크로닉 + 화이트·핑크·브라운 노이즈 · <span class="badge">헤드폰 권장</span></span>
+      <label class="themer">
+        <span class="muted">테마</span>
+        <select id="themeSel">
+          <option value="dark" selected>다크</option>
+          <option value="neon">네온</option>
+          <option value="minimal">미니멀</option>
+        </select>
+      </label>
+    </div>
+  </header>
+
+  <main>
+    <section class="grid">
+      <div class="card">
+        <h2>세션</h2>
+        <label for="preset">프리셋</label>
+        <select id="preset">
+          <optgroup label="알파 (8–12 Hz)">
+            <option value="alpha8">알파 8 Hz · 편안</option>
+            <option value="alpha10" selected>알파 10 Hz · 집중</option>
+            <option value="alpha12">알파 12 Hz · 각성</option>
+          </optgroup>
+          <optgroup label="세타 (4–7 Hz)">
+            <option value="theta4">세타 4 Hz · 깊은 명상</option>
+            <option value="theta6">세타 6 Hz · 가벼운 명상</option>
+          </optgroup>
+          <optgroup label="델타 (0.5–3 Hz)">
+            <option value="delta1">델타 1 Hz · 숙면</option>
+            <option value="delta2">델타 2 Hz · 깊은 수면</option>
+            <option value="delta3">델타 3 Hz · 얕은 수면</option>
+          </optgroup>
+          <option value="custom">사용자 지정</option>
+        </select>
+        <div class="row" style="margin-top:12px">
+          <button id="startBtn" class="btn">▶ 시작</button>
+          <button id="stopBtn" class="btn secondary">■ 정지</button>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <label>세션 길이 (분)
+            <input type="number" id="minutes" value="15" min="1" max="180">
+          </label>
+          <div class="card" style="padding:10px;background:#121a2b;border-style:dashed"><div class="muted">남은 시간: <b id="countdown">00:00</b></div></div>
+        </div>
+        <div class="row" style="margin-top:6px">
+          <label>페이드 인 (초)
+            <input type="number" id="fadeIn" value="1.5" min="0" max="10" step="0.1">
+          </label>
+          <label>페이드 아웃 (초)
+            <input type="number" id="fadeOut" value="1.5" min="0" max="10" step="0.1">
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>톤 생성</h2>
+        <div class="row">
+          <label style="flex:0 0 auto;color:var(--muted)">모드</label>
+          <label class="row" style="gap:8px;align-items:center;flex:1"><input type="radio" name="mode" value="binaural" checked> 바이노럴</label>
+          <label class="row" style="gap:8px;align-items:center;flex:1"><input type="radio" name="mode" value="isochronic"> 아이소크로닉</label>
+        </div>
+        <label>캐리어 주파수 <span id="baseFreqVal" class="badge">220 Hz</span>
+          <input id="baseFreq" type="range" min="100" max="600" step="1" value="220">
+        </label>
+        <label>비트 주파수 <span id="beatVal" class="badge">10 Hz</span>
+          <input id="beat" type="range" min="0.5" max="40" step="0.1" value="10">
+        </label>
+        <label>마스터 볼륨 <span id="volVal" class="badge">60%</span>
+          <input id="master" type="range" min="0" max="1" step="0.01" value="0.6">
+        </label>
+      </div>
+
+      <div class="card">
+        <h2>노이즈</h2>
+        <label>종류
+          <select id="noiseType">
+            <option value="off">끄기</option>
+            <option value="white">화이트</option>
+            <option value="pink">핑크</option>
+            <option value="brown">브라운</option>
+          </select>
+        </label>
+        <label>노이즈 볼륨 <span id="noiseVolVal" class="badge">0%</span>
+          <input id="noiseVol" type="range" min="0" max="1" step="0.01" value="0">
+        </label>
+        <label>노이즈 톤 (로우패스 컷오프) <span id="noiseCutVal" class="badge">8000 Hz</span>
+          <input id="noiseCut" type="range" min="200" max="12000" step="1" value="8000">
+        </label>
+      </div>
+
+      <div class="card">
+        <h2>알림음</h2>
+        <div class="row">
+          <label class="row" style="gap:8px;align-items:center"><input type="checkbox" id="startBellOn" checked> 시작음</label>
+          <label class="row" style="gap:8px;align-items:center"><input type="checkbox" id="endBellOn" checked> 종료음</label>
+        </div>
+        <div class="row">
+          <label>시작음 주파수 (Hz)<input type="number" id="startBellFreq" value="660" min="200" max="2000" step="10"></label>
+          <label>지속 (초)<input type="number" id="startBellDur" value="0.5" min="0.1" max="5" step="0.1"></label>
+          <label>파형
+            <select id="startBellWave"><option>sine</option><option>triangle</option><option>square</option></select>
+          </label>
+        </div>
+        <div class="row">
+          <label>종료음 주파수 (Hz)<input type="number" id="endBellFreq" value="880" min="200" max="2000" step="10"></label>
+          <label>지속 (초)<input type="number" id="endBellDur" value="0.6" min="0.1" max="5" step="0.1"></label>
+          <label>파형
+            <select id="endBellWave"><option>sine</option><option>triangle</option><option>square</option></select>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <section class="card visual">
+      <div class="tabs">
+        <div class="tab active" id="tabTime">시간 파형</div>
+        <div class="tab" id="tabFreq">주파수 스펙트럼</div>
+        <div class="muted" id="tabInfo" style="margin-left:auto">—</div>
+      </div>
+      <canvas id="scope" width="1600" height="500"></canvas>
+      <canvas id="fft" width="1600" height="500" style="display:none"></canvas>
+      <div class="scope-overlay">
+        <div class="gridline center"></div>
+        <div class="hz" id="hzInfo">—</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+  ;(()=>{
+    const $=id=>document.getElementById(id);
+    const el={
+      preset: $('preset'), start: $('startBtn'), stop: $('stopBtn'), minutes: $('minutes'), countdown: $('countdown'),
+      fadeIn: $('fadeIn'), fadeOut: $('fadeOut'),
+      mode: ()=>document.querySelector('input[name="mode"]:checked'),
+      base: $('baseFreq'), beat: $('beat'), master: $('master'),
+      baseVal: $('baseFreqVal'), beatVal: $('beatVal'), volVal: $('volVal'),
+      noiseType: $('noiseType'), noiseVol: $('noiseVol'), noiseCut: $('noiseCut'),
+      noiseVolVal: $('noiseVolVal'), noiseCutVal: $('noiseCutVal'),
+      startBellOn: $('startBellOn'), endBellOn: $('endBellOn'),
+      startBellFreq: $('startBellFreq'), startBellDur: $('startBellDur'), startBellWave: $('startBellWave'),
+      endBellFreq: $('endBellFreq'), endBellDur: $('endBellDur'), endBellWave: $('endBellWave'),
+      scope: $('scope'), fft: $('fft'), hzInfo: $('hzInfo'), tabInfo: $('tabInfo'),
+      tabTime: $('tabTime'), tabFreq: $('tabFreq'), themeSel: $('themeSel')
+    };
+
+    // ===== Audio Nodes =====
+    let ctx, masterGain, running=false, timer=null,
+        leftOsc,rightOsc,leftGain,rightGain,stereoL,stereoR,
+        isoCarrier,isoGain,lfo,
+        noiseSrc,noiseGain,noiseLP,
+        analyser, timeData, freqData;
+
+    const state={ base:220, beat:10, mode:'binaural' };
+
+    function ensureCtx(){
+      if(!ctx){
+        ctx=new (window.AudioContext||window.webkitAudioContext)();
+        masterGain=ctx.createGain(); masterGain.gain.value=0; // fade-in 준비
+        masterGain.connect(ctx.destination);
+        analyser=ctx.createAnalyser(); analyser.fftSize=2048;
+        timeData=new Uint8Array(analyser.fftSize);
+        freqData=new Uint8Array(analyser.frequencyBinCount);
+        // 마스터를 애널라이저에도 연결 (병렬)
+        masterGain.connect(analyser);
+      }
+    }
+
+    function clearNodes(){
+      [leftOsc,rightOsc,isoCarrier,lfo,noiseSrc].forEach(n=>{try{n&&n.stop();}catch{}});
+      [leftGain,rightGain,stereoL,stereoR,isoGain,noiseGain,noiseLP].forEach(n=>{try{n&&n.disconnect();}catch{}});
+      leftOsc=rightOsc=isoCarrier=lfo=noiseSrc=null;
+      leftGain=rightGain=stereoL=stereoR=isoGain=noiseGain=noiseLP=null;
+    }
+
+    function updateBadges(){
+      el.baseVal.textContent=`${Math.round(state.base)} Hz`;
+      el.beatVal.textContent=`${state.beat.toFixed(1)} Hz`;
+      el.volVal.textContent=`${Math.round(parseFloat(el.master.value)*100)}%`;
+      el.noiseVolVal.textContent=`${Math.round(parseFloat(el.noiseVol.value)*100)}%`;
+      el.noiseCutVal.textContent=`${Math.round(parseFloat(el.noiseCut.value))} Hz`;
+    }
+
+    function setupBinaural(){
+      leftOsc=ctx.createOscillator(); rightOsc=ctx.createOscillator();
+      leftOsc.type=rightOsc.type='sine';
+      // 좌/우 주파수
+      const lf=Math.max(20,state.base - state.beat/2);
+      const rf=Math.max(20,state.base + state.beat/2);
+      leftOsc.frequency.setValueAtTime(lf,ctx.currentTime);
+      rightOsc.frequency.setValueAtTime(rf,ctx.currentTime);
+      leftGain=ctx.createGain(); rightGain=ctx.createGain(); leftGain.gain.value=rightGain.gain.value=0.5;
+      stereoL=new StereoPannerNode(ctx,{pan:-1}); stereoR=new StereoPannerNode(ctx,{pan:1});
+      leftOsc.connect(leftGain).connect(stereoL).connect(masterGain);
+      rightOsc.connect(rightGain).connect(stereoR).connect(masterGain);
+      leftOsc.start(); rightOsc.start();
+    }
+
+    function setupIsochronic(){
+      isoCarrier=ctx.createOscillator(); isoCarrier.type='sine'; isoCarrier.frequency.setValueAtTime(state.base, ctx.currentTime);
+      isoGain=ctx.createGain();
+      lfo=ctx.createOscillator(); lfo.type='sine'; lfo.frequency.setValueAtTime(state.beat, ctx.currentTime);
+      const lfoGain=ctx.createGain(); lfoGain.gain.value=0.5; const offset=new ConstantSourceNode(ctx,{offset:0.5});
+      lfo.connect(lfoGain).connect(isoGain.gain); offset.connect(isoGain.gain);
+      isoCarrier.connect(isoGain).connect(masterGain);
+      offset.start(); lfo.start(); isoCarrier.start();
+    }
+
+    function setupNoise(){
+      if(el.noiseType.value==='off') return;
+      const bufferSize=2*ctx.sampleRate; const buffer=ctx.createBuffer(1,bufferSize,ctx.sampleRate); const data=buffer.getChannelData(0);
+      if(el.noiseType.value==='white'){
+        for(let i=0;i<bufferSize;i++) data[i]=Math.random()*2-1;
+      } else if(el.noiseType.value==='pink'){
+        let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0; for(let i=0;i<bufferSize;i++){const w=Math.random()*2-1; b0=0.99886*b0+w*0.0555179; b1=0.99332*b1+w*0.0750759; b2=0.96900*b2+w*0.1538520; b3=0.86650*b3+w*0.3104856; b4=0.55000*b4+w*0.5329522; b5=-0.7616*b5-w*0.0168980; data[i]=b0+b1+b2+b3+b4+b5+b6+w*0.5362; data[i]*=0.11; b6=w*0.115926; }
+      } else if(el.noiseType.value==='brown'){
+        let last=0; for(let i=0;i<bufferSize;i++){const w=Math.random()*2-1; data[i]=(last+0.02*w)/1.02; last=data[i]; data[i]*=3.5;}
+      }
+      noiseSrc=ctx.createBufferSource(); noiseSrc.buffer=buffer; noiseSrc.loop=true;
+      noiseGain=ctx.createGain(); noiseGain.gain.value=parseFloat(el.noiseVol.value||0);
+      noiseLP=ctx.createBiquadFilter(); noiseLP.type='lowpass'; noiseLP.frequency.value=parseFloat(el.noiseCut.value||8000);
+      noiseSrc.connect(noiseLP).connect(noiseGain).connect(masterGain);
+      noiseSrc.start();
+    }
+
+    function start(){
+      if(running) return; ensureCtx(); clearNodes();
+      state.mode=el.mode().value; state.base=parseFloat(el.base.value); state.beat=parseFloat(el.beat.value);
+      if(state.mode==='binaural') setupBinaural(); else setupIsochronic();
+      setupNoise(); running=true; scheduleTimer(); updateBadges();
+      // 페이드 인
+      const target=parseFloat(el.master.value); const t=ctx.currentTime; masterGain.gain.setValueAtTime(0,t); masterGain.gain.linearRampToValueAtTime(target, t+parseFloat(el.fadeIn.value||0));
+      // 시작음
+      if(el.startBellOn.checked) playBell(parseFloat(el.startBellFreq.value), parseFloat(el.startBellDur.value), el.startBellWave.value);
+    }
+
+    function stop(){
+      if(!running||!ctx) return;
+      const t=ctx.currentTime; const out=parseFloat(el.fadeOut.value||0);
+      const current=masterGain.gain.value; masterGain.gain.cancelScheduledValues(t); masterGain.gain.setValueAtTime(current,t); masterGain.gain.linearRampToValueAtTime(0, t+out);
+      setTimeout(()=>{ clearNodes(); running=false; masterGain.gain.setValueAtTime(parseFloat(el.master.value), ctx.currentTime); if(el.endBellOn.checked) playBell(parseFloat(el.endBellFreq.value), parseFloat(el.endBellDur.value), el.endBellWave.value); }, Math.max(0,out*1000));
+      clearInterval(timer); timer=null; el.countdown.textContent='00:00';
+    }
+
+    function playBell(freq=880,dur=0.5,wave='sine'){
+      if(!ctx) return; const o=ctx.createOscillator(); const g=ctx.createGain(); o.type=wave; o.frequency.value=freq; g.gain.value=0.0001; o.connect(g).connect(masterGain);
+      const t=ctx.currentTime; o.start(); g.gain.exponentialRampToValueAtTime(0.25, t+0.03); g.gain.exponentialRampToValueAtTime(0.0001, t+dur); o.stop(t+dur+0.05);
+    }
+
+    // ===== Timer =====
+    function scheduleTimer(){
+      const minutes=Math.max(1,Math.min(180,parseInt(el.minutes.value||15))); const endAt=Date.now()+minutes*60*1000;
+      tick(); clearInterval(timer); timer=setInterval(tick,250);
+      function tick(){ const remain=Math.max(0,endAt-Date.now()); const m=Math.floor(remain/60000), s=Math.floor((remain%60000)/1000); el.countdown.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; if(remain<=0){ stop(); }}
+    }
+
+    // ===== Live Updates =====
+    el.base.addEventListener('input',()=>{ state.base=parseFloat(el.base.value); updateBadges(); if(!ctx||!running) return; if(state.mode==='binaural'){ const t=ctx.currentTime; const lf=Math.max(20,state.base - state.beat/2); const rf=Math.max(20,state.base + state.beat/2); if(leftOsc&&rightOsc){ leftOsc.frequency.cancelScheduledValues(t); rightOsc.frequency.cancelScheduledValues(t); leftOsc.frequency.linearRampToValueAtTime(lf,t+0.05); rightOsc.frequency.linearRampToValueAtTime(rf,t+0.05);} } else if(isoCarrier){ isoCarrier.frequency.linearRampToValueAtTime(state.base, ctx.currentTime+0.05);} });
+
+    el.beat.addEventListener('input',()=>{ state.beat=parseFloat(el.beat.value); updateBadges(); if(!ctx||!running) return; if(state.mode==='binaural'){ const t=ctx.currentTime; const lf=Math.max(20,state.base - state.beat/2); const rf=Math.max(20,state.base + state.beat/2); if(leftOsc&&rightOsc){ leftOsc.frequency.cancelScheduledValues(t); rightOsc.frequency.cancelScheduledValues(t); leftOsc.frequency.linearRampToValueAtTime(lf,t+0.05); rightOsc.frequency.linearRampToValueAtTime(rf,t+0.05);} } else if(lfo){ lfo.frequency.linearRampToValueAtTime(state.beat, ctx.currentTime+0.05);} });
+
+    document.querySelectorAll('input[name="mode"]').forEach(r=>r.addEventListener('change',()=>{ if(running){ stop(); setTimeout(start,160);} }));
+    el.master.addEventListener('input',()=>{ updateBadges(); if(!ctx) return; masterGain.gain.setTargetAtTime(parseFloat(el.master.value), ctx.currentTime, 0.05); });
+
+    el.noiseType.addEventListener('change',()=>{ if(!ctx||!running) return; try{noiseSrc&&noiseSrc.stop()}catch{}; try{noiseGain&&noiseGain.disconnect()}catch{}; try{noiseLP&&noiseLP.disconnect()}catch{}; noiseSrc=noiseGain=noiseLP=null; setupNoise(); });
+    el.noiseVol.addEventListener('input',()=>{ updateBadges(); if(noiseGain){ noiseGain.gain.setTargetAtTime(parseFloat(el.noiseVol.value), ctx.currentTime, 0.05);} });
+    el.noiseCut.addEventListener('input',()=>{ updateBadges(); if(noiseLP){ noiseLP.frequency.setTargetAtTime(parseFloat(el.noiseCut.value), ctx.currentTime, 0.05);} });
+
+    // Presets
+    el.preset.addEventListener('change',()=>{
+      const map={alpha8:8, alpha10:10, alpha12:12, theta4:4, theta6:6, delta1:1, delta2:2, delta3:3};
+      if(el.preset.value!=='custom'){ el.beat.value=map[el.preset.value]; state.beat=map[el.preset.value]; }
+      updateBadges(); if(running){ if(state.mode==='binaural'){ const t=ctx.currentTime; const lf=Math.max(20,state.base - state.beat/2); const rf=Math.max(20,state.base + state.beat/2); if(leftOsc&&rightOsc){ leftOsc.frequency.cancelScheduledValues(t); rightOsc.frequency.cancelScheduledValues(t); leftOsc.frequency.linearRampToValueAtTime(lf,t+0.05); rightOsc.frequency.linearRampToValueAtTime(rf,t+0.05);} } else if(lfo){ lfo.frequency.linearRampToValueAtTime(state.beat, ctx.currentTime+0.05);} }
+    });
+
+    // Start/Stop
+    el.start.addEventListener('click', start);
+    el.stop.addEventListener('click', stop);
+
+    // ===== Scope/FFT Rendering =====
+    const scope=el.scope, fft=el.fft, cxS=scope.getContext('2d'), cxF=fft.getContext('2d');
+    let view='time';
+    el.tabTime.addEventListener('click',()=>{view='time'; el.tabTime.classList.add('active'); el.tabFreq.classList.remove('active'); scope.style.display='block'; fft.style.display='none';});
+    el.tabFreq.addEventListener('click',()=>{view='freq'; el.tabFreq.classList.add('active'); el.tabTime.classList.remove('active'); scope.style.display='none'; fft.style.display='block';});
+
+    function draw(){
+      requestAnimationFrame(draw);
+      if(!analyser) return;
+      if(view==='time'){
+        analyser.getByteTimeDomainData(timeData);
+        cxS.clearRect(0,0,scope.width,scope.height);
+        cxS.strokeStyle='rgba(126,166,255,0.08)'; cxS.lineWidth=1; cxS.beginPath(); cxS.moveTo(0,scope.height/2); cxS.lineTo(scope.width,scope.height/2); cxS.stroke();
+        cxS.lineWidth=2.2; const grad=cxS.createLinearGradient(0,0,scope.width,0); grad.addColorStop(0,'#79c8ff'); grad.addColorStop(1,'#7affc8'); cxS.strokeStyle=grad; cxS.beginPath();
+        const slice=scope.width/timeData.length; let x=0; for(let i=0;i<timeData.length;i++){ const v=(timeData[i]-128)/128; const y=scope.height/2 + v*(scope.height*0.35); if(i===0) cxS.moveTo(x,y); else cxS.lineTo(x,y); x+=slice; }
+        cxS.stroke();
+        el.tabInfo.textContent='시간 도메인 파형';
+      } else {
+        analyser.getByteFrequencyData(freqData);
+        cxF.clearRect(0,0,fft.width,fft.height);
+        const bins=freqData.length; const barW=Math.max(1, Math.floor(fft.width/bins));
+        for(let i=0;i<bins;i++){
+          const mag=freqData[i]/255; const h=mag*(fft.height*0.92);
+          const x=i*barW; const y=fft.height-h;
+          const hue=200 + 80*mag; cxF.fillStyle=`hsl(${hue}, 80%, ${40+30*mag}%)`;
+          cxF.fillRect(x,y,barW-1,h);
+        }
+        el.tabInfo.textContent='주파수 도메인 스펙트럼';
+      }
+      el.hzInfo.textContent = `${state.mode==='binaural'?'Δ':''}${state.beat.toFixed(1)} Hz  ·  ${Math.round(state.base)} Hz`;
+    }
+    draw();
+
+    // ===== Theme =====
+    function applyTheme(t){ document.body.classList.remove('theme-neon','theme-minimal'); if(t==='neon') document.body.classList.add('theme-neon'); else if(t==='minimal') document.body.classList.add('theme-minimal'); }
+    el.themeSel.addEventListener('change', e=>applyTheme(e.target.value));
+    applyTheme('dark');
+
+    // Init badges
+    updateBadges();
+  })();
+  </script>
+
+  <!-- PWA: manifest & service worker (dynamic inline) -->
+  <script>
+    // manifest
+    const manifest = { name: '엠씨스퀘어 사운드 생성기', short_name: 'MCSQ', start_url: './', display: 'standalone', background_color: '#0f1522', theme_color: '#0f1522', icons: [] };
+    const mBlob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
+    const mLink = document.createElement('link'); mLink.rel='manifest'; mLink.href = URL.createObjectURL(mBlob); document.head.appendChild(mLink);
+    // sw
+    if('serviceWorker' in navigator){
+      const swCode = `self.addEventListener('install', e=>{e.waitUntil(caches.open('mcsq-v1').then(c=>c.addAll(['./'])))}); self.addEventListener('fetch', e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))})`;
+      const swBlob = new Blob([swCode], {type:'text/javascript'});
+      const swUrl = URL.createObjectURL(swBlob);
+      navigator.serviceWorker.register(swUrl);
+    }
+  </script>
+</body>
+</html>
