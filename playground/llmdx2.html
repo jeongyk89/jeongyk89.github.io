@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>LLM × Digital Twin — Interactive Scenario Graphs</title>
+<style>
+  :root{
+    --bg:#0b1220; --text:#e5e7eb; --muted:#9aa4b2;
+    --purple:#a855f7;   /* Capability */
+    --green:#22c55e;    /* Value */
+    --red:#ef4444;      /* Risk */
+    --edge:#334155;     /* Link */
+    --accent:#fbbf24;   /* Highlight */
+    --panel:#0f172a;
+  }
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,#0b1220,#0a1020 60%,#08101f);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;}
+  .wrap{max-width:1180px;margin:18px auto;padding:16px;}
+  h1{font-weight:800;letter-spacing:.3px;margin:6px 0 2px}
+  p.caption{color:var(--muted);margin:0 0 14px}
+  .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0 12px}
+  .legend{display:flex;gap:10px;flex-wrap:wrap}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:10px;height:10px;border-radius:999px;display:inline-block}
+  .btns{display:flex;gap:8px;flex-wrap:wrap}
+  button.scn{background:#0b1730;border:1px solid #1f2937;color:#cbd5e1;padding:6px 10px;border-radius:10px;cursor:pointer}
+  button.scn.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(251,191,36,.25) inset}
+  .panel{border:1px solid #1f2937;border-radius:14px;padding:10px;background:radial-gradient(1200px 600px at 50% 0%,rgba(168,85,247,.10),transparent 60%)}
+  svg{width:100%;height:660px;border-radius:12px}
+
+  .node{cursor:grab}
+  .node.dragging{cursor:grabbing}
+  .label{font-size:12px;pointer-events:none;fill:#e5e7eb;user-select:none;text-shadow:0 1px 2px #000}
+  .link{stroke:var(--edge);stroke-width:1.6;opacity:.82}
+  .link.highlight{stroke:var(--accent);stroke-width:2.6;opacity:1}
+  .node circle{stroke:#0b1020;stroke-width:2}
+  .node.active circle{stroke:var(--accent);stroke-width:3.2}
+  .node.dim{opacity:.25}
+
+  .tooltip{
+    position:fixed;transform:translate(-50%,calc(-100% - 14px));background:#0b1730;color:#e5e7eb;
+    border:1px solid #1f2937;border-radius:10px;padding:8px 10px;font-size:12px;max-width:520px;
+    pointer-events:none;box-shadow:0 8px 30px rgba(0,0,0,.35);z-index:20;display:none;
+  }
+  .hint{color:var(--muted);font-size:12px;margin-top:6px}
+
+  .summary{
+    margin-top:14px;padding:16px;border:1px solid #1f2937;border-radius:14px;background:linear-gradient(180deg,#0b1730,#0b173000);
+  }
+  .summary h2{margin:0 0 6px;font-size:20px}
+  .summary p{margin:6px 0 10px;color:#d1d5db}
+  .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
+  .card{background:var(--panel);border:1px solid #1f2937;border-radius:12px;padding:12px}
+  .card h3{margin:0 0 8px;font-size:14px;letter-spacing:.3px;text-transform:uppercase;color:#9ca3af}
+  .card ul{margin:0;padding-left:18px}
+  .card li{margin:4px 0}
+  @media (max-width: 900px){ .cols{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>LLM × Digital Twin — Interactive Scenario Graphs</h1>
+  <p class="caption">Drag nodes to rearrange. Hover nodes/edges for details (edges explain why nodes are connected). Click a node to highlight its connections. Wheel to zoom. Hold <b>Space</b> and drag background to pan.</p>
+
+  <div class="bar">
+    <div class="btns" id="buttons"></div>
+    <div class="legend" style="margin-left:auto">
+      <span><i class="dot" style="background:var(--purple)"></i>LLM Capability</span>
+      <span><i class="dot" style="background:var(--green)"></i>Value</span>
+      <span><i class="dot" style="background:var(--red)"></i>Risk</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <svg id="graph" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid meet" aria-label="Knowledge graph">
+      <g id="vp"></g>
+    </svg>
+  </div>
+  <div id="tooltip" class="tooltip" role="tooltip"></div>
+
+  <div id="summary" class="summary"></div>
+
+  <div class="hint">Tip: Click background to clear highlights. Click the scenario button again to reset its layout.</div>
+</div>
+
+<script>
+/* ========= Utilities & interaction ========= */
+const svg = document.getElementById('graph');
+const vp  = document.getElementById('vp');
+const NS  = "http://www.w3.org/2000/svg";
+const tooltip = document.getElementById('tooltip');
+const summaryDiv = document.getElementById('summary');
+
+let scale = 1, tx = 0, ty = 0, spaceDown = false, panning = false, panStart = null;
+function applyTransform(){ vp.setAttribute('transform', 'translate('+tx+','+ty+') scale('+scale+')'); }
+applyTransform();
+window.addEventListener('keydown', e=>{ if(e.code==='Space'){ spaceDown=true; } });
+window.addEventListener('keyup',   e=>{ if(e.code==='Space'){ spaceDown=false; panning=false; } });
+
+svg.addEventListener('wheel', (e)=>{
+  e.preventDefault();
+  const rect = svg.getBoundingClientRect();
+  const cx = (e.clientX - rect.left - tx)/scale;
+  const cy = (e.clientY - rect.top  - ty)/scale;
+  const factor = Math.exp(-e.deltaY * 0.0012);
+  scale *= factor;
+  tx = e.clientX - rect.left - cx*scale;
+  ty = e.clientY - rect.top  - cy*scale;
+  applyTransform();
+}, {passive:false});
+
+svg.addEventListener('mousedown', (e)=>{
+  if(!spaceDown) return;
+  panning = true;
+  panStart = {x:e.clientX, y:e.clientY, tx, ty};
+});
+window.addEventListener('mousemove', (e)=>{
+  if(!panning) return;
+  const dx = e.clientX - panStart.x;
+  const dy = e.clientY - panStart.y;
+  tx = panStart.tx + dx;
+  ty = panStart.ty + dy;
+  applyTransform();
+});
+window.addEventListener('mouseup', ()=>{ panning=false; });
+
+function showTooltip(evt, text){
+  if(!text){ hideTooltip(); return; }
+  tooltip.style.display='block';
+  tooltip.textContent=text;
+  tooltip.style.left = evt.clientX + "px";
+  tooltip.style.top  = evt.clientY + "px";
+}
+function hideTooltip(){ tooltip.style.display='none'; }
+function polar(cx, cy, r, deg){ const t=(deg-90)*Math.PI/180; return [cx+r*Math.cos(t), cy+r*Math.sin(t)]; }
+
+/* ========= Graph state ========= */
+let positions = {}, nodeEls = [], linkEls = [], links = [];
+function clearGraph(){ while(vp.firstChild) vp.removeChild(vp.firstChild); positions={}; nodeEls=[]; linkEls=[]; links=[]; }
+function updateLinksForNode(id){
+  const pos = positions[id];
+  linkEls.forEach(({el,data})=>{
+    if(data.source===id){ el.setAttribute("x1",pos.x); el.setAttribute("y1",pos.y); }
+    if(data.target===id){ el.setAttribute("x2",pos.x); el.setAttribute("y2",pos.y); }
+  });
+}
+function highlight(id){
+  const nbr=new Set([id]);
+  links.forEach(l=>{ if(l.source===id) nbr.add(l.target); if(l.target===id) nbr.add(l.source); });
+  linkEls.forEach(({el,data})=>{
+    el.classList.toggle('highlight', data.source===id || data.target===id);
+  });
+  nodeEls.forEach(({el,data})=>{
+    const active=nbr.has(data.id);
+    el.classList.toggle('active',active);
+    el.classList.toggle('dim',!active);
+  });
+}
+
+/* ========= Scenario data ========= */
+/* Micro-level (1–6) use your detailed summary cards; Macro-level (1–7) also use the same summary layout */
+const MICRO = {
+  1: {
+    title: "Scenario 1 — Context-aware Production Rescheduling",
+    nodes: [
+      {id:"S1_CAP_INTEG", type:"capability", label:"Integrate DT +\nUnstructured Data", desc:"Fuse telemetry (temperature, vibration, error logs) with operator & maintenance reports."},
+      {id:"S1_CAP_SIM",   type:"capability", label:"Simulate\nAlternatives", desc:"Reallocate jobs; prioritise urgent orders; approve overtime; account for setup delays."},
+      {id:"S1_CAP_COMMS", type:"capability", label:"Automated\nCommunication", desc:"Notify planners/operators; synchronise MES/ERP & departments."},
+      {id:"S1_VAL_FAST",  type:"value",      label:"Faster DT-validated\nScheduling", desc:"Less manual guesswork; feasible plans based on DT simulation."},
+      {id:"S1_VAL_COST",  type:"value",      label:"Reduced Downtime\n& Cost Losses", desc:"Minimise cascading delays to paint/assembly."},
+      {id:"S1_VAL_WORK",  type:"value",      label:"Improved Workforce\nAllocation", desc:"Shift/overtime aligned with revised schedules."},
+      {id:"S1_VAL_SYNC",  type:"value",      label:"MES/ERP Sync", desc:"Planning & execution remain consistent."},
+      {id:"S1_RISK_DQ",   type:"risk",       label:"Inaccurate DT Data", desc:"Stale or noisy signals → suboptimal schedules."},
+      {id:"S1_RISK_RIP",  type:"risk",       label:"Cross-line Ripple", desc:"Unmodelled dependencies can hurt other lines."},
+      {id:"S1_RISK_AUTO", type:"risk",       label:"Over-automation", desc:"Lack of human oversight in critical decisions."}
+    ],
+    edges: [
+      ["S1_CAP_INTEG","S1_CAP_SIM","Richer inputs enable better simulation choices."],
+      ["S1_CAP_SIM","S1_VAL_FAST","Simulated options accelerate valid scheduling."],
+      ["S1_CAP_COMMS","S1_VAL_SYNC","Automated updates keep systems/teams aligned."],
+      ["S1_VAL_FAST","S1_VAL_COST","Speed reduces downtime & losses."],
+      ["S1_VAL_FAST","S1_VAL_WORK","Faster plan → better shift/overtime alignment."],
+      ["S1_RISK_DQ","S1_VAL_FAST","Bad data compromises DT-validated schedules."],
+      ["S1_RISK_RIP","S1_CAP_SIM","Simulations must consider cross-line constraints."],
+      ["S1_RISK_AUTO","S1_CAP_COMMS","Add approval gates to automation."]
+    ],
+    summaryHTML: `
+      <h2>Scenario 1 — Context-aware Production Rescheduling</h2>
+      <p><b>Context.</b> A CNC machine overheats. Without action in 30 minutes, downstream stations (paint, assembly) face delays and losses. Traditional ML detects failure but cannot re-plan schedules, communicate with people, or consider broad constraints.</p>
+      <p><b>LLM × DT.</b> DT streams status (temperature, vibration, errors); LLM fuses this with operator/maintenance reports, simulates rescheduling options, and pushes updates across MES/ERP while notifying teams.</p>
+      <div class="cols">
+        <div class="card"><h3>LLM Capabilities</h3><ul>
+          <li>Integrate DT + unstructured reports</li>
+          <li>Simulate rescheduling alternatives</li>
+          <li>Automated cross-department communication</li>
+        </ul></div>
+        <div class="card"><h3>Values</h3><ul>
+          <li>Faster DT-validated scheduling</li>
+          <li>Reduced downtime & cost</li>
+          <li>Improved workforce allocation</li>
+          <li>MES/ERP synchronization</li>
+        </ul></div>
+        <div class="card"><h3>Risks</h3><ul>
+          <li>Inaccurate DT data → poor plans</li>
+          <li>Ripple effects across other lines</li>
+          <li>Over-automation without oversight</li>
+        </ul></div>
+      </div>`
+  },
+
+  2: {
+    title: "Scenario 2 — Real-time Production Logistics Coordination",
+    nodes: [
+      {id:"S2_CAP_INTEG", type:"capability", label:"Integrate Supply &\nInventory Signals", desc:"DT tracks disruptions, stock and supplier response times; LLM parses communications."},
+      {id:"S2_CAP_EVAL",  type:"capability", label:"Evaluate\nResponses", desc:"Backup stock vs expedite vs resequence production."},
+      {id:"S2_CAP_SYNC",  type:"capability", label:"Cross-system\nSync", desc:"Propagate decisions to WMS/MES & procurement; notify teams."},
+      {id:"S2_VAL_STOCK", type:"value",      label:"Instant Stock\nVisibility", desc:"Warehouse sees real-time counts via DT."},
+      {id:"S2_VAL_COORD", type:"value",      label:"Faster Supplier\nCoordination", desc:"Shorter request/confirm cycles."},
+      {id:"S2_VAL_TRADE", type:"value",      label:"Cost-optimised\nTrade-offs", desc:"Balance expedite cost vs stoppage risk."},
+      {id:"S2_VAL_ALIGN", type:"value",      label:"Aligned Teams", desc:"Procurement/logistics/production/finance share one plan."},
+      {id:"S2_RISK_COST", type:"risk",       label:"Cost Escalation", desc:"Frequent expedites inflate long-term cost."},
+      {id:"S2_RISK_SUP",  type:"risk",       label:"Supplier Strain", desc:"Automated overrides may harm relationships."},
+      {id:"S2_RISK_MIS",  type:"risk",       label:"Dept Misalignment", desc:"If updates aren’t validated across teams."}
+    ],
+    edges: [
+      ["S2_CAP_INTEG","S2_VAL_STOCK","Integrated signals provide live stock visibility."],
+      ["S2_CAP_EVAL","S2_VAL_TRADE","Evaluate cost vs risk for best option."],
+      ["S2_CAP_SYNC","S2_VAL_ALIGN","System updates align departments."],
+      ["S2_VAL_STOCK","S2_VAL_COORD","Visibility speeds supplier coordination."],
+      ["S2_RISK_COST","S2_CAP_EVAL","Cost models reduce over-expediting."],
+      ["S2_RISK_SUP","S2_VAL_ALIGN","Human-in-the-loop preserves relationships."],
+      ["S2_RISK_MIS","S2_CAP_SYNC","Validation checks before propagation."]
+    ],
+    summaryHTML: `
+      <h2>Scenario 2 — Real-time Production Logistics Coordination</h2>
+      <p><b>Context.</b> Critical microchips are delayed at customs. ML predicts ETA but doesn’t coordinate mitigations.</p>
+      <p><b>LLM × DT.</b> DT monitors disruptions and inventory; LLM negotiates options with suppliers/teams, evaluates responses, and syncs WMS/MES/Procurement.</p>
+      <div class="cols">
+        <div class="card"><h3>LLM Capabilities</h3><ul>
+          <li>Integrate supply & inventory signals</li>
+          <li>Evaluate response strategies</li>
+          <li>Cross-system synchronization</li>
+        </ul></div>
+        <div class="card"><h3>Values</h3><ul>
+          <li>Instant stock visibility</li>
+          <li>Faster supplier coordination</li>
+          <li>Cost-optimised trade-offs</li>
+          <li>Aligned departments</li>
+        </ul></div>
+        <div class="card"><h3>Risks</h3><ul>
+          <li>Cost escalation from frequent expedites</li>
+          <li>Supplier relationship strain</li>
+          <li>Misalignment if updates not validated</li>
+        </ul></div>
+      </div>`
+  },
+
+  3: {
+    title: "Scenario 3 — Multi-source Anomaly Detection in PL",
+    nodes: [
+      {id:"S3_CAP_FUSE", type:"capability", label:"Fuse Structured +\nUnstructured Data", desc:"AGV tracking, warehouse movement logs + operator notes."},
+      {id:"S3_CAP_ROOT", type:"capability", label:"Root Cause\nReasoning", desc:"Correlate with maintenance history (e.g., delayed floor repairs)."},
+      {id:"S3_CAP_WORK", type:"capability", label:"Workflow\nAdjustment", desc:"Modify routes and picking sequences."},
+      {id:"S3_VAL_FAST", type:"value",      label:"Faster Resolution", desc:"Shorter MTTR; fewer delays."},
+      {id:"S3_VAL_ROUTE",type:"value",      label:"Optimised AGV\nRouting", desc:"Avoid congestion; smoother flow."},
+      {id:"S3_VAL_PRO",  type:"value",      label:"Proactive Insights", desc:"Prevent future disruptions."},
+      {id:"S3_RISK_FP",  type:"risk",       label:"False Positives", desc:"Unnecessary workflow changes."},
+      {id:"S3_RISK_BIAS",type:"risk",       label:"History Bias", desc:"Overlooks emerging disruptions."},
+      {id:"S3_RISK_FAT", type:"risk",       label:"Change Fatigue", desc:"Resistance if adjustments too frequent."}
+    ],
+    edges: [
+      ["S3_CAP_FUSE","S3_CAP_ROOT","Integrated signals enable causal inference."],
+      ["S3_CAP_ROOT","S3_CAP_WORK","Root cause → targeted workflow changes."],
+      ["S3_CAP_WORK","S3_VAL_ROUTE","Routing changes relieve congestion."],
+      ["S3_CAP_ROOT","S3_VAL_FAST","Root cause clarity speeds resolution."],
+      ["S3_VAL_ROUTE","S3_VAL_PRO","Stable routing allows proactive prevention."],
+      ["S3_RISK_FP","S3_CAP_WORK","Guardrails prevent churn from noise."],
+      ["S3_RISK_BIAS","S3_CAP_ROOT","Novelty checks mitigate history bias."],
+      ["S3_RISK_FAT","S3_VAL_PRO","Batch & communicate changes to reduce fatigue."]
+    ],
+    summaryHTML: `
+      <h2>Scenario 3 — Multi-source Anomaly Detection in PL</h2>
+      <p><b>Context.</b> Packaging delays from inconsistent pallet delivery times; ML flags anomalies but can’t find causes.</p>
+      <p><b>LLM × DT.</b> DT tracks pallets/AGVs; LLM synthesizes logs + operator notes, infers causes (e.g., floor repairs), and updates routes/picking to de-congest.</p>
+      <div class="cols">
+        <div class="card"><h3>LLM Capabilities</h3><ul>
+          <li>Fuse structured + unstructured data</li>
+          <li>Root-cause reasoning</li>
+          <li>Workflow adjustment</li>
+        </ul></div>
+        <div class="card"><h3>Values</h3><ul>
+          <li>Faster anomaly resolution</li>
+          <li>Optimised AGV routing</li>
+          <li>Proactive disruption prevention</li>
+        </ul></div>
+        <div class="card"><h3>Risks</h3><ul>
+          <li>False positives → unnecessary changes</li>
+          <li>History bias may miss new issues</li>
+          <li>Change fatigue among operators</li>
+        </ul></div>
+      </div>`
+  },
+
+  4: {
+    title: "Scenario 4 — Adaptive Buffer Management in JIT Production",
+    nodes: [
+      {id:"S4_CAP_ST",   type:"capability", label:"Short-term\nMemory", desc:"React to recent anomalies (defects 3%→7%, fresh downtime/QC logs)."},
+      {id:"S4_CAP_LT",   type:"capability", label:"Long-term\nMemory", desc:"Compare with historical incidents (photomask contamination; humidity)."},
+      {id:"S4_CAP_STRAT",type:"capability", label:"Strategy\nGeneration", desc:"Increase buffer, accelerate inbound, check humidity controls."},
+      {id:"S4_VAL_RT",   type:"value",      label:"Real-time Buffer\nAdjustments", desc:"Minimise stoppages from shortages."},
+      {id:"S4_VAL_RC",   type:"value",      label:"Better Root Cause\nID", desc:"Historical analogies guide checks."},
+      {id:"S4_VAL_JIT",  type:"value",      label:"Resilient JIT", desc:"Stabilise flow despite volatility."},
+      {id:"S4_RISK_DQ",  type:"risk",       label:"Bad DT Data", desc:"Wrong buffers from incorrect signals."},
+      {id:"S4_RISK_OVER",type:"risk",       label:"Overcorrection", desc:"Excess stock increases cost."},
+      {id:"S4_RISK_NOV", type:"risk",       label:"Novel Defects Missed", desc:"Over-reliance on history."}
+    ],
+    edges: [
+      ["S4_CAP_ST","S4_VAL_RT","Immediate adjustments prevent shortages."],
+      ["S4_CAP_LT","S4_VAL_RC","History narrows plausible root causes."],
+      ["S4_CAP_STRAT","S4_VAL_JIT","Policy updates strengthen resilience."],
+      ["S4_RISK_DQ","S4_VAL_RT","Data QA keeps adjustments accurate."],
+      ["S4_RISK_OVER","S4_CAP_STRAT","Guardrails cap buffer increases."],
+      ["S4_RISK_NOV","S4_CAP_LT","Novelty detection complements history."]
+    ],
+    summaryHTML: `
+      <h2>Scenario 4 — Adaptive Buffer Management in JIT Production</h2>
+      <p><b>Context.</b> JIT semiconductor fab must adjust buffers based on defect spikes, downtimes, and supplier delays.</p>
+      <p><b>LLM × DT.</b> DT detects anomalies; LLM uses short-term + long-term memory to adjust buffers, check likely root causes, and sync MES/WMS & logistics.</p>
+      <div class="cols">
+        <div class="card"><h3>LLM Capabilities</h3><ul>
+          <li>Short-term memory for recent anomalies</li>
+          <li>Long-term memory for historical analogies</li>
+          <li>Strategy generation & coordination</li>
+        </ul></div>
+        <div class="card"><h3>Values</h3><ul>
+          <li>Real-time buffer adjustments</li>
+          <li>Better root-cause identification</li>
+          <li>More resilient JIT schedules</li>
+        </ul></div>
+        <div class="card"><h3>Risks</h3><ul>
+          <li>Bad DT data → wrong buffers</li>
+          <li>Overcorrection → costly overstock</li>
+          <li>Novel defects may be missed</li>
+        </ul></div>
+      </div>`
+  },
+
+  5: {
+    title: "Scenario 5 — Real-time AGV Routing Optimization",
+    nodes: [
+      {id:"S5_CAP_SENSE", type:"capability", label:"Real-time\nCongestion Sensing", desc:"DT monitors AGV positions/speeds; detect Transfer Zone bottlenecks."},
+      {id:"S5_CAP_HIST",  type:"capability", label:"Historical\nTraffic Patterns", desc:"Mondays ~10:00 recurring congestion → pre-empt load moves."},
+      {id:"S5_CAP_ROUTE", type:"capability", label:"Dynamic Routing &\nSpeed Control", desc:"Reroute & adjust speeds by WIP urgency and history."},
+      {id:"S5_VAL_BOT",   type:"value",      label:"Avoid\nBottlenecks", desc:"Higher flow & on-time delivery."},
+      {id:"S5_VAL_PRO",   type:"value",      label:"Proactive\nAdjustments", desc:"Move loads earlier; reduce peaks."},
+      {id:"S5_VAL_SMART", type:"value",      label:"Beyond Static\nML", desc:"Reason across multi-source signals."},
+      {id:"S5_RISK_MIS",  type:"risk",       label:"Misrouting", desc:"DT errors exacerbate congestion."},
+      {id:"S5_RISK_OVER", type:"risk",       label:"Over-adaptation", desc:"Frequent changes cause conflicts."},
+      {id:"S5_RISK_ALIGN",type:"risk",       label:"System\nMisalignment", desc:"MES vs fleet manager inconsistencies."}
+    ],
+    edges: [
+      ["S5_CAP_SENSE","S5_CAP_ROUTE","Sensed traffic informs dynamic routing."],
+      ["S5_CAP_HIST","S5_VAL_PRO","History enables proactive scheduling."],
+      ["S5_CAP_ROUTE","S5_VAL_BOT","Routing clears hotspots quickly."],
+      ["S5_CAP_ROUTE","S5_VAL_SMART","Multi-signal reasoning beats static ML."],
+      ["S5_RISK_MIS","S5_CAP_ROUTE","Validation prevents harmful detours."],
+      ["S5_RISK_OVER","S5_VAL_SMART","Stability rules limit thrashing."],
+      ["S5_RISK_ALIGN","S5_CAP_ROUTE","Atomic updates keep systems consistent."]
+    ],
+    summaryHTML: `
+      <h2>Scenario 5 — Real-time AGV Routing Optimization</h2>
+      <p><b>Context.</b> Unexpected CNC maintenance causes AGV congestion around the material transfer zone.</p>
+      <p><b>LLM × DT.</b> DT senses congestion; LLM uses recent + historical traffic to reroute and pace AGVs, and syncs MES + fleet systems.</p>
+      <div class="cols">
+        <div class="card"><h3>LLM Capabilities</h3><ul>
+          <li>Real-time congestion sensing</li>
+          <li>Use historical traffic patterns</li>
+          <li>Dynamic routing & speed control</li>
+        </ul></div>
+        <div class="card"><h3>Values</h3><ul>
+          <li>Avoid bottlenecks</li>
+          <li>Proactive scheduling</li>
+          <li>Smarter than static ML</li>
+        </ul></div>
+        <div class="card"><h3>Risks</h3><ul>
+          <li>Misrouting from DT errors</li>
+          <li>Over-adaptation conflicts</li>
+          <li>MES–fleet misalignment</li>
+        </ul></div>
+      </div>`
+  },
+
+  6: {
+    title: "Scenario 6 — Intelligent Warehouse Exception Handling",
+    nodes: [
+      {id:"S6_CAP_LAST", type:"capability", label:"Track Last-Seen\nSignals", desc:"Use RFID/scan logs to trace paths."},
+      {id:"S6_CAP_UNS",  type:"capability", label:"Unstructured Log\nAnalysis", desc:"Parse voice notes & operator reports."},
+      {id:"S6_CAP_PRED", type:"capability", label:"Pattern-based\nPrediction", desc:"Past incidents → overflow racks during restocking."},
+      {id:"S6_VAL_FAST", type:"value",      label:"Faster\nResolution", desc:"Minutes not hours to locate items."},
+      {id:"S6_VAL_ACC",  type:"value",      label:"Higher Inventory\nAccuracy", desc:"Identify systemic misplacements."},
+      {id:"S6_VAL_FEW",  type:"value",      label:"Fewer\nDisruptions", desc:"Adapt workflows before issues escalate."},
+      {id:"S6_RISK_FP",  type:"risk",       label:"False Positives", desc:"Wasted checks & churn."},
+      {id:"S6_RISK_BIAS",type:"risk",       label:"History Bias", desc:"Miss new anomaly types."},
+      {id:"S6_RISK_RES", type:"risk",       label:"Operational\nResistance", desc:"Too many changes frustrate staff."}
+    ],
+    edges: [
+      ["S6_CAP_LAST","S6_VAL_FAST","Traceback narrows search quickly."],
+      ["S6_CAP_UNS","S6_VAL_FAST","Voice/log parsing speeds search."],
+      ["S6_CAP_PRED","S6_VAL_ACC","Pattern learning boosts accuracy."],
+      ["S6_CAP_PRED","S6_VAL_FEW","Early prediction reduces disruptions."],
+      ["S6_RISK_FP","S6_CAP_LAST","Confidence thresholds avoid churn."],
+      ["S6_RISK_BIAS","S6_CAP_PRED","Novelty detection complements patterning."],
+      ["S6_RISK_RES","S6_VAL_FEW","Batch & communicate changes to reduce resistance."]
+    ],
+    summaryHTML: `
+      <h2>Scenario 6 — Intelligent Warehouse Exception Handling</h2>
+      <p><b>Context.</b> High-value batteries go missing during fast restocking.</p>
+      <p><b>LLM × DT.</b> DT surfaces last-seen RFID/scan; LLM parses voice notes + reports, predicts likely locations, instructs staff, and updates workflows.</p>
+      <div class="cols">
+        <div class="card"><h3>LLM Capabilities</h3><ul>
+          <li>Track last-seen signals</li>
+          <li>Analyse unstructured logs/voice</li>
+          <li>Pattern-based prediction</li>
+        </ul></div>
+        <div class="card"><h3>Values</h3><ul>
+          <li>Faster issue resolution</li>
+          <li>Improved inventory accuracy</li>
+          <li>Reduced disruptions</li>
+        </ul></div>
+        <div class="card"><h3>Risks</h3><ul>
+          <li>False positives → wasted effort</li>
+          <li>Over-reliance on past patterns</li>
+          <li>Staff resistance to frequent changes</li>
+        </ul></div>
+      </div>`
+  }
+};
+
+/* Macro-level scenarios (same summary layout) */
+const MACRO = {
+  1:{title:"Macro 1 — Training, Education & Upskilling",
+    nodes:[
+      {id:"M1_CAP_GEN",type:"capability",label:"Content\nGeneration/Update",desc:"Convert & refresh materials automatically."},
+      {id:"M1_CAP_PERS",type:"capability",label:"Personalised\nLearning Paths",desc:"Adjust difficulty to progress & cognitive load."},
+      {id:"M1_CAP_MULTI",type:"capability",label:"Multilingual\nTranslation & Q&A",desc:"Bridge language barriers; interactive explanations."},
+      {id:"M1_CAP_UNSTR",type:"capability",label:"Unstructured Doc\nProcessing",desc:"Extract/train from manuals, PDFs, logs."},
+      {id:"M1_VAL_INC",type:"value",label:"Inclusive,\nAdaptive Learning",desc:"Serve diverse skills incl. lower-skilled workers."},
+      {id:"M1_VAL_COST",type:"value",label:"Reduced\nTraining Costs",desc:"Faster authoring; scale."},
+      {id:"M1_VAL_ACC",type:"value",label:"Better\nAccessibility",desc:"Natural-language help & translation."},
+      {id:"M1_RISK_PRIV",type:"risk",label:"Privacy &\nTracking",desc:"Protect learner data & progress logs."},
+      {id:"M1_RISK_HALL",type:"risk",label:"Hallucination /\nQuality",desc:"Generated content needs validation."},
+      {id:"M1_RISK_TOK",type:"risk",label:"Token Limits",desc:"Large docs need chunking/RAG."}
+    ],
+    edges:[
+      ["M1_CAP_GEN","M1_VAL_COST","Automation reduces authoring effort."],
+      ["M1_CAP_PERS","M1_VAL_INC","Personalisation enables inclusive training."],
+      ["M1_CAP_MULTI","M1_VAL_ACC","Translation & Q&A improve access."],
+      ["M1_CAP_UNSTR","M1_CAP_GEN","Source from unstructured materials."],
+      ["M1_RISK_PRIV","M1_CAP_PERS","Personalisation requires tracking data."],
+      ["M1_RISK_HALL","M1_CAP_GEN","Auto content must be reviewed."],
+      ["M1_RISK_TOK","M1_CAP_UNSTR","Long docs stress context → use RAG."]
+    ],
+    summaryHTML:`<h2>Macro 1 — Training, Education & Upskilling</h2>
+    <p>Generate/update materials, personalise learning paths, and translate across languages; validate content and protect learner data.</p>
+    <div class="cols"><div class="card"><h3>LLM Capabilities</h3><ul>
+      <li>Content generation/update</li><li>Personalised learning paths</li><li>Multilingual Q&A</li><li>Unstructured document processing</li>
+    </ul></div><div class="card"><h3>Values</h3><ul>
+      <li>Inclusive, adaptive learning</li><li>Reduced training costs</li><li>Better accessibility</li>
+    </ul></div><div class="card"><h3>Risks</h3><ul>
+      <li>Privacy & tracking concerns</li><li>Hallucinations/quality control</li><li>Token limits for large docs</li>
+    </ul></div></div>`},
+
+  2:{title:"Macro 2 — Human–Machine Interaction (Operation of Equipment)",
+    nodes:[
+      {id:"M2_CAP_NL",type:"capability",label:"Natural-language /\nMultimodal Control",desc:"Talk/type/point to operate or troubleshoot."},
+      {id:"M2_CAP_AR",type:"capability",label:"AR Guidance",desc:"Visual step-by-step overlays for tasks."},
+      {id:"M2_CAP_ASSIST",type:"capability",label:"Troubleshooting\nAssistant",desc:"Interpret faults, suggest actions."},
+      {id:"M2_VAL_ACC",type:"value",label:"Accessibility &\nLower Cognitive Load",desc:"Reduce onboarding time & errors."},
+      {id:"M2_VAL_SAFE",type:"value",label:"Efficiency &\nSafety Support",desc:"Faster operation with guidance."},
+      {id:"M2_RISK_SAFE",type:"risk",label:"Safety-critical\nErrors",desc:"Bad advice in hazardous contexts."},
+      {id:"M2_RISK_ROB",type:"risk",label:"Robustness /\nPlausibility",desc:"Require checks & approvals."}
+    ],
+    edges:[
+      ["M2_CAP_NL","M2_VAL_ACC","NL control reduces training burden."],
+      ["M2_CAP_AR","M2_VAL_SAFE","AR lowers error rate."],
+      ["M2_CAP_ASSIST","M2_VAL_SAFE","Faster diagnosis & recovery."],
+      ["M2_RISK_SAFE","M2_CAP_ASSIST","Guardrails for advice in safety contexts."],
+      ["M2_RISK_ROB","M2_CAP_NL","Add plausibility & fallback modes."]
+    ],
+    summaryHTML:`<h2>Macro 2 — Human–Machine Interaction</h2>
+    <p>NL/multimodal control + AR guidance cut cognitive load and speed onboarding; enforce strong safety guardrails.</p>
+    <div class="cols"><div class="card"><h3>LLM Capabilities</h3><ul>
+      <li>NL/multimodal control</li><li>AR guidance</li><li>Troubleshooting assistant</li>
+    </ul></div><div class="card"><h3>Values</h3><ul>
+      <li>Accessibility & lower cognitive load</li><li>Efficiency & safety support</li>
+    </ul></div><div class="card"><h3>Risks</h3><ul>
+      <li>Safety-critical errors</li><li>Robustness & plausibility checks</li>
+    </ul></div></div>`},
+
+  3:{title:"Macro 3 — Work Instructions",
+    nodes:[
+      {id:"M3_CAP_GEN",type:"capability",label:"Real-time Instruction\nGeneration",desc:"Context-aware steps per worker & task."},
+      {id:"M3_CAP_PERS",type:"capability",label:"Personalised\nPresentation",desc:"Level-appropriate phrasing, visuals."},
+      {id:"M3_VAL_COMP",type:"value",label:"Compliance",desc:"Up-to-date, auditable steps."},
+      {id:"M3_VAL_ERR",type:"value",label:"Fewer Errors",desc:"Clearer guidance for rare/complex steps."},
+      {id:"M3_RISK_DATA",type:"risk",label:"Data Structuring",desc:"Requires good upstream data/BoMs."},
+      {id:"M3_RISK_MIS",type:"risk",label:"Misleading Output",desc:"Continuous validation needed."}
+    ],
+    edges:[
+      ["M3_CAP_GEN","M3_VAL_COMP","Auto steps align with latest process."],
+      ["M3_CAP_PERS","M3_VAL_ERR","Right level of detail reduces mistakes."],
+      ["M3_RISK_DATA","M3_CAP_GEN","Needs structured inputs."],
+      ["M3_RISK_MIS","M3_CAP_PERS","QC to avoid harmful advice."]
+    ],
+    summaryHTML:`<h2>Macro 3 — Work Instructions</h2>
+    <p>Dynamically generated, personalised instructions improve compliance and reduce errors, but depend on structured data and validation.</p>
+    <div class="cols"><div class="card"><h3>LLM Capabilities</h3><ul>
+      <li>Real-time instruction generation</li><li>Personalised presentation</li>
+    </ul></div><div class="card"><h3>Values</h3><ul>
+      <li>Compliance</li><li>Fewer errors</li>
+    </ul></div><div class="card"><h3>Risks</h3><ul>
+      <li>Data structuring requirements</li><li>Risk of misleading outputs</li>
+    </ul></div></div>`},
+
+  4:{title:"Macro 4 — Quality Management & Fault Diagnosis",
+    nodes:[
+      {id:"M4_CAP_MULTI",type:"capability",label:"Multimodal\nInterpretation",desc:"Text, images, signals for detection/classification."},
+      {id:"M4_CAP_ROOT",type:"capability",label:"Root-cause\nReasoning",desc:"Explain deviations, suggest checks."},
+      {id:"M4_CAP_PRED",type:"capability",label:"Predictive\nMaintenance",desc:"Forecast recurrence & prescribe fixes."},
+      {id:"M4_VAL_INS",type:"value",label:"Predictive\nInsights",desc:"Earlier detection & action."},
+      {id:"M4_VAL_ANOM",type:"value",label:"Anomaly\nDetection",desc:"Catch defects; reduce waste."},
+      {id:"M4_RISK_MIS",type:"risk",label:"Misclassification",desc:"Unknown/rare defects tricky."},
+      {id:"M4_RISK_HAL",type:"risk",label:"Hallucinations",desc:"Wrong diagnosis → bad actions."}
+    ],
+    edges:[
+      ["M4_CAP_MULTI","M4_VAL_ANOM","Fuse signals to detect anomalies."],
+      ["M4_CAP_ROOT","M4_VAL_INS","Explanations enable targeted fixes."],
+      ["M4_CAP_PRED","M4_VAL_INS","Forecasts support proactive work."],
+      ["M4_RISK_MIS","M4_CAP_MULTI","Human-in-loop for edge cases."],
+      ["M4_RISK_HAL","M4_CAP_ROOT","Validation to avoid wrong causes."]
+    ],
+    summaryHTML:`<h2>Macro 4 — Quality Management & Fault Diagnosis</h2>
+    <p>Classify defects, reason about causes, predict recurrences; human validation mitigates misclassification and hallucinations.</p>
+    <div class="cols"><div class="card"><h3>LLM Capabilities</h3><ul>
+      <li>Multimodal interpretation</li><li>Root-cause reasoning</li><li>Predictive maintenance</li>
+    </ul></div><div class="card"><h3>Values</h3><ul>
+      <li>Predictive insights</li><li>Anomaly detection</li>
+    </ul></div><div class="card"><h3>Risks</h3><ul>
+      <li>Misclassification</li><li>Hallucinations</li>
+    </ul></div></div>`},
+
+  5:{title:"Macro 5 — Documentation",
+    nodes:[
+      {id:"M5_CAP_REP",type:"capability",label:"Structured Report\nGeneration",desc:"Auto reports for quality/process/regulatory."},
+      {id:"M5_CAP_EXT",type:"capability",label:"Data Extraction /\nSummarisation",desc:"Pull facts from logs & systems."},
+      {id:"M5_CAP_TRANS",type:"capability",label:"Multilingual\nTranslation",desc:"Standardise & translate docs."},
+      {id:"M5_VAL_TRACE",type:"value",label:"Traceability",desc:"Consistent, searchable records."},
+      {id:"M5_VAL_AUTO",type:"value",label:"Automation",desc:"Less manual drafting/formatting."},
+      {id:"M5_RISK_FACT",type:"risk",label:"Factual\nConsistency",desc:"Checks to avoid errors."},
+      {id:"M5_RISK_COMP",type:"risk",label:"Compliance /\nLiability",desc:"Wrong docs → risk exposure."}
+    ],
+    edges:[
+      ["M5_CAP_REP","M5_VAL_AUTO","Automates drafting & formatting."],
+      ["M5_CAP_EXT","M5_VAL_TRACE","Structured facts improve traceability."],
+      ["M5_CAP_TRANS","M5_VAL_TRACE","Standardised, multilingual records."],
+      ["M5_RISK_FACT","M5_CAP_REP","QC loop for correctness."],
+      ["M5_RISK_COMP","M5_CAP_REP","Approvals trail for regulated docs."]
+    ],
+    summaryHTML:`<h2>Macro 5 — Documentation</h2>
+    <p>Automate reports, extract facts, translate to common formats; ensure factual checks and compliance approvals.</p>
+    <div class="cols"><div class="card"><h3>LLM Capabilities</h3><ul>
+      <li>Structured report generation</li><li>Data extraction & summarisation</li><li>Multilingual translation</li>
+    </ul></div><div class="card"><h3>Values</h3><ul>
+      <li>Traceability</li><li>Automation</li>
+    </ul></div><div class="card"><h3>Risks</h3><ul>
+      <li>Factual consistency</li><li>Compliance & liability</li>
+    </ul></div></div>`},
+
+  6:{title:"Macro 6 — Knowledge Management",
+    nodes:[
+      {id:"M6_CAP_SEM",type:"capability",label:"Semantic Querying\n& RAG",desc:"Natural-language search over heterogeneous sources."},
+      {id:"M6_CAP_ING",type:"capability",label:"Multimodal\nIngestion",desc:"PDFs, CAD, notes, audio interviews."},
+      {id:"M6_CAP_SUM",type:"capability",label:"Summarisation /\nNormalization",desc:"Standardise & capture tacit knowledge."},
+      {id:"M6_VAL_ACCESS",type:"value",label:"Access Tacit\nKnowledge",desc:"Answers beyond keyword search."},
+      {id:"M6_VAL_SEARCH",type:"value",label:"Improved\nDiscovery",desc:"Faster, context-aware retrieval."},
+      {id:"M6_RISK_LEAK",type:"risk",label:"Data Leakage",desc:"Sensitive docs require strict controls."},
+      {id:"M6_RISK_TRUST",type:"risk",label:"Trust &\nAdoption",desc:"Experts may resist; explain role."}
+    ],
+    edges:[
+      ["M6_CAP_SEM","M6_VAL_ACCESS","Semantic retrieval surfaces tacit knowledge."],
+      ["M6_CAP_ING","M6_CAP_SEM","Unified index across formats."],
+      ["M6_CAP_SUM","M6_VAL_SEARCH","Normalization improves findability."],
+      ["M6_RISK_LEAK","M6_CAP_ING","Respect access control per source."],
+      ["M6_RISK_TRUST","M6_VAL_ACCESS","Position LLMs as assistant, not replacement."]
+    ],
+    summaryHTML:`<h2>Macro 6 — Knowledge Management</h2>
+    <p>Semantic search over multimodal corpora surfaces expert knowledge; manage leakage risk and adoption.</p>
+    <div class="cols"><div class="card"><h3>LLM Capabilities</h3><ul>
+      <li>Semantic querying & RAG</li><li>Multimodal ingestion</li><li>Summarisation & normalisation</li>
+    </ul></div><div class="card"><h3>Values</h3><ul>
+      <li>Access tacit knowledge</li><li>Improved discovery</li>
+    </ul></div><div class="card"><h3>Risks</h3><ul>
+      <li>Data leakage</li><li>Trust & adoption</li>
+    </ul></div></div>`},
+
+  7:{title:"Macro 7 — Digital Manufacturing Integration",
+    nodes:[
+      {id:"M7_CAP_SCEN",type:"capability",label:"Scenario\nGeneration",desc:"Auto what-ifs & plans from data."},
+      {id:"M7_CAP_HARM",type:"capability",label:"Data\nHarmonisation",desc:"Link schemas; integrate IT/OT."},
+      {id:"M7_CAP_MODEL",type:"capability",label:"Model/DT\nGeneration",desc:"Draft models from text+numbers; update twins."},
+      {id:"M7_VAL_INT",type:"value",label:"Interoperability",desc:"Systems work together; fewer silos."},
+      {id:"M7_VAL_PLAN",type:"value",label:"Dynamic\nPlanning",desc:"Faster scenario analysis."},
+      {id:"M7_RISK_DRIFT",type:"risk",label:"Simulation\nDrift",desc:"Generated models may diverge from reality."},
+      {id:"M7_RISK_COMP",type:"risk",label:"Compute /\nLatency",desc:"Token/context limits; realtime cost."}
+    ],
+    edges:[
+      ["M7_CAP_HARM","M7_VAL_INT","Harmonised data enables interoperability."],
+      ["M7_CAP_SCEN","M7_VAL_PLAN","Automated what-ifs → faster planning."],
+      ["M7_CAP_MODEL","M7_RISK_DRIFT","Expert validation to avoid drift."],
+      ["M7_CAP_MODEL","M7_VAL_PLAN","Up-to-date twins improve scenarios."],
+      ["M7_RISK_COMP","M7_CAP_SCEN","Realtime scenarios stress compute."]
+    ],
+    summaryHTML:`<h2>Macro 7 — Digital Manufacturing Integration</h2>
+    <p>Generate scenarios and models, harmonise data, keep twins in sync; watch for simulation drift and compute limits.</p>
+    <div class="cols"><div class="card"><h3>LLM Capabilities</h3><ul>
+      <li>Scenario generation</li><li>Data harmonisation</li><li>Model/DT generation</li>
+    </ul></div><div class="card"><h3>Values</h3><ul>
+      <li>Interoperability</li><li>Dynamic planning</li>
+    </ul></div><div class="card"><h3>Risks</h3><ul>
+      <li>Simulation drift</li><li>Compute/latency limits</li>
+    </ul></div></div>`}
+};
+
+/* ---- Merge into a single SCENARIOS map ---- */
+const SCENARIOS = {};
+Object.keys(MICRO).forEach(k => { SCENARIOS['Micro-'+k] = MICRO[k]; });
+Object.keys(MACRO).forEach(k => { SCENARIOS['Macro-'+k] = MACRO[k]; });
+
+/* ========= Layout ========= */
+function layoutRadial(nodes){
+  const center={x:600,y:330};
+  const by={capability:[], value:[], risk:[]};
+  nodes.forEach(n=>by[n.type].push(n));
+  const rings={ capability:{start:300,step:22,r:210}, value:{start:40,step:18,r:250}, risk:{start:120,step:18,r:190} };
+  Object.keys(rings).forEach(type=>{
+    const arr=by[type], cfg=rings[type];
+    arr.forEach((n,i)=>{ const [x,y]=polar(center.x,center.y,cfg.r,cfg.start+i*cfg.step); positions[n.id]={x,y}; });
+  });
+}
+
+/* ========= Drag ========= */
+let dragState=null;
+function svgPoint(evt){ const r=svg.getBoundingClientRect(); return {x:(evt.clientX-r.left-tx)/scale, y:(evt.clientY-r.top-ty)/scale}; }
+function startDrag(evt,id,el){
+  if(spaceDown) return;
+  evt.preventDefault();
+  dragState={id,el,start:svgPoint(evt),orig:{...positions[id]}};
+  el.classList.add('dragging');
+  window.addEventListener('mousemove', onDrag);
+}
+function onDrag(evt){
+  if(!dragState) return;
+  const p=svgPoint(evt); const dx=p.x-dragState.start.x, dy=p.y-dragState.start.y;
+  positions[dragState.id].x=dragState.orig.x+dx; positions[dragState.id].y=dragState.orig.y+dy;
+  dragState.el.setAttribute('transform','translate('+positions[dragState.id].x+','+positions[dragState.id].y+')');
+  updateLinksForNode(dragState.id);
+}
+function endDrag(){
+  if(!dragState) return;
+  dragState.el.classList.remove('dragging');
+  window.removeEventListener('mousemove', onDrag);
+  dragState=null;
+}
+window.addEventListener('mouseup', endDrag);
+
+/* ========= Build graph ========= */
+function buildScenario(key){
+  clearGraph();
+  const data = SCENARIOS[key];
+  const nodes = data.nodes.map(n=>({id:n.id,type:n.type,label:n.label,desc:n.desc}));
+  links = data.edges.map(([s,t,why])=>({source:s,target:t,reason:why||''}));
+  layoutRadial(nodes);
+
+  // links
+  linkEls=[];
+  links.forEach(l=>{
+    const line=document.createElementNS(NS,'line');
+    line.setAttribute('class','link');
+    const p1=positions[l.source], p2=positions[l.target];
+    line.setAttribute('x1',p1.x); line.setAttribute('y1',p1.y);
+    line.setAttribute('x2',p2.x); line.setAttribute('y2',p2.y);
+    line.addEventListener('mouseenter',e=>showTooltip(e,l.reason));
+    line.addEventListener('mouseleave',hideTooltip);
+    vp.appendChild(line);
+    linkEls.push({el:line,data:l});
+  });
+
+  // nodes
+  nodeEls=[];
+  nodes.forEach(n=>{
+    const g=document.createElementNS(NS,'g'); g.setAttribute('class','node '+n.type);
+    const pos=positions[n.id]; g.setAttribute('transform','translate('+pos.x+','+pos.y+')');
+    const fill = n.type==='capability'?'var(--purple)':(n.type==='value'?'var(--green)':'var(--red)');
+    const c=document.createElementNS(NS,'circle'); c.setAttribute('r',34); c.setAttribute('fill',fill); g.appendChild(c);
+    const label=document.createElementNS(NS,'text'); label.setAttribute('class','label'); label.setAttribute('text-anchor','middle');
+    (n.label||'').split('\n').forEach((t,i)=>{ const ts=document.createElementNS(NS,'tspan'); ts.setAttribute('x','0'); ts.setAttribute('dy', i===0?'0.35em':'1.2em'); ts.textContent=t; label.appendChild(ts); });
+    g.appendChild(label);
+    g.addEventListener('mouseenter',e=>showTooltip(e,n.desc||'')); g.addEventListener('mouseleave',hideTooltip);
+    g.addEventListener('click',()=>highlight(n.id));
+    g.addEventListener('mousedown',e=>startDrag(e,n.id,g));
+    vp.appendChild(g); nodeEls.push({el:g,data:n});
+  });
+
+  // clear highlights when clicking empty svg
+  svg.addEventListener('click', function onBG(e){
+    if(e.target===svg){
+      linkEls.forEach(({el})=>el.classList.remove('highlight'));
+      nodeEls.forEach(({el})=>{el.classList.remove('active','dim');});
+      svg.removeEventListener('click', onBG);
+    }
+  });
+
+  summaryDiv.innerHTML = data.summaryHTML || '';
+}
+
+/* ========= Buttons ========= */
+const btns = document.getElementById('buttons');
+const order = [].concat(
+  Array.from({length:6},(_,i)=>'Micro-'+(i+1)),
+  Array.from({length:7},(_,i)=>'Macro-'+(i+1))
+);
+order.forEach((key,idx)=>{
+  const b=document.createElement('button');
+  b.className='scn';
+  b.textContent=key;
+  b.onclick=()=>{
+    document.querySelectorAll('button.scn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    scale=1; tx=0; ty=0; applyTransform();
+    buildScenario(key);
+  };
+  if(idx===0) b.classList.add('active');
+  btns.appendChild(b);
+});
+
+/* ========= Default ========= */
+buildScenario(order[0]);
+</script>
+</body>
+</html>

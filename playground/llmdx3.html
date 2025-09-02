@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>LLM × Digital Twin — Text → Interactive Graph (with Text View)</title>
+<style>
+  :root{
+    --bg:#0b1220; --text:#e5e7eb; --muted:#9aa4b2;
+    --purple:#a855f7;   /* Capability */
+    --green:#22c55e;    /* Value */
+    --red:#ef4444;      /* Risk */
+    --edge:#475569;     /* Link */
+    --accent:#fbbf24;   /* Highlight */
+    --panel:#0f172a;
+  }
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,#0b1220,#0a1020 60%,#08101f);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;}
+  .wrap{max-width:1180px;margin:18px auto;padding:16px;}
+  h1{font-weight:800;letter-spacing:.3px;margin:6px 0 2px}
+  p.caption{color:var(--muted);margin:0 0 14px}
+  .row{display:grid;grid-template-columns:1fr 320px;gap:12px}
+  .card{background:var(--panel);border:1px solid #1f2937;border-radius:12px;padding:12px}
+  .card h3{margin:0 0 8px;font-size:14px;color:#9ca3af;letter-spacing:.3px;text-transform:uppercase}
+  textarea{width:100%;min-height:150px;background:#0b1730;color:#e5e7eb;border:1px solid #1f2937;border-radius:10px;padding:10px;resize:vertical}
+  input,select,button{background:#0b1730;color:#e5e7eb;border:1px solid #1f2937;border-radius:10px;padding:8px 10px}
+  label{display:block;font-size:12px;color:#cbd5e1;margin:8px 0 4px}
+  .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+  .legend{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:10px;height:10px;border-radius:999px;display:inline-block}
+  .panel{border:1px solid #1f2937;border-radius:14px;padding:10px;background:radial-gradient(1200px 600px at 50% 0%,rgba(168,85,247,.10),transparent 60%)}
+  svg{width:100%;height:780px;border-radius:12px}
+
+  .node{cursor:grab}
+  .node.dragging{cursor:grabbing}
+  .label{font-size:12px;pointer-events:none;fill:#e5e7eb;user-select:none;text-shadow:0 1px 2px #000}
+  .link{stroke:var(--edge);stroke-width:2;opacity:.95;fill:none}
+  .link.highlight{stroke:var(--accent);stroke-width:3;opacity:1}
+  .node circle{stroke:#0b1020;stroke-width:2}
+  .node.active circle{stroke:var(--accent);stroke-width:3.2}
+  .node.dim{opacity:.25}
+
+  .tooltip{
+    position:fixed;transform:translate(-50%,calc(-100% - 14px));background:#0b1730;color:#e5e7eb;
+    border:1px solid #1f2937;border-radius:10px;padding:8px 10px;font-size:12px;max-width:520px;
+    pointer-events:none;box-shadow:0 8px 30px rgba(0,0,0,.35);z-index:20;display:none;
+  }
+  .summary{margin-top:12px;padding:12px;border:1px solid #1f2937;border-radius:12px;background:linear-gradient(180deg,#0b1730,#0b173000)}
+  .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .cols .card ul{margin:0;padding-left:18px}
+  .hint{color:var(--muted);font-size:12px;margin-top:8px}
+
+  /* Text view styles */
+  .textview{margin-top:12px}
+  .edge-list{display:grid;grid-template-columns:1fr;gap:8px;margin-top:6px}
+  .edge-item{display:flex;gap:10px;align-items:flex-start;background:#0b1730;border:1px solid #1f2937;border-radius:10px;padding:10px}
+  .pill{padding:2px 8px;border-radius:999px;font-size:12px;white-space:nowrap;border:1px solid #0f172a}
+  .pill.cap{background:rgba(168,85,247,.18);border-color:#a855f7}
+  .pill.val{background:rgba(34,197,94,.18);border-color:#22c55e}
+  .pill.risk{background:rgba(239,68,68,.18);border-color:#ef4444}
+  .arrow{opacity:.8}
+  .reason{color:#cbd5e1;font-size:12px;margin-left:auto;max-width:55%}
+  @media (max-width: 900px){ .reason{max-width:100%} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>LLM × Digital Twin — Text → Interactive Graph</h1>
+  <p class="caption">Paste a scenario. Click <b>Generate</b>. The graph shows <span style="color:#a855f7">Capabilities</span> → <span style="color:#22c55e">Values</span> → <span style="color:#ef4444">Risks</span>. Risk links appear only with a model justification grounded in your text.</p>
+
+  <div class="row">
+    <div class="card">
+      <h3>Scenario Text</h3>
+      <textarea id="scenarioText" placeholder="Describe DT signals/simulations, how LLM is used, benefits, and potential risks..."></textarea>
+      <div class="actions">
+        <div style="flex:1 1 280px">
+          <label>OpenAI API Key (kept in your browser)</label>
+          <input id="apiKey" type="password" placeholder="sk-..." style="width:100%"/>
+        </div>
+        <div>
+          <label>Model</label>
+          <select id="model">
+            <option value="gpt-4o-mini">gpt-4o-mini</option>
+            <option value="gpt-4o">gpt-4o</option>
+          </select>
+        </div>
+        <label style="display:inline-flex;align-items:center;gap:6px;margin-left:6px">
+          <input type="checkbox" id="heuristicToggle"/> add light heuristics (optional)
+        </label>
+        <div style="align-self:end">
+          <button id="genBtn">Generate</button>
+        </div>
+      </div>
+      <div class="hint">For public demos, proxy this request through a tiny server so your key isn’t exposed in client code.</div>
+    </div>
+
+    <div class="card">
+      <h3>Legend</h3>
+      <div class="legend">
+        <span><i class="dot" style="background:var(--purple)"></i>LLM Capability</span>
+        <span><i class="dot" style="background:var(--green)"></i>Value</span>
+        <span><i class="dot" style="background:var(--red)"></i>Risk</span>
+      </div>
+      <div id="summary" class="summary">No scenario yet. Paste text and click Generate.</div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:12px">
+    <svg id="graph" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid meet" aria-label="Knowledge graph">
+      <g id="vp"></g>
+    </svg>
+  </div>
+  <div id="tooltip" class="tooltip" role="tooltip"></div>
+
+  <!-- NEW: Text view of graph -->
+  <div id="textView" class="card textview">
+    <h3>Connections (Text View)</h3>
+    <div id="edgeList" class="edge-list"></div>
+  </div>
+
+  <div class="hint">Tip: Click background to clear highlights. Drag to rearrange. Wheel to zoom. Hold <b>Space</b> to pan.</div>
+</div>
+
+<script>
+/* ================= Graph engine ================= */
+const svg = document.getElementById('graph');
+const vp  = document.getElementById('vp');
+const NS  = "http://www.w3.org/2000/svg";
+const tooltip = document.getElementById('tooltip');
+const summaryDiv = document.getElementById('summary');
+const edgeListDiv = document.getElementById('edgeList');
+
+let scale = 1, tx = 0, ty = 0, spaceDown = false, panning = false, panStart = null;
+function applyTransform(){ vp.setAttribute('transform', 'translate('+tx+','+ty+') scale('+scale+')'); }
+applyTransform();
+window.addEventListener('keydown', e=>{ if(e.code==='Space'){ spaceDown=true; } });
+window.addEventListener('keyup',   e=>{ if(e.code==='Space'){ spaceDown=false; panning=false; } });
+
+svg.addEventListener('wheel', (e)=>{
+  e.preventDefault();
+  const rect = svg.getBoundingClientRect();
+  const cx = (e.clientX - rect.left - tx)/scale;
+  const cy = (e.clientY - rect.top  - ty)/scale;
+  const factor = Math.exp(-e.deltaY * 0.0012);
+  scale *= factor;
+  tx = e.clientX - rect.left - cx*scale;
+  ty = e.clientY - rect.top  - cy*scale;
+  applyTransform();
+}, {passive:false});
+
+svg.addEventListener('mousedown', (e)=>{
+  if(!spaceDown) return;
+  panning = true;
+  panStart = {x:e.clientX, y:e.clientY, tx, ty};
+});
+window.addEventListener('mousemove', (e)=>{
+  if(!panning) return;
+  const dx = e.clientX - panStart.x;
+  const dy = e.clientY - panStart.y;
+  tx = panStart.tx + dx;
+  ty = panStart.ty + dy;
+  applyTransform();
+});
+window.addEventListener('mouseup', ()=>{ panning=false; });
+
+function showTooltip(evt, text){
+  if(!text){ hideTooltip(); return; }
+  tooltip.style.display='block';
+  tooltip.textContent=text;
+  tooltip.style.left = evt.clientX + "px";
+  tooltip.style.top  = evt.clientY + "px";
+}
+function hideTooltip(){ tooltip.style.display='none'; }
+
+let positions = {}, nodeEls = [], linkEls = [], links = [];
+function clearGraph(){ while(vp.firstChild) vp.removeChild(vp.firstChild); positions={}; nodeEls=[]; linkEls=[]; links=[]; }
+function updateLinksForNode(id){
+  linkEls.forEach(({el,data})=>{
+    if(data.source===id || data.target===id){
+      el.setAttribute("d", pathD(positions[data.source], positions[data.target], data.curveBias));
+    }
+  });
+}
+function highlight(id){
+  const nbrs = new Set([id]);
+  links.forEach(l=>{ if(l.source===id) nbrs.add(l.target); if(l.target===id) nbrs.add(l.source); });
+  linkEls.forEach(({el,data})=>{
+    const on = (data.source===id || data.target===id);
+    el.classList.toggle("highlight", on);
+  });
+  nodeEls.forEach(({el,data})=>{
+    const active = nbrs.has(data.id);
+    el.classList.toggle("active", active);
+    el.classList.toggle("dim", !active);
+  });
+}
+
+/* Curved link path */
+function pathD(p1, p2, bias=0){
+  const mx=(p1.x+p2.x)/2, my=(p1.y+p2.y)/2;
+  const dx=p2.x-p1.x, dy=p2.y-p1.y;
+  const nx=-dy, ny=dx;
+  const k=0.18+bias;
+  const cx=mx+nx*k, cy=my+ny*k;
+  return `M ${p1.x} ${p1.y} Q ${cx} ${cy} ${p2.x} ${p2.y}`;
+}
+
+/* Banded layout */
+function layoutBands(nodes){
+  const W=1200,H=800,M=90;
+  const leftX=M+240, rightX=W-M-240, topY=M+30, botY=H-M-90;
+  const caps=nodes.filter(n=>n.type==='capability');
+  const vals=nodes.filter(n=>n.type==='value');
+  const risks=nodes.filter(n=>n.type==='risk');
+  const dist=(arr,y1,y2)=>{const n=Math.max(1,arr.length), step=(y2-y1)/n; arr.forEach((n,i)=>positions[n.id]={x:0,y:y1+(i+0.5)*step});};
+  dist(caps, topY, botY-160); caps.forEach(n=>positions[n.id].x=leftX);
+  dist(vals, topY, botY-160); vals.forEach(n=>positions[n.id].x=rightX);
+  const rx1=M+170, rx2=W-M-170, step=(rx2-rx1)/Math.max(1,risks.length);
+  risks.forEach((n,i)=>positions[n.id]={x:rx1+(i+0.5)*step, y:botY});
+  nodes.forEach(n=>{positions[n.id].x+=(Math.random()-0.5)*6; positions[n.id].y+=(Math.random()-0.5)*6;});
+}
+
+/* Render */
+function escapeHTML(s){ return (s||"").replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+
+function renderTextView(struct){
+  const caps=new Set(struct.capabilities||[]);
+  const vals=new Set(struct.values||[]);
+  const risks=new Set(struct.risks||[]);
+  const typeOf=(label)=> caps.has(label) ? 'cap' : (vals.has(label) ? 'val' : 'risk');
+
+  const html = (struct.edges||[]).map(e=>{
+    const st = typeOf(e.source), tt = typeOf(e.target);
+    return `<div class="edge-item">
+      <span class="pill ${st}">${escapeHTML(e.source)}</span>
+      <span class="arrow">→</span>
+      <span class="pill ${tt}">${escapeHTML(e.target)}</span>
+      <div class="reason"><em>${escapeHTML(e.reason||"")}</em></div>
+    </div>`;
+  }).join('') || `<div class="edge-item"><span class="reason">No connections extracted yet.</span></div>`;
+
+  edgeListDiv.innerHTML = html;
+}
+
+function renderGraph(struct){
+  clearGraph();
+
+  // Build nodes
+  const nodes=[];
+  const add=(arr,type)=> (arr||[]).forEach((label,idx)=>{
+    const id=type+"_"+idx+"_"+label.slice(0,28).replace(/\s+/g,'_');
+    nodes.push({id,type,label,desc:type.charAt(0).toUpperCase()+type.slice(1)+": "+label});
+  });
+  add(struct.capabilities,'capability');
+  add(struct.values,'value');
+  add(struct.risks,'risk');
+
+  const idByLabel={}; nodes.forEach(n=>idByLabel[n.label]=n.id);
+
+  links=(struct.edges||[]).map(e=>{
+    const s=idByLabel[e.source], t=idByLabel[e.target];
+    if(!s||!t) return null;
+    return {source:s,target:t,reason:e.reason||""};
+  }).filter(Boolean);
+
+  layoutBands(nodes);
+
+  /* draw links */
+  linkEls=[];
+  links.forEach((l,i)=>{
+    const path=document.createElementNS(NS,"path");
+    path.setAttribute("class","link");
+    const bias=((i%5)-2)*0.02;
+    path.setAttribute("d", pathD(positions[l.source], positions[l.target], bias));
+    path.addEventListener("mouseenter",(e)=>showTooltip(e, l.reason||""));
+    path.addEventListener("mouseleave",hideTooltip);
+    vp.appendChild(path);
+    linkEls.push({el:path, data:{...l, curveBias:bias}});
+  });
+
+  /* draw nodes */
+  nodeEls=[];
+  nodes.forEach(n=>{
+    const g=document.createElementNS(NS,"g");
+    g.setAttribute("class","node "+n.type);
+    g.setAttribute("transform","translate("+positions[n.id].x+","+positions[n.id].y+")");
+
+    const fill=(n.type==='capability')?"var(--purple)":(n.type==='value'?"var(--green)":"var(--red)");
+    const c=document.createElementNS(NS,"circle"); c.setAttribute("r",34); c.setAttribute("fill",fill); g.appendChild(c);
+
+    const t=document.createElementNS(NS,"text"); t.setAttribute("class","label"); t.setAttribute("text-anchor","middle");
+    (n.label||"").split("\n").forEach((s,i)=>{const ts=document.createElementNS(NS,"tspan"); ts.setAttribute("x","0"); ts.setAttribute("dy",i===0?"0.35em":"1.2em"); ts.textContent=s; t.appendChild(ts);});
+    g.appendChild(t);
+
+    g.addEventListener("mouseenter",(e)=>showTooltip(e, n.desc||""));
+    g.addEventListener("mouseleave",hideTooltip);
+    g.addEventListener("click",()=>highlight(n.id));
+
+    g.addEventListener("mousedown",(e)=>{
+      if(spaceDown) return;
+      e.preventDefault();
+      const start=svgPoint(e), orig={...positions[n.id]};
+      g.classList.add('dragging');
+      const onMove=(ev)=>{
+        const p=svgPoint(ev);
+        positions[n.id].x=orig.x+(p.x-start.x);
+        positions[n.id].y=orig.y+(p.y-start.y);
+        g.setAttribute("transform","translate("+positions[n.id].x+","+positions[n.id].y+")");
+        updateLinksForNode(n.id);
+      };
+      const onUp=()=>{
+        g.classList.remove('dragging');
+        window.removeEventListener('mousemove',onMove);
+        window.removeEventListener('mouseup',onUp);
+      };
+      window.addEventListener('mousemove',onMove);
+      window.addEventListener('mouseup',onUp);
+    });
+
+    vp.appendChild(g);
+    nodeEls.push({el:g,data:n});
+  });
+
+  // summary cards
+  summaryDiv.innerHTML = `
+    <div class="cols">
+      <div class="card"><h3>LLM Capabilities</h3><ul>${(struct.capabilities||[]).map(x=>`<li>${escapeHTML(x)}</li>`).join('')}</ul></div>
+      <div class="card"><h3>Values</h3><ul>${(struct.values||[]).map(x=>`<li>${escapeHTML(x)}</li>`).join('')}</ul></div>
+      <div class="card"><h3>Risks</h3><ul>${(struct.risks||[]).map(x=>`<li>${escapeHTML(x)}</li>`).join('')}</ul></div>
+    </div>`;
+
+  // text view list of connections
+  renderTextView(struct);
+}
+
+function svgPoint(evt){
+  const rect=svg.getBoundingClientRect();
+  return { x:(evt.clientX-rect.left-tx)/scale, y:(evt.clientY-rect.top-ty)/scale };
+}
+
+/* ================= OpenAI helpers ================= */
+async function callOpenAI({apiKey, model, messages, response_format}){
+  const res = await fetch("https://api.openai.com/v1/chat/completions",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json", "Authorization":"Bearer "+apiKey },
+    body:JSON.stringify({ model, messages, temperature:0.1, max_tokens:1200, response_format })
+  });
+  if(!res.ok){ throw new Error("OpenAI error: "+res.status+" "+await res.text()); }
+  return await res.json();
+}
+
+/* Pass A: extract nodes + any explicit edges */
+async function extractStructure(apiKey, model, text){
+  const sys = `You convert a manufacturing scenario (DT × LLM) into a SMALL JSON object.
+- Use ONLY phrases from the input for node labels (trim/shorten allowed, no new concepts).
+- keys: capabilities[], values[], risks[], edges[] where edge={source, target, reason}.
+- Prefer capability→value edges; include capability→risk only if text explicitly states that capability causes a risk.
+- Keep reasons short and quote/paraphrase from the text.`;
+  const data = await callOpenAI({
+    apiKey, model,
+    response_format:{type:"json_object"},
+    messages:[
+      {role:"system", content:sys},
+      {role:"user", content:"INPUT SCENARIO:\n"+text}
+    ]
+  });
+  const content = data.choices?.[0]?.message?.content || "{}";
+  const json = JSON.parse(content);
+  json.capabilities ??= []; json.values ??= []; json.risks ??= []; json.edges ??= [];
+  return json;
+}
+
+/* Pass B: justify Value→Risk (and explicit Cap→Risk) edges only when grounded */
+async function justifyRisks(apiKey, model, text, values, risks){
+  const sys = `Given the scenario and two lists, return ONLY justified edges with reasons grounded in the text.
+Edge types allowed:
+1) value -> risk (preferred)
+2) capability -> risk (only if the scenario explicitly ties a capability to the risk)
+Rules:
+- Do NOT infer from keyword overlap alone.
+- If not clearly implied, omit.
+Return JSON: { edges: [ {source, target, reason} ] } where source and target are exact strings from the lists.`;
+  const user = `SCENARIO:\n${text}\n\nVALUES:\n${JSON.stringify(values)}\n\nRISKS:\n${JSON.stringify(risks)}\n`;
+  const data = await callOpenAI({
+    apiKey, model,
+    response_format:{type:"json_object"},
+    messages:[ {role:"system", content:sys}, {role:"user", content:user} ]
+  });
+  const content = data.choices?.[0]?.message?.content || "{\"edges\":[]}";
+  const json = JSON.parse(content);
+  json.edges ??= [];
+  return json.edges;
+}
+
+/* Optional light heuristic ONLY for Capability→Value if very sparse */
+function heuristicCapToValue(struct){
+  const caps=struct.capabilities||[], vals=struct.values||[];
+  if(!document.getElementById('heuristicToggle').checked) return [];
+  const STOP=new Set("a an the and or with to of for in on by from using use enable enables enabling provides providing improves improving improved reduce reduces reducing faster more better higher lower".split(/\s+/));
+  const kw=(s)=> (s||"").toLowerCase().replace(/[^\p{L}\p{N}\s]/gu,' ').split(/\s+/).filter(w=>w && !STOP.has(w));
+  const edges=[];
+  caps.forEach(c=>{
+    const ck=kw(c);
+    let best=null;
+    vals.forEach(v=>{
+      const vk=kw(v); const inter=[...new Set(ck)].filter(x=>vk.includes(x));
+      if(inter.length>0){ const score=inter.length; if(!best || score>best.score) best={v,score,why:inter.join(', ')}; }
+    });
+    if(best && !edges.find(e=>e.source===c && e.target===best.v)){
+      edges.push({source:c,target:best.v,reason:"Keyword alignment: "+best.why});
+    }
+  });
+  return edges;
+}
+
+/* Wire up UI */
+const genBtn=document.getElementById('genBtn');
+genBtn.addEventListener('click', async ()=>{
+  const apiKey=document.getElementById('apiKey').value.trim();
+  const model=document.getElementById('model').value;
+  const text=document.getElementById('scenarioText').value.trim();
+  if(!text){ alert("Please paste a scenario."); return; }
+  if(!apiKey){ alert("Please paste your OpenAI API key."); return; }
+
+  genBtn.disabled=true; genBtn.textContent="Generating…";
+  try{
+    // Pass A
+    const base = await extractStructure(apiKey, model, text);
+
+    // Pass B (Value→Risk & explicit Cap→Risk, justified only)
+    const riskEdges = await justifyRisks(apiKey, model, text, base.values, base.risks);
+
+    // Optional heuristic Cap→Value if sparse
+    const hv = heuristicCapToValue(base);
+
+    // Merge edges uniquely
+    const key = (e)=>e.source+"→"+e.target;
+    const allEdges=[...base.edges, ...riskEdges, ...hv];
+    const seen=new Set(); const merged=[];
+    allEdges.forEach(e=>{ const k=key(e); if(!seen.has(k)){ seen.add(k); merged.push(e); }});
+    base.edges=merged;
+
+    // Render graph + text
+    scale=1; tx=0; ty=0; applyTransform();
+    renderGraph(base);
+  }catch(err){
+    summaryDiv.innerHTML=`<div class="card">⚠️ ${escapeHTML(err.message)}</div>`;
+    edgeListDiv.innerHTML=`<div class="edge-item"><span class="reason">No connections (error).</span></div>`;
+    clearGraph();
+  }finally{
+    genBtn.disabled=false; genBtn.textContent="Generate";
+  }
+});
+
+/* Seed example */
+renderGraph({
+  capabilities:["automated communication","simulate alternatives"],
+  values:["faster scheduling","reduced downtime"],
+  risks:["misalignment across systems"],
+  edges:[
+    {source:"simulate alternatives", target:"faster scheduling", reason:"Simulation prunes infeasible plans quickly."},
+    {source:"faster scheduling", target:"misalignment across systems", reason:"If updates aren’t validated across departments."}
+  ]
+});
+</script>
+</body>
+</html>
