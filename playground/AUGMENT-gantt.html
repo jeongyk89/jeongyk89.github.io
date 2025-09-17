@@ -29,7 +29,7 @@
       data.addColumn({type:'string', id:'Item'});
       data.addColumn({type:'date', id:'Start'});
       data.addColumn({type:'date', id:'End'});
-      data.addColumn({type:'string', role:'style'});                  // locked colors
+      data.addColumn({type:'string', role:'style'});                  // LOCKED COLORS
       data.addColumn({type:'string', role:'tooltip', p:{html:true}}); // rich tooltip
 
       // --- helpers ---
@@ -38,7 +38,7 @@
       const Md = m => new Date(baseYear, m-1, 2); // 1-day marker
       const fmt = m => M(m).toLocaleString('en-GB', {month:'short', year:'numeric'});
 
-      // Color palette (LOCKED)
+      // Palette (UoP=orange, UH=green)
       const COLOR_MAP = {
         KTH:   '#1f77b4',  // blue
         UOP:   '#ff7f0e',  // orange (UoP)
@@ -50,15 +50,22 @@
         NMT:   '#bcbd22',  // olive
         IDL:   '#17becf'   // cyan
       };
-      const DELIV = '#444';   // deliverables
-      const MILES = '#2b8a3e';// milestones
+      const DELIV = '#444';    // deliverables
+      const MILES = '#2b8a3e'; // milestones
 
-      // Normalize partner names to palette keys
+      // Normalize partner labels to palette keys
       const norm = s => String(s).toUpperCase().replace(/\s+/g,'').replace(/\./g,'')
-        .replace(/^UP$/, 'UOP')    // alias
-        .replace(/^UOH$/, 'UH');   // alias
+        .replace(/^UP$/, 'UOP')   // alias for UoP
+        .replace(/^UOH$/, 'UH');  // alias for UH
 
-      const styleFor = hex => `stroke-color:${hex};stroke-width:2;fill-color:${hex};fill-opacity:0.95`;
+      // Use all three keys to prevent Google overriding the color
+      const styleFor = hex => [
+        `color:${hex}`,           // <- generic color
+        `stroke-color:${hex}`,    // <- border
+        `stroke-width:2`,
+        `fill-color:${hex}`,      // <- fill
+        `fill-opacity:0.95`
+      ].join(';');
 
       const tip = (title, type, lead, s, e, desc, color) => `
         <div class="tt" style="border-left:4px solid ${color}">
@@ -89,7 +96,7 @@
 
       // ------------------ DATA ------------------
 
-      // WP1
+      // WP1 (UoP should appear ORANGE)
       T('WP1','1.1 Literature review on I5.0 implementation roadmaps',2,9,'UoP','PRISMA review of augmentation tech.');
       T('WP1','1.2 Human-centric requirements & tools for augmentation design',3,12,'UoP','Socio-technical protocol & tools.');
       T('WP1','1.3 Hands-on training for work-centred design',9,26,'UoP','Training for managers/engineers/teams/reps.');
@@ -102,7 +109,7 @@
       MS('WP1','M1.3',38,'UoP','Voice 5.0 beta piloted.');
       MS('WP1','M1.4',48,'UoP','Scientific dissemination completed.');
 
-      // WP2 (UH must be GREEN)
+      // WP2 (UH should appear GREEN)
       T('WP2','2.1 Identify requirements for integrating AI agents & PRC tech',6,24,'UH','Co-designed technical/operational requirements.');
       T('WP2','2.2 Define interoperability & data exchange for AI agents',12,24,'UH','DT-anchored data lifecycle; APIs; privacy-by-design.');
       T('WP2','2.3 Develop guidelines & design principles for adaptive AI agents',12,30,'UH','Adaptive/personalised guidelines.');
@@ -213,11 +220,10 @@
       T('WP14','14.1 Continuation of WP12/13 tasks in RP3',37,48,'KTH','Coordination, DMP, risk & quality in RP3.');
       D('WP14','D14.1',48,'KTH','Project management plan (RP3).'); D('WP14','D14.2',48,'KTH','DMP update (RP3).');
 
-      // ------------------------------------------
-
       data.addRows(rows);
 
       const options = {
+        backgroundColor:'#ffffff',
         timeline:{colorByRowLabel:false, barLabelStyle:{fontSize:12}, rowLabelStyle:{fontSize:12}},
         avoidOverlappingGridLines:false,
         height:1950,
@@ -254,17 +260,7 @@
   <h2>Gantt — grouped by WP (tasks first, then related deliverables & milestones)</h2>
 
   <div class="legend">
-    <span class="pill"><span class="sw" style="background:#1f77b4"></span>KTH</span>
-    <span class="pill"><span class="sw" style="background:#ff7f0e"></span>UoP</span>
-    <span class="pill"><span class="sw" style="background:#2ca02c"></span>UH / UoH</span>
-    <span class="pill"><span class="sw" style="background:#9467bd"></span>SKKU</span>
-    <span class="pill"><span class="sw" style="background:#8c564b"></span>SNU</span>
-    <span class="pill"><span class="sw" style="background:#e377c2"></span>AICT</span>
-    <span class="pill"><span class="sw" style="background:#7f7f7f"></span>HDKSOE</span>
-    <span class="pill"><span class="sw" style="background:#bcbd22"></span>NMT</span>
-    <span class="pill"><span class="sw" style="background:#17becf"></span>IDL</span>
-    <span class="pill"><span class="sw" style="background:#444"></span>Deliverables</span>
-    <span class="pill"><span class="sw" style="background:#2b8a3e"></span>Milestones</span>
+    
   </div>
 
   <div id="gantt"></div>
