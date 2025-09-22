@@ -1,269 +1,490 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Gantt — WPs with locked colors + details</title>
-  <script src="https://www.gstatic.com/charts/loader.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AUGMENT — Interactive 48‑Month Gantt (v3)</title>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <style>
-    body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;margin:16px}
-    h2{margin:0 0 8px}
-    .legend{display:flex;gap:12px;flex-wrap:wrap;margin:8px 0 14px}
-    .pill{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border:1px solid #ddd;border-radius:999px;font-size:12px}
-    .sw{width:12px;height:12px;border-radius:2px;display:inline-block}
-    #details{margin-top:16px;padding:14px;border:1px solid #e5e7eb;border-radius:12px;background:#fafafa}
-    #details h3{margin:0 0 6px;font-size:16px}
-    #details .meta{display:flex;gap:16px;flex-wrap:wrap;color:#334155;font-size:13px;margin-bottom:6px}
-    #details p{margin:8px 0 0;line-height:1.4}
-    .muted{color:#64748b}
-    .tt{padding:6px 8px}
-  </style>
-  <script>
-    google.charts.load('current', {'packages':['timeline']});
-    google.charts.setOnLoadCallback(drawChart);
-
-    function drawChart(){
-      const el = document.getElementById('gantt');
-      const chart = new google.visualization.Timeline(el);
-      const data = new google.visualization.DataTable();
-      data.addColumn({type:'string', id:'WP'});
-      data.addColumn({type:'string', id:'Item'});
-      data.addColumn({type:'date', id:'Start'});
-      data.addColumn({type:'date', id:'End'});
-      data.addColumn({type:'string', role:'style'});                  // LOCKED COLORS
-      data.addColumn({type:'string', role:'tooltip', p:{html:true}}); // rich tooltip
-
-      // --- helpers ---
-      const baseYear = 2025;
-      const M  = m => new Date(baseYear, m-1, 1);
-      const Md = m => new Date(baseYear, m-1, 2); // 1-day marker
-      const fmt = m => M(m).toLocaleString('en-GB', {month:'short', year:'numeric'});
-
-      // Palette (UoP=orange, UH=green)
-      const COLOR_MAP = {
-        KTH:   '#1f77b4',  // blue
-        UOP:   '#ff7f0e',  // orange (UoP)
-        UH:    '#2ca02c',  // green  (UH/UoH)
-        SKKU:  '#9467bd',  // purple
-        SNU:   '#8c564b',  // brown
-        AICT:  '#e377c2',  // pink
-        HDKSOE:'#7f7f7f',  // gray
-        NMT:   '#bcbd22',  // olive
-        IDL:   '#17becf'   // cyan
-      };
-      const DELIV = '#444';    // deliverables
-      const MILES = '#2b8a3e'; // milestones
-
-      // Normalize partner labels to palette keys
-      const norm = s => String(s).toUpperCase().replace(/\s+/g,'').replace(/\./g,'')
-        .replace(/^UP$/, 'UOP')   // alias for UoP
-        .replace(/^UOH$/, 'UH');  // alias for UH
-
-      // Use all three keys to prevent Google overriding the color
-      const styleFor = hex => [
-        `color:${hex}`,           // <- generic color
-        `stroke-color:${hex}`,    // <- border
-        `stroke-width:2`,
-        `fill-color:${hex}`,      // <- fill
-        `fill-opacity:0.95`
-      ].join(';');
-
-      const tip = (title, type, lead, s, e, desc, color) => `
-        <div class="tt" style="border-left:4px solid ${color}">
-          <div style="font-weight:600">${title}</div>
-          <div class="muted" style="font-size:12px">${type} • Lead: ${lead}</div>
-          <div class="muted" style="font-size:12px">${s?'Start: '+fmt(s):''}${e?' • End/Due: '+fmt(e):''}</div>
-          <div style="margin-top:6px;max-width:420px">${desc||''}</div>
-        </div>`;
-
-      const registry = {};
-      const rows = [];
-      const T = (wp, label, s, e, lead, desc) => {
-        const key = `${wp}|Task ${label} (${lead})`;
-        const hex = COLOR_MAP[norm(lead)] || '#999';
-        registry[key] = {wp,type:'Task',label:`Task ${label}`,lead,start:s,end:e,desc};
-        rows.push([wp, `Task ${label} (${lead})`, M(s), M(e), styleFor(hex), tip(`Task ${label}`,'Task',lead,s,e,desc,hex)]);
-      };
-      const D = (wp, code, month, lead, desc) => {
-        const key = `${wp}|Deliverable ${code} (${lead})`;
-        registry[key] = {wp,type:'Deliverable',label:`Deliverable ${code}`,lead,start:month,end:month,desc};
-        rows.push([wp, `Deliverable ${code} (${lead})`, M(month), Md(month), styleFor(DELIV), tip(`Deliverable ${code}`,'Deliverable',lead,month,month,desc,DELIV)]);
-      };
-      const MS = (wp, code, month, lead, desc) => {
-        const key = `${wp}|Milestone ${code} (${lead})`;
-        registry[key] = {wp,type:'Milestone',label:`Milestone ${code}`,lead,start:month,end:month,desc};
-        rows.push([wp, `Milestone ${code} (${lead})`, M(month), Md(month), styleFor(MILES), tip(`Milestone ${code}`,'Milestone',lead,month,month,desc,MILES)]);
-      };
-
-      // ------------------ DATA ------------------
-
-      // WP1 (UoP should appear ORANGE)
-      T('WP1','1.1 Literature review on I5.0 implementation roadmaps',2,9,'UoP','PRISMA review of augmentation tech.');
-      T('WP1','1.2 Human-centric requirements & tools for augmentation design',3,12,'UoP','Socio-technical protocol & tools.');
-      T('WP1','1.3 Hands-on training for work-centred design',9,26,'UoP','Training for managers/engineers/teams/reps.');
-      T('WP1','1.4 Voice 5.0 – Assessment of augmentation technologies',27,48,'UoP','Acceptance/impact across phases.');
-      T('WP1','1.5 Multi-level Training Framework for Reskilling/Upskilling',26,48,'UoP','Reskilling & social dialogue framework.');
-      D('WP1','D1.1',12,'UoP','Fieldwork Methodological Roadmap.');
-      D('WP1','D1.2',42,'UoP','I5.0 skills & social dialogue framework.');
-      MS('WP1','M1.1',9,'UoP','Review protocol registered (OSF).');
-      MS('WP1','M1.2',26,'UoP','Data collection guide validated.');
-      MS('WP1','M1.3',38,'UoP','Voice 5.0 beta piloted.');
-      MS('WP1','M1.4',48,'UoP','Scientific dissemination completed.');
-
-      // WP2 (UH should appear GREEN)
-      T('WP2','2.1 Identify requirements for integrating AI agents & PRC tech',6,24,'UH','Co-designed technical/operational requirements.');
-      T('WP2','2.2 Define interoperability & data exchange for AI agents',12,24,'UH','DT-anchored data lifecycle; APIs; privacy-by-design.');
-      T('WP2','2.3 Develop guidelines & design principles for adaptive AI agents',12,30,'UH','Adaptive/personalised guidelines.');
-      T('WP2','2.4 Evaluate acceptance of AI agent augmentation',18,46,'UH','Lab + industrial acceptance/usability + KPI impact.');
-      T('WP2','2.5 Assess ethical, privacy & policy implications of AI agents',18,46,'UH','GDPR/AI Act review; case studies; fairness/explainability.');
-      D('WP2','D2.1',30,'UoH','Guidelines for adaptive & personalised AI agents.');
-      D('WP2','D2.2',46,'UoH','Integrated AI agent models validated & ready.');
-      MS('WP2','M2.1',24,'UH','Consortium-approved AI guidelines.');
-      MS('WP2','M2.2',42,'UH','Models validated in lab; GDPR checklist.');
-
-      // WP3
-      T('WP3','3.1 Specification of Data Standards for Federated AI & DTs',1,36,'SKKU','Human/site data taxonomy + schema.');
-      T('WP3','3.2 Interoperability Specification for DTs',19,42,'SKKU','DT interfaces, sync & data flows.');
-      T('WP3','3.3 Interoperability Specification for AI Models',19,42,'AICT','Model I/O, formats, portability.');
-      T('WP3','3.4 Validation Pipelines & Interoperability Benchmarks',25,48,'AICT','Pipelines + KPIs for latency/reuse/compatibility.');
-      D('WP3','D3.1',18,'SKKU','Data taxonomy & standard schema.');
-      D('WP3','D3.2',36,'SKKU','Scenario specification & semantic mapping.');
-      D('WP3','D3.4',45,'SKKU','KPI & interoperability benchmark report.');
-      MS('WP3','M3.1',15,'SKKU','Taxonomy & schema validated.');
-      MS('WP3','M3.2',33,'SKKU','Use-case mappings finalised.');
-      MS('WP3','M3.3',42,'AICT','Pipelines & benchmarks operational.');
-
-      // WP4
-      T('WP4','4.1 Defining current state of DT methodologies & standards',1,18,'KTH','Review of DT methods/standards from human-centric angle.');
-      T('WP4','4.2 Co-designing DT-based methodology for acceptance',6,24,'KTH','Workshops + action research for acceptance-focused method.');
-      T('WP4','4.3 Implementing DT-based methodologies in lifecycle of tasks',18,46,'KTH','Industrial implementation across cases.');
-      T('WP4','4.4 Verifying & validating DT implementation results',36,46,'KTH','Code/model verification + validation + UQ.');
-      D('WP4','D4.1',24,'KTH','DT-based assessment methodology.');
-      D('WP4','D4.2',46,'KTH','Evaluation of methodology in demonstrators.');
-      MS('WP4','M4.1',12,'KTH','Methodology & standards ready.');
-      MS('WP4','M4.2',30,'KTH','Methodology demonstrated in ≥2 demos.');
-
-      // WP5
-      T('WP5','5.1 Co-design industrial demonstrators',1,6,'KTH','Cross-case workshops; common templates & protocol.');
-      T('WP5','5.2 Shipbuilding use cases & baselines',2,10,'HDKSOE','Personas, work chronicles, KPIs.');
-      T('WP5','5.3 Mining use cases & baselines',2,10,'NMT','Operator support, predictive maintenance, training.');
-      T('WP5','5.4 Food & beverage use cases & baselines',2,10,'IDL','Decision support; inclusiveness indicators.');
-      D('WP5','D5.1',10,'KTH','Consolidated use cases & KPI pack.');
-      MS('WP5','M5.1',6,'UoP','Workshops completed.');
-      MS('WP5','M5.2',10,'KTH','Use cases & baselines approved.');
-
-      // WP6
-      T('WP6','6.1 Needs confirmation & use-case finalisation',6,10,'HDKSOE','Refined scope, KPIs, test plans.');
-      T('WP6','6.2 Deployment of human-centric digital solutions',13,32,'HDKSOE','Adapter-based integration into ERP/APS/MES & comms.');
-      T('WP6','6.3 Testing & validation in real tasks',19,32,'HDKSOE','Operational + human-centric KPIs; Voice 5.0.');
-      D('WP6','D6.1',10,'HDKSOE','Shipbuilding use case & KPI pack.');
-      D('WP6','D6.2',33,'HDKSOE','Deployment & validation report.');
-      MS('WP6','M6.1',8,'HDKSOE','Use case & KPIs signed off.');
-      MS('WP6','M6.2',31,'HDKSOE','Demonstrator deployed & tested.');
-
-      // WP7
-      T('WP7','7.1 Pilot roll-out planning & governance',25,28,'HDKSOE','Safety gates, data governance, training.');
-      T('WP7','7.2 Staged pilot execution',28,34,'HDKSOE','Shadow → assisted → controlled phases.');
-      T('WP7','7.3 Impact measurement & stakeholder evaluation',28,40,'SNU','Voice 5.0 + KPI dashboards; adoption.');
-      T('WP7','7.4 Consolidation & scale-up plan',36,42,'HDKSOE','Playbook for replication.');
-      D('WP7','D7.1',28,'HDKSOE','Pilot roll-out plan & governance pack.');
-      D('WP7','D7.3',42,'SNU','Final impact report & scale-up playbook.');
-      MS('WP7','M7.1',28,'HDKSOE','Pilot (shadow) approved.');
-      MS('WP7','M7.3',34,'HDKSOE','Controlled deployment completed.');
-      MS('WP7','M7.4',42,'HDKSOE','Scale-Up Playbook endorsed.');
-
-      // WP8
-      T('WP8','8.1 Needs confirmation & use-case finalisation',6,10,'NMT','Confirm mining use cases; underground Voice 5.0.');
-      T('WP8','8.2 Deployment of digital solutions',13,28,'NMT','AI training & troubleshooting tool with IIoT/logs/manuals.');
-      T('WP8','8.3 Testing & validation in real tasks',19,32,'NMT','Cognitive load, learning time, MTTR, accuracy.');
-      D('WP8','D8.1',10,'NMT','Mining use case & KPI pack.');
-      D('WP8','D8.2',33,'NMT','Deployment & test report.');
-      MS('WP8','M8.1',8,'NMT','Use case & KPIs finalised.');
-      MS('WP8','M8.2',31,'NMT','Demonstrator deployed & tested.');
-
-      // WP9
-      T('WP9','9.1 Pilot roll-out planning & governance',25,28,'NMT','Pilot governance; safety; training modules.');
-      T('WP9','9.2 Staged pilot execution (shadow→assisted→controlled)',28,34,'NMT','Three phases to full operation.');
-      T('WP9','9.3 Impact measurement & stakeholder evaluation',28,40,'KTH','Human-centric + operational impact assessment.');
-      T('WP9','9.4 Consolidation & mining scale-up toolkit',36,42,'NMT','Toolkit for replication.');
-      D('WP9','D9.1',28,'NMT','Pilot roll-out plan (mining).');
-      D('WP9','D9.3',42,'NMT','Final impact & scale-up (mining).');
-      MS('WP9','M9.1',28,'NMT','Pilot launch approved.');
-      MS('WP9','M9.2',34,'NMT','Controlled deployment completed.');
-      MS('WP9','M9.3',42,'NMT','Scale-Up toolkit validated.');
-
-      // WP10
-      T('WP10','10.1 Needs confirmation & use-case finalisation',6,10,'IDL','Finalize F&B use cases; journey maps & inclusiveness.');
-      T('WP10','10.2 Deployment of human-centric digital solutions',13,28,'IDL','DT integrates sensors/params; NL queries for cuts.');
-      T('WP10','10.3 Testing & validation in real distillation tasks',19,32,'IDL','Live production tests; cognitive load & decision accuracy.');
-      D('WP10','D10.1',10,'IDL','F&B use case & KPI pack.'); D('WP10','D10.2',33,'IDL','Deployment & test report.');
-      MS('WP10','M10.1',8,'IDL','Use case & KPIs finalised.'); MS('WP10','M10.2',31,'IDL','Demonstrator deployed & tested.');
-
-      // WP11
-      T('WP11','11.1 Pilot roll-out planning & governance',25,28,'IDL','Pilot plan: training, change management, data governance.');
-      T('WP11','11.2 Staged pilot execution (shadow→assisted→controlled)',28,34,'IDL','Phased rollout with coaching & feedback.');
-      T('WP11','11.3 Impact measurement & stakeholder evaluation',28,40,'KTH','Cognitive load, inclusiveness, productivity gains.');
-      T('WP11','11.4 Consolidation & F&B scale-up playbook',36,42,'IDL','Playbook for replication.');
-      D('WP11','D11.1',28,'IDL','Pilot roll-out plan (F&B).'); D('WP11','D11.3',42,'IDL','Final impact & scale-up (F&B).');
-      MS('WP11','M11.1',28,'IDL','Pilot launched.'); MS('WP11','M11.2',34,'IDL','Controlled deployment completed.'); MS('WP11','M11.3',42,'IDL','Playbook endorsed.');
-
-      // WP12–14
-      T('WP12','12.1 Coordination, management, reporting & committees',1,18,'KTH','Project governance (RP1).');
-      T('WP12','12.2 Data management',1,18,'KTH','DMP & FAIR data support.');
-      T('WP12','12.3 Risk management',1,18,'KTH','Risk registry & reviews.');
-      T('WP12','12.4 Quality management',1,18,'KTH','QAP for deliverables/reports.');
-      D('WP12','D12.1',3,'KTH','Project management plan.');
-      D('WP12','D12.2',18,'KTH','Management plan update.');
-      D('WP12','D12.3',6,'KTH','Data management plan.');
-      D('WP12','D12.4',18,'KTH','DMP update at RP1.');
-      T('WP13','13.1 Continuation of WP12 tasks in RP2',19,36,'KTH','Coordination, DMP, risk & quality in RP2.');
-      D('WP13','D13.1',36,'KTH','Project management plan (RP2).'); D('WP13','D13.2',36,'KTH','DMP update (RP2).');
-      T('WP14','14.1 Continuation of WP12/13 tasks in RP3',37,48,'KTH','Coordination, DMP, risk & quality in RP3.');
-      D('WP14','D14.1',48,'KTH','Project management plan (RP3).'); D('WP14','D14.2',48,'KTH','DMP update (RP3).');
-
-      data.addRows(rows);
-
-      const options = {
-        backgroundColor:'#ffffff',
-        timeline:{colorByRowLabel:false, barLabelStyle:{fontSize:12}, rowLabelStyle:{fontSize:12}},
-        avoidOverlappingGridLines:false,
-        height:1950,
-        tooltip:{isHtml:true}
-      };
-
-      chart.draw(data, options);
-
-      // selection → details panel
-      google.visualization.events.addListener(chart,'select',function(){
-        const sel = chart.getSelection();
-        const box = document.getElementById('details');
-        if(!sel.length){ box.innerHTML = '<span class="muted">Click a bar/marker to see details.</span>'; return; }
-        const r = sel[0].row;
-        const wp = data.getValue(r,0), item = data.getValue(r,1);
-        const rec = registry[`${wp}|${item}`];
-        if(!rec){ box.innerHTML = '<span class="muted">No details.</span>'; return; }
-        const startTxt = rec.start ? fmt(rec.start) : '';
-        const endTxt   = rec.end   ? fmt(rec.end)   : '';
-        box.innerHTML = `
-          <h3>${rec.label} — <span class="muted">${rec.type}</span></h3>
-          <div class="meta">
-            <span><strong>WP:</strong> ${rec.wp}</span>
-            <span><strong>Lead:</strong> ${rec.lead}</span>
-            <span><strong>${rec.type==='Task'?'Start':'Due'}:</strong> ${startTxt}</span>
-            <span><strong>${rec.type==='Task'?'End':''}</strong> ${rec.type==='Task'? endTxt : ''}</span>
-          </div>
-          <p>${rec.desc||''}</p>`;
-      });
+    :root{
+      --bg:#0b0c10; --card:#11131a; --muted:#8a8f98; --grid:#1c2030; --accent:#6ee7ff;
+      --ship:#60a5fa; --mine:#f59e0b; --fnb:#34d399; --core:#a78bfa; --mgmt:#f472b6; --impact:#22d3ee;
     }
-  </script>
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;background:var(--bg);color:#e5e7eb}
+    header{padding:18px 22px;background:linear-gradient(180deg,#0b0c10 0%, #0f1117 100%);position:sticky;top:0;z-index:5;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+    h1{margin:0;font-size:22px;letter-spacing:0.3px}
+    .sub{font-size:12px;color:var(--muted);margin-top:6px}
+    .wrap{display:grid;grid-template-columns:320px 1fr;gap:14px;padding:14px}
+    .panel{background:var(--card);border:1px solid #1e2233;border-radius:16px;padding:12px}
+    .controls{display:grid;gap:10px}
+    .controls h3{margin:6px 0 2px;font-size:13px;color:#cbd5e1;text-transform:uppercase;letter-spacing:.12em}
+    label{font-size:13px;color:#cbd5e1}
+    input[type="text"], select{width:100%;background:#0f1220;border:1px solid #1f2539;border-radius:10px;color:#e5e7eb;padding:8px 10px}
+    .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+    .pill{display:flex;align-items:center;gap:6px;border:1px solid #1e2337;background:#0f1220;padding:6px 9px;border-radius:999px;font-size:12px;color:#cbd5e1}
+    .dot{width:10px;height:10px;border-radius:50%}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #273047;background:#0d1123;color:#d1d5db;border-radius:10px;font-size:13px;cursor:pointer}
+    .btn:active{transform:translateY(1px)}
+    .btn + .btn{margin-left:8px}
+    .sep{height:1px;background:#1f2334;margin:10px 0}
+    .chart-card{padding:0;overflow:hidden}
+    .chart-toolbar{display:flex;gap:8px;align-items:center;padding:10px;border-bottom:1px solid #1d2131;background:#0f1220}
+    .chart{position:relative; overflow-x:auto; overflow-y:hidden; min-height:460px}
+    .axis text{fill:#cbd5e1;font-size:11px}
+    .axis line, .axis path{stroke:#2a3147}
+    .grid line{stroke:#1b2135}
+    .bar{rx:6; ry:6;}
+    .bar.wphover{filter:drop-shadow(0 0 12px rgba(110,231,255,.35))}
+    .task{opacity:1}
+    .milestone{stroke:#eab308;stroke-width:2.2;opacity:.9}
+    .ms-label{font-size:10px;fill:#eab308}
+    .deliverable{stroke:#93c5fd;stroke-width:1.4;fill:#0b1220}
+    .dl-label{font-size:10px;fill:#93c5fd}
+    .wpLabel{font-size:12px;fill:#e5e7eb}
+    .rowline{stroke:#151a2a;opacity:.8}
+    .tooltip{position:absolute;pointer-events:none;background:#0b0f1d;border:1px solid #253053;padding:10px 12px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.35);font-size:12px;max-width:340px}
+    .tooltip .t1{font-weight:600;color:#e5e7eb;margin-bottom:4px}
+    .tooltip .t2{color:#b9c1d6}
+    .footer{padding:12px 16px;color:#94a3b8;font-size:12px}
+    .toggle{display:flex;gap:10px;flex-wrap:wrap}
+    .toggle label{display:flex;gap:8px;align-items:center;background:#0e1326;border:1px solid #26314b;padding:6px 10px;border-radius:10px}
+  </style>
 </head>
 <body>
-  <h2>Gantt — grouped by WP (tasks first, then related deliverables & milestones)</h2>
+  <header>
+    <h1>AUGMENT — Interactive 48‑Month Gantt</h1>
+    <div class="sub">WPs, tasks, deliverables & project‑level milestones • Timeline: M1–M48 • Hover for details • Filter & search</div>
+  </header>
 
-  <div class="legend">
-    
+  <div class="wrap">
+    <aside class="panel controls">
+      <div>
+        <h3>Search</h3>
+        <input id="searchInput" type="text" placeholder="Find WP/task/deliverable… (e.g., Shipbuilding, D6.2)" />
+      </div>
+
+      <div>
+        <h3>Filters</h3>
+        <label>
+          Partner
+          <select id="partnerFilter">
+            <option value="">All partners</option>
+          </select>
+        </label>
+        <div class="toggle" style="margin-top:8px">
+          <label><input type="checkbox" id="toggleTasks" checked /> Show tasks</label>
+          <label><input type="checkbox" id="toggleDeliverables" checked /> Show deliverables</label>
+          <label><input type="checkbox" id="toggleMilestones" checked /> Show milestones</label>
+          <label><input type="checkbox" id="toggleShortLabels" /> Short labels</label>
+        </div>
+      </div>
+
+      <div>
+        <h3>Legend</h3>
+        <div class="legend">
+          <div class="pill"><span class="dot" style="background:var(--core)"></span> Core R&D (WP1–5)</div>
+          <div class="pill"><span class="dot" style="background:var(--ship)"></span> Shipbuilding (WP6–7)</div>
+          <div class="pill"><span class="dot" style="background:var(--mine)"></span> Mining (WP8–9)</div>
+          <div class="pill"><span class="dot" style="background:var(--fnb)"></span> F&B (WP10–11)</div>
+          <div class="pill"><span class="dot" style="background:var(--mgmt)"></span> Coordination (WP12–14)</div>
+          <div class="pill"><span class="dot" style="background:var(--impact)"></span> Impact & DEC (WP15–17)</div>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+      <div>
+        <button class="btn" id="expandAll">Expand all tasks</button>
+        <button class="btn" id="collapseAll">Collapse all tasks</button>
+      </div>
+      <div>
+        <label>
+          Zoom (px per month)
+          <input id="zoomRange" type="range" min="12" max="36" value="22" />
+        </label>
+      </div>
+    </aside>
+
+    <section class="panel chart-card">
+      <div class="chart-toolbar">
+        <div class="pill" title="Project duration"><b>Duration:</b>&nbsp;M1–M48</div>
+        <div class="pill" id="statusCount">0 items</div>
+      </div>
+      <div id="chart" class="chart"></div>
+      <div class="footer">Tip: Click a WP name to expand/collapse tasks. Hover any bar, diamond, or vertical line for details. Use search to highlight matches. Toggle “Short labels” if names overflow.</div>
+    </section>
   </div>
 
-  <div id="gantt"></div>
-  <div id="details"><span class="muted">Click a bar/marker to see details.</span></div>
+<script>
+// -------------------- Data --------------------
+const partners = [
+  {id:1, name:"KTH Royal Institute of Technology", short:"KTH"},
+  {id:2, name:"Sungkyunkwan University", short:"SKKU"},
+  {id:3, name:"Advanced Institutes of Convergence Technologies", short:"AICT"},
+  {id:4, name:"Seoul National University", short:"SNU"},
+  {id:5, name:"University of Porto", short:"UoP"},
+  {id:6, name:"University of Helsinki", short:"UH"},
+  {id:7, name:"Irish Distillers", short:"IDL"},
+  {id:8, name:"Normet", short:"NMT"},
+  {id:9, name:"HD Korea Shipbuilding & Offshore Engineering", short:"HDKSOE"},
+  {id:10, name:"Crowd Helix", short:"CHX"},
+];
+
+const wpList = [
+  {no:1,  title:"Human-Centric Design and Intersectional Integration", leadNo:5, lead:"UoP", pm:59.1, start:2, end:48},
+  {no:2,  title:"Advanced Perception, Reasoning, and Control", leadNo:6, lead:"UH", pm:115.0, start:6, end:46},
+  {no:3,  title:"Standardisation and Interoperability Framework", leadNo:2, lead:"SKKU", pm:131.0, start:1, end:48},
+  {no:4,  title:"DT Methodologies for Assessing Augmentation", leadNo:1, lead:"KTH", pm:89.2, start:1, end:46},
+  {no:5,  title:"Cross-Demonstrator Use Case Definition & Baselines", leadNo:1, lead:"KTH", pm:25.7, start:1, end:10},
+  {no:6,  title:"Shipbuilding Demonstrator: Deployment and Testing", leadNo:9, lead:"HDKSOE", pm:36.7, start:6, end:32},
+  {no:7,  title:"Shipbuilding Demonstrator: Pilot Roll-Out, Impact & Scale-Up", leadNo:9, lead:"HDKSOE", pm:23.0, start:25, end:46},
+  {no:8,  title:"Mining Demonstrator: Deployment and Testing", leadNo:8, lead:"NMT", pm:26.9, start:6, end:32},
+  {no:9,  title:"Mining Demonstrator: Pilot Roll-Out, Impact & Scale-Up", leadNo:8, lead:"NMT", pm:21.0, start:25, end:46},
+  {no:10, title:"Food & Beverage Demonstrator: Deployment and Testing", leadNo:7, lead:"IDL", pm:26.9, start:6, end:32},
+  {no:11, title:"Food & Beverage Demonstrator: Pilot Roll-Out, Impact & Scale-Up", leadNo:7, lead:"IDL", pm:20.0, start:25, end:46},
+  {no:12, title:"Project Coordination (RP1)", leadNo:1, lead:"KTH", pm:12.3, start:1, end:18},
+  {no:13, title:"Project Coordination (RP2)", leadNo:1, lead:"KTH", pm:12.3, start:19, end:36},
+  {no:14, title:"Project Coordination (RP3)", leadNo:1, lead:"KTH", pm:8.9,  start:37, end:48},
+  {no:15, title:"Impact, Exploitation, and Dissemination (RP1)", leadNo:10, lead:"CHX", pm:31.5, start:1, end:18},
+  {no:16, title:"Impact, Exploitation, and Dissemination (RP2)", leadNo:10, lead:"CHX", pm:31.5, start:19, end:36},
+  {no:17, title:"Impact, Exploitation, and Dissemination (RP3)", leadNo:10, lead:"CHX", pm:23.6, start:37, end:48},
+];
+
+const tasks = [
+  {wp:1, no:"1.1", name:"Literature review on I5.0 implementation roadmaps", start:2, end:9, lead:"UoP"},
+  {wp:1, no:"1.2", name:"Human-centric requirements & tools for augmentation design", start:3, end:12, lead:"UoP"},
+  {wp:1, no:"1.3", name:"Hands-on training for work-centred design", start:9, end:26, lead:"UoP"},
+  {wp:1, no:"1.4", name:"Voice 5.0 – Assessment of augmentation technologies", start:27, end:48, lead:"UoP"},
+  {wp:1, no:"1.5", name:"Multi-level Training Framework for Reskilling/Upskilling", start:26, end:48, lead:"UoP"},
+
+  {wp:2, no:"2.1", name:"Identify requirements for integrating AI agents & PRC tech", start:6, end:24, lead:"UH"},
+  {wp:2, no:"2.2", name:"Define interoperability & data exchange for AI agents", start:12, end:24, lead:"UH"},
+  {wp:2, no:"2.3", name:"Develop guidelines & design principles for adaptive AI agents", start:12, end:30, lead:"UH"},
+  {wp:2, no:"2.4", name:"Evaluate acceptance of AI agent augmentation", start:18, end:46, lead:"UH"},
+  {wp:2, no:"2.5", name:"Assess ethical, privacy & policy implications of AI agents", start:18, end:46, lead:"UH"},
+
+  {wp:3, no:"3.1", name:"Specification of Data Standards for Federated AI & DTs", start:1, end:36, lead:"SKKU"},
+  {wp:3, no:"3.2", name:"Interoperability Specification for DTs", start:19, end:42, lead:"SKKU"},
+  {wp:3, no:"3.3", name:"Interoperability Specification for AI Models", start:19, end:42, lead:"AICT"},
+  {wp:3, no:"3.4", name:"Validation Pipelines & Interoperability Benchmarks", start:25, end:48, lead:"AICT"},
+
+  {wp:4, no:"4.1", name:"Defining current state of DT methodologies & standards", start:1, end:18, lead:"KTH"},
+  {wp:4, no:"4.2", name:"Co-designing DT-based methodology for acceptance", start:6, end:24, lead:"KTH"},
+  {wp:4, no:"4.3", name:"Implementing DT-based methodologies in lifecycle of tasks", start:18, end:46, lead:"KTH"},
+  {wp:4, no:"4.4", name:"Verifying & validating DT implementation results", start:36, end:46, lead:"KTH"},
+
+  {wp:5, no:"5.1", name:"Co-design industiral demonstrators", start:1, end:6, lead:"KTH"},
+  {wp:5, no:"5.2", name:"Shipbuilding use cases & baselines", start:2, end:10, lead:"HDKSOE"},
+  {wp:5, no:"5.3", name:"Mining use cases & baselines", start:2, end:10, lead:"NMT"},
+  {wp:5, no:"5.4", name:"Food & beverage use cases & baselines", start:2, end:10, lead:"IDL"},
+
+  {wp:6, no:"6.1", name:"Needs confirmation & use-case finalisation", start:6, end:12, lead:"HDKSOE"},
+  {wp:6, no:"6.2", name:"Deployment of human-centric digital solutions", start:13, end:32, lead:"HDKSOE"},
+  {wp:6, no:"6.3", name:"Testing & validation in real tasks", start:19, end:32, lead:"HDKSOE"},
+
+  {wp:7, no:"7.1", name:"Pilot roll-out planning & governance", start:25, end:28, lead:"HDKSOE"},
+  {wp:7, no:"7.2", name:"Impact measurement & stakeholder evaluation", start:28, end:40, lead:"SNU"},
+  {wp:7, no:"7.3", name:"Consolidation & scale-up plan", start:36, end:46, lead:"HDKSOE"},
+
+  {wp:8, no:"8.1", name:"Needs confirmation & use-case finalisation", start:6, end:12, lead:"NMT"},
+  {wp:8, no:"8.2", name:"Deployment of digital solutions", start:13, end:32, lead:"NMT"},
+  {wp:8, no:"8.3", name:"Testing & validation in real tasks", start:19, end:32, lead:"NMT"},
+
+  {wp:9, no:"9.1", name:"Pilot roll-out planning & governance", start:25, end:28, lead:"NMT"},
+  {wp:9, no:"9.2", name:"Impact measurement & stakeholder evaluation", start:28, end:40, lead:"KTH"},
+  {wp:9, no:"9.3", name:"Consolidation & mining scale-up toolkit", start:36, end:46, lead:"NMT"},
+
+  {wp:10, no:"10.1", name:"Needs confirmation & use-case finalisation", start:6, end:12, lead:"IDL"},
+  {wp:10, no:"10.2", name:"Deployment of human-centric digital solutions", start:13, end:32, lead:"IDL"},
+  {wp:10, no:"10.3", name:"Testing & validation in real distillation tasks", start:19, end:32, lead:"IDL"},
+
+  {wp:11, no:"11.1", name:"Pilot roll-out planning & governance", start:25, end:28, lead:"IDL"},
+  {wp:11, no:"11.2", name:"Impact measurement & stakeholder evaluation", start:28, end:40, lead:"KTH"},
+  {wp:11, no:"11.3", name:"Consolidation & F&B scale-up playbook", start:36, end:46, lead:"IDL"},
+
+  {wp:12, no:"12.1", name:"Coordination, management, reporting & committees", start:1, end:18, lead:"KTH"},
+  {wp:12, no:"12.2", name:"Data management", start:1, end:18, lead:"KTH"},
+  {wp:12, no:"12.3", name:"Risk management", start:1, end:18, lead:"KTH"},
+  {wp:12, no:"12.4", name:"Quality management", start:1, end:18, lead:"KTH"},
+
+  {wp:13, no:"13.1", name:"Continuation of WP12 tasks in RP2", start:19, end:36, lead:"KTH"},
+  {wp:14, no:"14.1", name:"Continuation of WP12/13 tasks in RP3", start:37, end:48, lead:"KTH"},
+
+  {wp:15, no:"15.1", name:"DEC Planning and Management", start:1, end:18, lead:"CHX"},
+  {wp:15, no:"15.2", name:"Communication and branding", start:1, end:18, lead:"CHX"},
+  {wp:15, no:"15.3", name:"Exploitation baselining", start:1, end:18, lead:"CHX"},
+  {wp:15, no:"15.4", name:"Clustering & policy engagement", start:1, end:18, lead:"CHX"},
+
+  {wp:16, no:"16.1", name:"DEC Governance and Management", start:19, end:36, lead:"CHX"},
+  {wp:16, no:"16.2", name:"Communication campaigns", start:19, end:36, lead:"CHX"},
+  {wp:16, no:"16.3", name:"Dissemination of interim results", start:19, end:36, lead:"CHX"},
+  {wp:16, no:"16.4", name:"Exploitation strategies", start:19, end:36, lead:"CHX"},
+  {wp:16, no:"16.5", name:"Policy and standardisation engagement", start:19, end:36, lead:"CHX"},
+
+  {wp:17, no:"17.1", name:"DEC Governance and Management", start:37, end:48, lead:"CHX"},
+  {wp:17, no:"17.2", name:"High-profile communication campaign", start:37, end:48, lead:"CHX"},
+  {wp:17, no:"17.3", name:"Dissemination consolidation", start:37, end:48, lead:"CHX"},
+  {wp:17, no:"17.4", name:"Exploitation & sustainability", start:37, end:48, lead:"CHX"},
+  {wp:17, no:"17.5", name:"Policy & standardisation consolidation", start:37, end:48, lead:"CHX"},
+];
+
+const deliverables = [
+  ["D1.1","Fieldwork Methodological Roadmap",1,"UoP","R","SEN",12],
+  ["D1.2","Multi-level Framework for I5.0 skills",1,"UoP","R","PU",42],
+  ["D2.1","Guidelines for Adaptive AI Agents",2,"UH","R","PU",30],
+  ["D2.2","Integrated AI Agent Models",2,"UH","Model","PU",46],
+  ["D3.1","Data Taxonomy & Schema",3,"SKKU","R","PU",18],
+  ["D3.2","Scenario Specification & Mapping",3,"SKKU","R","PU",36],
+  ["D3.4","KPI & Interoperability Report",3,"SKKU","R/DATA","PU",45],
+  ["D4.1","DT-based Assessment Methodology",4,"KTH","R","PU",24],
+  ["D4.2","Evaluation of DT Assessment",4,"KTH","R","PU",46],
+  ["D5.1","Consolidated Use Case & KPI Pack",5,"KTH","R","PU",10],
+  ["D6.1","Shipbuilding use case & KPI pack",6,"HDKSOE","R","SEN",12],
+  ["D6.2","Shipbuilding deployment report",6,"HDKSOE","DEM","PU",33],
+  ["D7.1","Pilot Roll-Out Plan (Shipbuilding)",7,"HDKSOE","R","SEN",28],
+  ["D7.3","Final Impact & Scale-Up (Shipbuilding)",7,"SNU","R","PU",46],
+  ["D8.1","Mining use case & KPI pack",8,"NMT","R","SEN",12],
+  ["D8.2","Mining deployment report",8,"NMT","DEM","PU",33],
+  ["D9.1","Pilot Roll-Out Plan (Mining)",9,"NMT","R","SEN",28],
+  ["D9.3","Final Impact & Scale-Up (Mining)",9,"NMT","R","PU",46],
+  ["D10.1","F&B use case & KPI pack",10,"IDL","R","SEN",12],
+  ["D10.2","F&B deployment report",10,"IDL","DEM","PU",33],
+  ["D11.1","Pilot Roll-Out Plan (F&B)",11,"IDL","R","SEN",28],
+  ["D11.3","Final Impact & Scale-Up (F&B)",11,"IDL","R","PU",46],
+  ["D12.1","Project management plan",12,"KTH","R","SEN",3],
+  ["D12.2","Project management plan (update)",12,"KTH","R","SEN",18],
+  ["D12.3","Data management plan",12,"KTH","DMP","SEN",6],
+  ["D12.4","Data management plan (update)",12,"KTH","DMP","SEN",18],
+  ["D13.1","Project management plan (RP2)",13,"KTH","R","SEN",36],
+  ["D13.2","Data management plan (RP2)",13,"KTH","DMP","SEN",36],
+  ["D14.1","Project management plan (RP3)",14,"KTH","R","SEN",48],
+  ["D14.2","Data management plan (RP3)",14,"KTH","DMP","SEN",48],
+  ["D15.1","DEC Plan",15,"CHX","R","PU",3],
+  ["D15.2","Website and Communication Kit",15,"CHX","DEC","PU",3],
+  ["D15.3","Initial Portfolio of Exploitation Plans",15,"CHX","R","SEN",12],
+  ["D16.1","Updated DEC Plan",16,"CHX","R","SEN",21],
+  ["D16.2","Interim Exploitation Portfolio",16,"KTH","R","SEN",24],
+  ["D16.3","First Policy Brief Package",16,"CHX/KTH","R","PU",30],
+  ["D17.1","Final DEC Report",17,"CHX","R","PU",42],
+  ["D17.2","Final Exploitation Portfolio & Business Cases",17,"KTH","R","SEN",45],
+  ["D17.3","Sustainability Strategy",17,"CHX","R","PU",48],
+  ["D17.4","Final Policy Briefs and Recommendations",17,"CHX/KTH","R","PU",48],
+].map(d=>({id:d[0], name:d[1], wp:d[2], lead:d[3], type:d[4], level:d[5], month:d[6]}));
+
+const projectMilestones = [
+  {id:"MS1",  name:"Communication channels and DEC plan", wps:[15], month:3},
+  {id:"MS2",  name:"Systematic review protocol validated and shared", wps:[1], month:9},
+  {id:"MS3",  name:"Use case and KPIs finalised", wps:[5,6,8,10], month:12},
+  {id:"MS4",  name:"Data taxonomy and standard schema finalised", wps:[3], month:18},
+  {id:"MS5",  name:"AI agents guideline and DT methodology ready", wps:[2,4], month:24},
+  {id:"MS6",  name:"Exploitation roadmaps", wps:[16], month:30},
+  {id:"MS7",  name:"Digital solutions deployed and tested", wps:[6,8,10], month:32},
+  {id:"MS8",  name:"Augmentation implemented & assessed (Voice 5.0)", wps:[1,7,9,11], month:40},
+  {id:"MS9",  name:"Validated scientific development results", wps:[2,3,4], month:42},
+  {id:"MS10", name:"Scale-up playbook/toolkit validated", wps:[7,9,11], month:46},
+  {id:"MS11", name:"Scientific dissemination of project results", wps:[1,2,3,4,15,16,17], month:46},
+  {id:"MS12", name:"Final exploitation portfolios and impact package", wps:[17], month:46},
+];
+
+// -------------------- Helpers --------------------
+const wpColor = (no)=>{
+  if (no<=5) return getCss('--core');
+  if (no<=7) return getCss('--ship');
+  if (no<=9) return getCss('--mine');
+  if (no<=11) return getCss('--fnb');
+  if (no<=14) return getCss('--mgmt');
+  return getCss('--impact');
+};
+function getCss(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+
+(function buildPartnerFilter(){
+  const sel=document.getElementById('partnerFilter');
+  partners.forEach(p=>{const o=document.createElement('option');o.value=p.short;o.textContent=p.short+" — "+p.name; sel.appendChild(o)});
+})();
+
+// Track expanded WPs
+const expanded = new Set();
+
+// -------------------- Chart rendering --------------------
+const margin = {top:36,right:30,bottom:26,left:360};
+let pxPerMonth = +document.getElementById('zoomRange').value; // slider value
+const chartEl = document.getElementById('chart');
+const tooltip = d3.select('body').append('div').attr('class','tooltip').style('opacity',0);
+
+function render(){
+  chartEl.innerHTML='';
+  const months = 48;
+  const innerW = pxPerMonth*months;
+
+  // Build rows (respect task toggle & short labels)
+  const rows = [];
+  const showTasks = document.getElementById('toggleTasks').checked;
+  const short = document.getElementById('toggleShortLabels').checked;
+  wpList.forEach(wp=>{
+    const base = wpColor(wp.no);
+    const wpLabel = short ? `WP${wp.no}` : `WP${wp.no} — ${wp.title}`;
+    rows.push({type:'wp', key:'WP'+wp.no, wp, label: wpLabel, start:wp.start, end:wp.end, color: base});
+    if (showTasks && expanded.has(wp.no)){
+      tasks.filter(t=>t.wp===wp.no).forEach(t=>{
+        const taskColor = d3.color(base).brighter(0.8).formatHex();
+        const tLabel = short ? `Task ${t.no}` : `${t.no} ${t.name} (${t.lead})`;
+        rows.push({type:'task', key:`WP${wp.no}-${t.no}`, wp, task:t, label: tLabel, start:t.start, end:t.end, color: taskColor, stroke: base, strokeWidth: 0.6});
+      });
+    }
+  });
+
+  const rowH = 26;
+  const rowGap = 10;
+  const innerH = rows.length*(rowH+rowGap)+20;
+
+  const svg = d3.select('#chart').append('svg')
+    .attr('width', innerW + margin.left + margin.right)
+    .attr('height', innerH + margin.top + margin.bottom)
+    .style('display','block');
+
+  const g = svg.append('g').attr('transform',`translate(${margin.left},${margin.top})`);
+
+  const x = d3.scaleLinear().domain([1,49]).range([0, innerW]); // end exclusive
+
+  // Axis & grid
+  const xAxis = d3.axisTop(x).tickValues(d3.range(1,49,1)).tickFormat(d=>`M${d}`);
+  g.append('g').attr('class','axis').call(xAxis);
+  g.append('g').attr('class','grid').call(d3.axisTop(x).tickValues(d3.range(1,49,1)).tickSize(-innerH).tickFormat(''));
+
+  // Rows
+  const rowG = g.append('g');
+  rows.forEach((r,i)=>{
+    const y = i*(rowH+rowGap)+8;
+    rowG.append('line').attr('x1',0).attr('x2',innerW).attr('y1',y+rowH+4).attr('y2',y+rowH+4).attr('class','rowline');
+
+    rowG.append('text').attr('x', -12).attr('y', y+rowH*0.72)
+      .attr('class','wpLabel').attr('text-anchor','end').style('cursor', r.type==='wp' ? 'pointer' : 'default')
+      .text(r.type==='wp' ? r.label : `↳ ${r.label}`)
+      .on('click', () => { if(r.type==='wp'){ toggleExpand(r.wp.no); } });
+
+    const bw = x(r.end+1)-x(r.start);
+    rowG.append('rect')
+      .attr('x', x(r.start))
+      .attr('y', y)
+      .attr('width', Math.max(2,bw))
+      .attr('height', rowH)
+      .attr('rx', 6).attr('ry',6)
+      .attr('class', r.type==='task' ? 'bar task' : 'bar')
+      .attr('fill', r.color)
+      .attr('stroke', r.stroke || 'none')
+      .attr('stroke-width', r.strokeWidth || 0)
+      .on('mousemove', (ev)=> showTip(ev, r))
+      .on('mouseleave', hideTip)
+      .on('mouseenter', function(){ d3.select(this).classed('wphover', true) })
+      .on('mouseout', function(){ d3.select(this).classed('wphover', false) });
+  });
+
+  // Deliverables
+  if (document.getElementById('toggleDeliverables').checked){
+    const dlG = g.append('g');
+    deliverables.forEach(d => {
+      const rowIndex = rows.findIndex(r => r.type==='wp' && r.wp.no===d.wp);
+      if (rowIndex<0) return;
+      const y = rowIndex*(rowH+rowGap)+8 + rowH*0.5;
+      const cx = x(d.month+0.5);
+      const size = 7;
+      const pts = [ [cx, y-size], [cx+size, y], [cx, y+size], [cx-size, y] ].map(p=>p.join(',')).join(' ');
+      dlG.append('polygon').attr('points', pts)
+        .attr('class','deliverable')
+        .on('mousemove', (ev)=> showTip(ev, {type:'deliverable', d}))
+        .on('mouseleave', hideTip);
+    });
+  }
+
+  // Milestones
+  if (document.getElementById('toggleMilestones').checked){
+    const msG = g.append('g');
+    projectMilestones.forEach(ms => {
+      const xm = x(ms.month);
+      msG.append('line').attr('x1', xm).attr('x2', xm).attr('y1', 0).attr('y2', innerH).attr('class','milestone')
+        .on('mousemove', (ev)=> showTip(ev, {type:'milestone', ms}))
+        .on('mouseleave', hideTip);
+      msG.append('text').attr('x', xm+4).attr('y', -10).attr('class', 'ms-label').text(ms.id);
+    });
+  }
+
+  // Counters
+  const taskCount = rows.filter(r=>r.type==='task').length;
+  document.getElementById('statusCount').innerHTML = `${rows.filter(r=>r.type==='wp').length} WPs • ${taskCount} tasks visible`;
+
+  // Search highlight
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  if (q){
+    const matches = [];
+    rows.forEach((r,i)=>{ if (r.label.toLowerCase().includes(q)) matches.push({i}); });
+    const hl = g.append('g');
+    matches.forEach(({i})=>{
+      const y = i*(rowH+rowGap)+8;
+      hl.append('rect').attr('x',-margin.left+8).attr('y',y-2).attr('width', innerW+margin.left-6).attr('height', rowH+4).attr('fill','none').attr('stroke',getCss('--accent')).attr('stroke-width',1.2).attr('opacity',.8).attr('stroke-dasharray','6 4');
+    });
+  }
+}
+
+function toggleExpand(wpNo){ if (expanded.has(wpNo)) expanded.delete(wpNo); else expanded.add(wpNo); render(); }
+
+function showTip(ev, r){
+  let html = '';
+  if (r.type==='wp'){
+    html += `<div class="t1">WP${r.wp.no} — ${r.wp.title}</div>`;
+    const p = partners.find(p=>p.id===r.wp.leadNo);
+    html += `<div class="t2">Lead: ${r.wp.lead} (${p?.name||''}) · PM: ${r.wp.pm} · Span: M${r.wp.start}–M${r.wp.end}</div>`;
+  } else if (r.type==='task'){
+    html += `<div class="t1">WP${r.wp.no} / Task ${r.task.no}</div>`;
+    html += `<div class="t2">${r.task.name}</div>`;
+    html += `<div class="t2">Lead: ${r.task.lead} · Span: M${r.task.start}–M${r.task.end}</div>`;
+  } else if (r.type==='deliverable'){
+    const d = r.d;
+    html += `<div class="t1">${d.id} — ${d.name}</div>`;
+    html += `<div class="t2">WP${d.wp} · Lead: ${d.lead} · Type: ${d.type} · Level: ${d.level} · Due: M${d.month}</div>`;
+  } else if (r.type==='milestone'){
+    html += `<div class="t1">${r.ms.id}</div>`;
+    html += `<div class="t2">${r.ms.name}</div>`;
+    html += `<div class="t2">Month: M${r.ms.month} · Related WPs: ${r.ms.wps.map(w=>`WP${w}`).join(', ')}</div>`;
+  }
+  tooltip.html(html).style('opacity',1).style('left', (ev.pageX+14)+"px").style('top', (ev.pageY+14)+"px");
+}
+function hideTip(){ tooltip.style('opacity',0); }
+
+// Interactions
+
+document.getElementById('partnerFilter').addEventListener('change', (e)=>{
+  const val = e.target.value;
+  expanded.clear();
+  if (val){
+    wpList.forEach(wp=>{
+      const wpLeadMatch = partners.find(p=>p.id===wp.leadNo)?.short===val;
+      const taskMatch = tasks.some(t=>t.wp===wp.no && t.lead===val);
+      if (wpLeadMatch || taskMatch) expanded.add(wp.no);
+    });
+  }
+  render();
+});
+
+document.getElementById('expandAll').addEventListener('click', ()=>{ wpList.forEach(w=>expanded.add(w.no)); render(); });
+
+document.getElementById('collapseAll').addEventListener('click', ()=>{ expanded.clear(); render(); });
+
+document.getElementById('toggleTasks').addEventListener('change', ()=>{ render(); });
+
+document.getElementById('toggleDeliverables').addEventListener('change', render);
+
+document.getElementById('toggleMilestones').addEventListener('change', render);
+
+document.getElementById('toggleShortLabels').addEventListener('change', render);
+
+document.getElementById('zoomRange').addEventListener('input', (e)=>{ pxPerMonth = +e.target.value; render(); });
+
+document.getElementById('searchInput').addEventListener('input', render);
+
+// Initial expand some WPs
+//[1,2,3,4,5,6,8,10].forEach(n=>expanded.add(n));
+render();
+</script>
 </body>
 </html>
