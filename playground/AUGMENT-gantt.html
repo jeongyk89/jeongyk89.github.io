@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AUGMENT — Interactive 48‑Month Gantt (v3)</title>
+  <title>AUGMENT — Interactive 48‑Month Gantt (v4)</title>
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <style>
     :root{
@@ -41,7 +41,6 @@
     .milestone{stroke:#eab308;stroke-width:2.2;opacity:.9}
     .ms-label{font-size:10px;fill:#eab308}
     .deliverable{stroke:#93c5fd;stroke-width:1.4;fill:#0b1220}
-    .dl-label{font-size:10px;fill:#93c5fd}
     .wpLabel{font-size:12px;fill:#e5e7eb}
     .rowline{stroke:#151a2a;opacity:.8}
     .tooltip{position:absolute;pointer-events:none;background:#0b0f1d;border:1px solid #253053;padding:10px 12px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.35);font-size:12px;max-width:340px}
@@ -55,7 +54,7 @@
 <body>
   <header>
     <h1>AUGMENT — Interactive 48‑Month Gantt</h1>
-    <div class="sub">WPs, tasks, deliverables & project‑level milestones • Timeline: M1–M48 • Hover for details • Filter & search</div>
+    <div class="sub">WPs, tasks, deliverables & milestones • Timeline: M1–M48 • Hover for details • Filter & search</div>
   </header>
 
   <div class="wrap">
@@ -77,19 +76,6 @@
           <label><input type="checkbox" id="toggleTasks" checked /> Show tasks</label>
           <label><input type="checkbox" id="toggleDeliverables" checked /> Show deliverables</label>
           <label><input type="checkbox" id="toggleMilestones" checked /> Show milestones</label>
-          <label><input type="checkbox" id="toggleShortLabels" /> Short labels</label>
-        </div>
-      </div>
-
-      <div>
-        <h3>Legend</h3>
-        <div class="legend">
-          <div class="pill"><span class="dot" style="background:var(--core)"></span> Core R&D (WP1–5)</div>
-          <div class="pill"><span class="dot" style="background:var(--ship)"></span> Shipbuilding (WP6–7)</div>
-          <div class="pill"><span class="dot" style="background:var(--mine)"></span> Mining (WP8–9)</div>
-          <div class="pill"><span class="dot" style="background:var(--fnb)"></span> F&B (WP10–11)</div>
-          <div class="pill"><span class="dot" style="background:var(--mgmt)"></span> Coordination (WP12–14)</div>
-          <div class="pill"><span class="dot" style="background:var(--impact)"></span> Impact & DEC (WP15–17)</div>
         </div>
       </div>
 
@@ -112,7 +98,7 @@
         <div class="pill" id="statusCount">0 items</div>
       </div>
       <div id="chart" class="chart"></div>
-      <div class="footer">Tip: Click a WP name to expand/collapse tasks. Hover any bar, diamond, or vertical line for details. Use search to highlight matches. Toggle “Short labels” if names overflow.</div>
+      <div class="footer">Labels are left‑aligned with ellipsis; hover labels for full text. Click a WP to expand/collapse tasks.</div>
     </section>
   </div>
 
@@ -213,20 +199,20 @@ const tasks = [
 
   {wp:15, no:"15.1", name:"DEC Planning and Management", start:1, end:18, lead:"CHX"},
   {wp:15, no:"15.2", name:"Communication and branding", start:1, end:18, lead:"CHX"},
-  {wp:15, no:"15.3", name:"Exploitation baselining", start:1, end:18, lead:"CHX"},
-  {wp:15, no:"15.4", name:"Clustering & policy engagement", start:1, end:18, lead:"CHX"},
+  {wp:15, no:"15.3", name:"Exploitation baselining", start:6, end:18, lead:"CHX"},
+  {wp:15, no:"15.4", name:"Clustering & policy engagement", start:6, end:18, lead:"CHX"},
 
   {wp:16, no:"16.1", name:"DEC Governance and Management", start:19, end:36, lead:"CHX"},
   {wp:16, no:"16.2", name:"Communication campaigns", start:19, end:36, lead:"CHX"},
   {wp:16, no:"16.3", name:"Dissemination of interim results", start:19, end:36, lead:"CHX"},
   {wp:16, no:"16.4", name:"Exploitation strategies", start:19, end:36, lead:"CHX"},
-  {wp:16, no:"16.5", name:"Policy and standardisation engagement", start:19, end:36, lead:"CHX"},
+  {wp:16, no:"16.5", name:"Policy and standardisation engagement", start:24, end:36, lead:"CHX"},
 
   {wp:17, no:"17.1", name:"DEC Governance and Management", start:37, end:48, lead:"CHX"},
-  {wp:17, no:"17.2", name:"High-profile communication campaign", start:37, end:48, lead:"CHX"},
-  {wp:17, no:"17.3", name:"Dissemination consolidation", start:37, end:48, lead:"CHX"},
-  {wp:17, no:"17.4", name:"Exploitation & sustainability", start:37, end:48, lead:"CHX"},
-  {wp:17, no:"17.5", name:"Policy & standardisation consolidation", start:37, end:48, lead:"CHX"},
+  {wp:17, no:"17.2", name:"High-profile communication campaign", start:37, end:46, lead:"CHX"},
+  {wp:17, no:"17.3", name:"Dissemination consolidation", start:40, end:48, lead:"CHX"},
+  {wp:17, no:"17.4", name:"Exploitation & sustainability", start:40, end:48, lead:"CHX"},
+  {wp:17, no:"17.5", name:"Policy & standardisation consolidation", start:40, end:48, lead:"CHX"},
 ];
 
 const deliverables = [
@@ -241,15 +227,15 @@ const deliverables = [
   ["D4.2","Evaluation of DT Assessment",4,"KTH","R","PU",46],
   ["D5.1","Consolidated Use Case & KPI Pack",5,"KTH","R","PU",10],
   ["D6.1","Shipbuilding use case & KPI pack",6,"HDKSOE","R","SEN",12],
-  ["D6.2","Shipbuilding deployment report",6,"HDKSOE","DEM","PU",33],
+  ["D6.2","Shipbuilding deployment report",6,"HDKSOE","DEM","PU",32],
   ["D7.1","Pilot Roll-Out Plan (Shipbuilding)",7,"HDKSOE","R","SEN",28],
   ["D7.3","Final Impact & Scale-Up (Shipbuilding)",7,"SNU","R","PU",46],
   ["D8.1","Mining use case & KPI pack",8,"NMT","R","SEN",12],
-  ["D8.2","Mining deployment report",8,"NMT","DEM","PU",33],
+  ["D8.2","Mining deployment report",8,"NMT","DEM","PU",32],
   ["D9.1","Pilot Roll-Out Plan (Mining)",9,"NMT","R","SEN",28],
   ["D9.3","Final Impact & Scale-Up (Mining)",9,"NMT","R","PU",46],
   ["D10.1","F&B use case & KPI pack",10,"IDL","R","SEN",12],
-  ["D10.2","F&B deployment report",10,"IDL","DEM","PU",33],
+  ["D10.2","F&B deployment report",10,"IDL","DEM","PU",32],
   ["D11.1","Pilot Roll-Out Plan (F&B)",11,"IDL","R","SEN",28],
   ["D11.3","Final Impact & Scale-Up (F&B)",11,"IDL","R","PU",46],
   ["D12.1","Project management plan",12,"KTH","R","SEN",3],
@@ -288,202 +274,147 @@ const projectMilestones = [
 ];
 
 // -------------------- Helpers --------------------
-const wpColor = (no)=>{
-  if (no<=5) return getCss('--core');
-  if (no<=7) return getCss('--ship');
-  if (no<=9) return getCss('--mine');
-  if (no<=11) return getCss('--fnb');
-  if (no<=14) return getCss('--mgmt');
-  return getCss('--impact');
-};
-function getCss(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+const wpColor=no=>{if(no<=5)return getCss('--core');if(no<=7)return getCss('--ship');if(no<=9)return getCss('--mine');if(no<=11)return getCss('--fnb');if(no<=14)return getCss('--mgmt');return getCss('--impact')};
+function getCss(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim()}
+function ellipsize(str,max){if(!str) return ''; return str.length>max? str.slice(0,max-1)+'…':str}
 
-(function buildPartnerFilter(){
-  const sel=document.getElementById('partnerFilter');
-  partners.forEach(p=>{const o=document.createElement('option');o.value=p.short;o.textContent=p.short+" — "+p.name; sel.appendChild(o)});
-})();
+(function buildPartner(){const sel=document.getElementById('partnerFilter');partners.forEach(p=>{const o=document.createElement('option');o.value=p.short;o.textContent=p.short+' — '+p.name;sel.appendChild(o)})})();
 
-// Track expanded WPs
-const expanded = new Set();
+//const expanded=new Set([1,2,3,4,5,6,8,10]);
+const expanded=new Set();
 
-// -------------------- Chart rendering --------------------
-const margin = {top:36,right:30,bottom:26,left:360};
-let pxPerMonth = +document.getElementById('zoomRange').value; // slider value
-const chartEl = document.getElementById('chart');
-const tooltip = d3.select('body').append('div').attr('class','tooltip').style('opacity',0);
+// -------------------- Chart --------------------
+const margin={top:36,right:30,bottom:26,left:360};
+let pxPerMonth=+document.getElementById('zoomRange').value;
+const chartEl=document.getElementById('chart');
+const tooltip=d3.select('body').append('div').attr('class','tooltip').style('opacity',0);
 
 function render(){
   chartEl.innerHTML='';
-  const months = 48;
-  const innerW = pxPerMonth*months;
+  const months=48, innerW=pxPerMonth*months;
 
-  // Build rows (respect task toggle & short labels)
-  const rows = [];
-  const showTasks = document.getElementById('toggleTasks').checked;
-  const short = document.getElementById('toggleShortLabels').checked;
+  const showTasks=document.getElementById('toggleTasks').checked;
+  const rows=[];
   wpList.forEach(wp=>{
-    const base = wpColor(wp.no);
-    const wpLabel = short ? `WP${wp.no}` : `WP${wp.no} — ${wp.title}`;
-    rows.push({type:'wp', key:'WP'+wp.no, wp, label: wpLabel, start:wp.start, end:wp.end, color: base});
-    if (showTasks && expanded.has(wp.no)){
+    const base=wpColor(wp.no);
+    rows.push({type:'wp',key:'WP'+wp.no,wp,label:`WP${wp.no} — ${wp.title}`,start:wp.start,end:wp.end,color:base});
+    if(showTasks && expanded.has(wp.no)){
       tasks.filter(t=>t.wp===wp.no).forEach(t=>{
-        const taskColor = d3.color(base).brighter(0.8).formatHex();
-        const tLabel = short ? `Task ${t.no}` : `${t.no} ${t.name} (${t.lead})`;
-        rows.push({type:'task', key:`WP${wp.no}-${t.no}`, wp, task:t, label: tLabel, start:t.start, end:t.end, color: taskColor, stroke: base, strokeWidth: 0.6});
-      });
+        const taskColor=d3.color(base).brighter(0.85).formatHex();
+        rows.push({type:'task',key:`WP${wp.no}-${t.no}`,wp,task:t,label:`Task ${t.no} — ${t.name} (${t.lead})`,start:t.start,end:t.end,color:taskColor,stroke:base,strokeWidth:0.6});
+      })
     }
   });
 
-  const rowH = 26;
-  const rowGap = 10;
-  const innerH = rows.length*(rowH+rowGap)+20;
-
-  const svg = d3.select('#chart').append('svg')
-    .attr('width', innerW + margin.left + margin.right)
-    .attr('height', innerH + margin.top + margin.bottom)
+  const rowH=26,rowGap=10,innerH=rows.length*(rowH+rowGap)+20;
+  const svg=d3.select('#chart').append('svg')
+    .attr('width',innerW+margin.left+margin.right)
+    .attr('height',innerH+margin.top+margin.bottom)
     .style('display','block');
+  const g=svg.append('g').attr('transform',`translate(${margin.left},${margin.top})`);
+  const x=d3.scaleLinear().domain([1,49]).range([0,innerW]);
 
-  const g = svg.append('g').attr('transform',`translate(${margin.left},${margin.top})`);
+  g.append('g').attr('class','axis').call(d3.axisTop(x).tickValues(d3.range(1,49)).tickFormat(d=>`M${d}`));
+  g.append('g').attr('class','grid').call(d3.axisTop(x).tickValues(d3.range(1,49)).tickSize(-innerH).tickFormat(''));
 
-  const x = d3.scaleLinear().domain([1,49]).range([0, innerW]); // end exclusive
-
-  // Axis & grid
-  const xAxis = d3.axisTop(x).tickValues(d3.range(1,49,1)).tickFormat(d=>`M${d}`);
-  g.append('g').attr('class','axis').call(xAxis);
-  g.append('g').attr('class','grid').call(d3.axisTop(x).tickValues(d3.range(1,49,1)).tickSize(-innerH).tickFormat(''));
-
-  // Rows
-  const rowG = g.append('g');
+  const rowG=g.append('g');
   rows.forEach((r,i)=>{
-    const y = i*(rowH+rowGap)+8;
+    const y=i*(rowH+rowGap)+8;
     rowG.append('line').attr('x1',0).attr('x2',innerW).attr('y1',y+rowH+4).attr('y2',y+rowH+4).attr('class','rowline');
 
-    rowG.append('text').attr('x', -12).attr('y', y+rowH*0.72)
-      .attr('class','wpLabel').attr('text-anchor','end').style('cursor', r.type==='wp' ? 'pointer' : 'default')
-      .text(r.type==='wp' ? r.label : `↳ ${r.label}`)
-      .on('click', () => { if(r.type==='wp'){ toggleExpand(r.wp.no); } });
+    const fullText = r.type==='wp'? r.label : `↳ ${r.label}`;
+    const display = ellipsize(fullText, 44);
+    const t = rowG.append('text')
+      .attr('x', -margin.left + 12) // left aligned start inside label column
+      .attr('y', y+rowH*0.72)
+      .attr('class','wpLabel')
+      .attr('text-anchor','start')
+      .style('cursor', r.type==='wp' ? 'pointer' : 'default')
+      .text(display)
+      .on('click',()=>{ if(r.type==='wp') toggleExpand(r.wp.no); });
+    t.append('title').text(fullText); // native tooltip for full label
 
-    const bw = x(r.end+1)-x(r.start);
+    const bw=x(r.end+1)-x(r.start);
     rowG.append('rect')
-      .attr('x', x(r.start))
-      .attr('y', y)
-      .attr('width', Math.max(2,bw))
-      .attr('height', rowH)
-      .attr('rx', 6).attr('ry',6)
+      .attr('x',x(r.start)).attr('y',y)
+      .attr('width',Math.max(2,bw)).attr('height',rowH)
+      .attr('rx',6).attr('ry',6)
       .attr('class', r.type==='task' ? 'bar task' : 'bar')
-      .attr('fill', r.color)
-      .attr('stroke', r.stroke || 'none')
-      .attr('stroke-width', r.strokeWidth || 0)
-      .on('mousemove', (ev)=> showTip(ev, r))
-      .on('mouseleave', hideTip)
-      .on('mouseenter', function(){ d3.select(this).classed('wphover', true) })
-      .on('mouseout', function(){ d3.select(this).classed('wphover', false) });
+      .attr('fill',r.color).attr('stroke',r.stroke||'none').attr('stroke-width',r.strokeWidth||0)
+      .on('mousemove',(ev)=>showTip(ev,r)).on('mouseleave',hideTip)
+      .on('mouseenter',function(){d3.select(this).classed('wphover',true)})
+      .on('mouseout',function(){d3.select(this).classed('wphover',false)});
   });
 
-  // Deliverables
-  if (document.getElementById('toggleDeliverables').checked){
-    const dlG = g.append('g');
-    deliverables.forEach(d => {
-      const rowIndex = rows.findIndex(r => r.type==='wp' && r.wp.no===d.wp);
-      if (rowIndex<0) return;
-      const y = rowIndex*(rowH+rowGap)+8 + rowH*0.5;
-      const cx = x(d.month+0.5);
-      const size = 7;
-      const pts = [ [cx, y-size], [cx+size, y], [cx, y+size], [cx-size, y] ].map(p=>p.join(',')).join(' ');
-      dlG.append('polygon').attr('points', pts)
-        .attr('class','deliverable')
-        .on('mousemove', (ev)=> showTip(ev, {type:'deliverable', d}))
-        .on('mouseleave', hideTip);
-    });
+  if(document.getElementById('toggleDeliverables').checked){
+    const dlG=g.append('g');
+    deliverables.forEach(d=>{
+      const rowIndex=rows.findIndex(r=>r.type==='wp'&&r.wp.no===d.wp);
+      if(rowIndex<0) return;
+      const y=rowIndex*(rowH+rowGap)+8+rowH*0.5;
+      const cx=x(d.month+0.5); const size=7;
+      const pts=[[cx,y-size],[cx+size,y],[cx,y+size],[cx-size,y]].map(p=>p.join(',')).join(' ');
+      const poly=dlG.append('polygon').attr('points',pts).attr('class','deliverable')
+        .on('mousemove',(ev)=>showTip(ev,{type:'deliverable',d}))
+        .on('mouseleave',hideTip);
+      poly.append('title').text(`${d.id} — ${d.name} (M${d.month})`);
+    })
   }
 
-  // Milestones
-  if (document.getElementById('toggleMilestones').checked){
-    const msG = g.append('g');
-    projectMilestones.forEach(ms => {
-      const xm = x(ms.month);
-      msG.append('line').attr('x1', xm).attr('x2', xm).attr('y1', 0).attr('y2', innerH).attr('class','milestone')
-        .on('mousemove', (ev)=> showTip(ev, {type:'milestone', ms}))
-        .on('mouseleave', hideTip);
-      msG.append('text').attr('x', xm+4).attr('y', -10).attr('class', 'ms-label').text(ms.id);
-    });
+  if(document.getElementById('toggleMilestones').checked){
+    const msG=g.append('g');
+    projectMilestones.forEach(ms=>{
+      const xm=x(ms.month);
+      const line=msG.append('line').attr('x1',xm).attr('x2',xm).attr('y1',0).attr('y2',innerH).attr('class','milestone')
+        .on('mousemove',(ev)=>showTip(ev,{type:'milestone',ms}))
+        .on('mouseleave',hideTip);
+      line.append('title').text(`${ms.id} — M${ms.month}`);
+      msG.append('text').attr('x',xm+4).attr('y',-10).attr('class','ms-label').text(ms.id);
+    })
   }
 
-  // Counters
-  const taskCount = rows.filter(r=>r.type==='task').length;
-  document.getElementById('statusCount').innerHTML = `${rows.filter(r=>r.type==='wp').length} WPs • ${taskCount} tasks visible`;
-
-  // Search highlight
-  const q = document.getElementById('searchInput').value.trim().toLowerCase();
-  if (q){
-    const matches = [];
-    rows.forEach((r,i)=>{ if (r.label.toLowerCase().includes(q)) matches.push({i}); });
-    const hl = g.append('g');
-    matches.forEach(({i})=>{
-      const y = i*(rowH+rowGap)+8;
-      hl.append('rect').attr('x',-margin.left+8).attr('y',y-2).attr('width', innerW+margin.left-6).attr('height', rowH+4).attr('fill','none').attr('stroke',getCss('--accent')).attr('stroke-width',1.2).attr('opacity',.8).attr('stroke-dasharray','6 4');
-    });
-  }
+  document.getElementById('statusCount').innerHTML=`${wpList.length} WPs • ${rows.filter(r=>r.type==='task').length} tasks visible`;
 }
 
-function toggleExpand(wpNo){ if (expanded.has(wpNo)) expanded.delete(wpNo); else expanded.add(wpNo); render(); }
+function toggleExpand(wpNo){ if(expanded.has(wpNo)) expanded.delete(wpNo); else expanded.add(wpNo); render(); }
 
-function showTip(ev, r){
-  let html = '';
-  if (r.type==='wp'){
-    html += `<div class="t1">WP${r.wp.no} — ${r.wp.title}</div>`;
-    const p = partners.find(p=>p.id===r.wp.leadNo);
-    html += `<div class="t2">Lead: ${r.wp.lead} (${p?.name||''}) · PM: ${r.wp.pm} · Span: M${r.wp.start}–M${r.wp.end}</div>`;
-  } else if (r.type==='task'){
-    html += `<div class="t1">WP${r.wp.no} / Task ${r.task.no}</div>`;
-    html += `<div class="t2">${r.task.name}</div>`;
-    html += `<div class="t2">Lead: ${r.task.lead} · Span: M${r.task.start}–M${r.task.end}</div>`;
-  } else if (r.type==='deliverable'){
-    const d = r.d;
-    html += `<div class="t1">${d.id} — ${d.name}</div>`;
-    html += `<div class="t2">WP${d.wp} · Lead: ${d.lead} · Type: ${d.type} · Level: ${d.level} · Due: M${d.month}</div>`;
-  } else if (r.type==='milestone'){
-    html += `<div class="t1">${r.ms.id}</div>`;
-    html += `<div class="t2">${r.ms.name}</div>`;
-    html += `<div class="t2">Month: M${r.ms.month} · Related WPs: ${r.ms.wps.map(w=>`WP${w}`).join(', ')}</div>`;
+function showTip(ev,r){
+  let html='';
+  if(r.type==='wp'){
+    html+=`<div class="t1">WP${r.wp.no} — ${r.wp.title}</div>`;
+    const p=partners.find(p=>p.id===r.wp.leadNo);
+    html+=`<div class="t2">Lead: ${r.wp.lead} (${p?.name||''}) · PM: ${r.wp.pm} · Span: M${r.wp.start}–M${r.wp.end}</div>`;
+  }else if(r.type==='task'){
+    html+=`<div class="t1">WP${r.wp.no} / Task ${r.task.no}</div>`;
+    html+=`<div class="t2">${r.task.name}</div>`;
+    html+=`<div class="t2">Lead: ${r.task.lead} · Span: M${r.task.start}–M${r.task.end}</div>`;
+  }else if(r.type==='deliverable'){
+    const d=r.d; html+=`<div class="t1">${d.id} — ${d.name}</div>`; html+=`<div class="t2">WP${d.wp} · Lead: ${d.lead} · Type: ${d.type} · Level: ${d.level} · Due: M${d.month}</div>`;
+  }else if(r.type==='milestone'){
+    html+=`<div class="t1">${r.ms.id}</div>`; html+=`<div class="t2">${r.ms.name}</div>`; html+=`<div class="t2">Month: M${r.ms.month} · Related WPs: ${r.ms.wps.map(w=>`WP${w}`).join(', ')}</div>`;
   }
-  tooltip.html(html).style('opacity',1).style('left', (ev.pageX+14)+"px").style('top', (ev.pageY+14)+"px");
+  tooltip.html(html).style('opacity',1).style('left',(ev.pageX+14)+"px").style('top',(ev.pageY+14)+"px");
 }
 function hideTip(){ tooltip.style('opacity',0); }
 
-// Interactions
+// UI bindings
 
-document.getElementById('partnerFilter').addEventListener('change', (e)=>{
-  const val = e.target.value;
-  expanded.clear();
-  if (val){
-    wpList.forEach(wp=>{
-      const wpLeadMatch = partners.find(p=>p.id===wp.leadNo)?.short===val;
-      const taskMatch = tasks.some(t=>t.wp===wp.no && t.lead===val);
-      if (wpLeadMatch || taskMatch) expanded.add(wp.no);
-    });
-  }
-  render();
-});
+document.getElementById('partnerFilter').addEventListener('change',e=>{const val=e.target.value;expanded.clear();if(val){wpList.forEach(wp=>{const lead=partners.find(p=>p.id===wp.leadNo)?.short===val;const task=tasks.some(t=>t.wp===wp.no&&t.lead===val);if(lead||task) expanded.add(wp.no);});} render();});
 
-document.getElementById('expandAll').addEventListener('click', ()=>{ wpList.forEach(w=>expanded.add(w.no)); render(); });
+document.getElementById('expandAll').addEventListener('click',()=>{wpList.forEach(w=>expanded.add(w.no));render();});
 
-document.getElementById('collapseAll').addEventListener('click', ()=>{ expanded.clear(); render(); });
+document.getElementById('collapseAll').addEventListener('click',()=>{expanded.clear();render();});
 
-document.getElementById('toggleTasks').addEventListener('change', ()=>{ render(); });
+document.getElementById('toggleTasks').addEventListener('change',()=>render());
 
-document.getElementById('toggleDeliverables').addEventListener('change', render);
+document.getElementById('toggleDeliverables').addEventListener('change',render);
 
-document.getElementById('toggleMilestones').addEventListener('change', render);
+document.getElementById('toggleMilestones').addEventListener('change',render);
 
-document.getElementById('toggleShortLabels').addEventListener('change', render);
+document.getElementById('zoomRange').addEventListener('input',(e)=>{pxPerMonth=+e.target.value;render();});
 
-document.getElementById('zoomRange').addEventListener('input', (e)=>{ pxPerMonth = +e.target.value; render(); });
+document.getElementById('searchInput').addEventListener('input',()=>{render();});
 
-document.getElementById('searchInput').addEventListener('input', render);
-
-// Initial expand some WPs
-//[1,2,3,4,5,6,8,10].forEach(n=>expanded.add(n));
 render();
 </script>
 </body>
