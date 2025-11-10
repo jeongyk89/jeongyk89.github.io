@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pulse Meeting – Contacts & Projects Network (V3)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#121733; --ink:#e7ecff;
+      --person:#6c8bff; --company:#46d3c7; --project:#9a77ff;
+      --prospect:#a0a7ff; --discuss:#ffd36e; --active:#6ee7b7; --hold:#ff6b6b; --done:#b7f0ff;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji","Segoe UI Emoji"; background:radial-gradient(1200px 800px at 80% -10%, #1b2460 0%, var(--bg) 60%); color:var(--ink)}
+    header{padding:20px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px}
+    .brand{font-weight:800; letter-spacing:0.3px; font-size:20px}
+    .wrap{display:grid; grid-template-columns: 420px 1fr; gap:18px; padding:0 20px 20px}
+    @media (max-width: 1100px){.wrap{grid-template-columns:1fr}}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); border:1px solid rgba(255,255,255,0.08); border-radius:16px; box-shadow:0 20px 40px rgba(0,0,0,0.25);}
+    .panel{padding:18px}
+    h2{margin:0 0 10px; font-size:16px; color:#cdd6ff}
+    label{font-size:12px; color:#b9c3ff; display:block; margin:10px 0 6px}
+    input, select{width:100%; background:#0f1530; border:1px solid rgba(255,255,255,0.12); color:var(--ink); padding:10px 12px; border-radius:10px; outline:none}
+    input::placeholder{color:#7f8ad6}
+    .row{display:grid; grid-template-columns:1fr; gap:10px}
+    .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    .btn{cursor:pointer; border:none; padding:10px 12px; border-radius:12px; font-weight:600; color:white; background:linear-gradient(135deg, var(--person), var(--project)); box-shadow:0 8px 20px rgba(108,139,255,0.35);}
+    .btn.secondary{background:#0f1530; border:1px solid rgba(255,255,255,0.14); box-shadow:none; color:#cdd6ff}
+    .btn.danger{background:linear-gradient(135deg, #ff6b6b,#ff8a8a)}
+    .btnbar{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px}
+
+    .list{margin-top:16px; max-height:300px; overflow:auto; padding-right:6px}
+    .item{display:grid; grid-template-columns:1fr; gap:4px; padding:10px; border:1px dashed rgba(255,255,255,0.12); border-radius:12px; margin-bottom:10px; background:rgba(255,255,255,0.02)}
+    .item .meta{font-size:12px; color:#aab3ff}
+    .item .title{font-weight:600}
+    .item .actions{display:flex; gap:8px; margin-top:6px}
+    .status-pill{display:inline-flex; align-items:center; gap:6px; font-size:11px; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,0.12)}
+
+    .viz{position:relative}
+    .legend{display:flex; gap:12px; flex-wrap:wrap; padding:12px 16px; border-top:1px solid rgba(255,255,255,0.08)}
+    .pill{display:inline-flex; align-items:center; gap:8px; font-size:12px; color:#cdd6ff}
+    .dot{width:10px; height:10px; border-radius:99px}
+
+    .tip{position:fixed; pointer-events:none; background:#0f1530; border:1px solid rgba(255,255,255,0.18); padding:8px 10px; border-radius:10px; font-size:12px; color:#e7ecff; box-shadow:0 8px 26px rgba(0,0,0,0.3); opacity:0; transition:opacity 120ms ease}
+
+    .edge-label{font-size:11px; fill:#cfd6ff; paint-order:stroke; stroke:#0b1020; stroke-width:3px;}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">Pulse Meeting — Contacts & Projects Network</div>
+    <div>
+      <button id="exportBtn" class="btn secondary">Export JSON</button>
+      <button id="exportCsvBtn" class="btn secondary">Export CSV</button>
+      <label for="importFile" class="btn secondary" style="cursor:pointer">Import JSON<input id="importFile" type="file" accept="application/json" style="display:none"></label>
+      <label for="importCsv" class="btn secondary" style="cursor:pointer">Import CSV<input id="importCsv" type="file" accept="text/csv,.csv" style="display:none"></label>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <!-- Left: Input & List -->
+    <section class="card panel">
+      <h2>Add / Edit Entry</h2>
+      <div class="row">
+        <label>Member name</label>
+        <input id="member" type="text" placeholder="e.g., Jake" />
+
+        <label>Company / contact person</label>
+        <input id="company" type="text" placeholder="e.g., Scania — Jesper Gans" />
+
+        <label>Project / topic</label>
+        <input id="project" type="text" placeholder="e.g., Matrix production scheduling (battery)" />
+
+        <div class="grid2">
+          <div>
+            <label>Status</label>
+            <select id="status">
+              <option value="prospect">Prospecting</option>
+              <option value="discuss">Discussing</option>
+              <option value="active" selected>Active</option>
+              <option value="hold">On hold</option>
+              <option value="done">Completed</option>
+            </select>
+          </div>
+          <div>
+            <label>Last contact date</label>
+            <input id="lastContact" type="date" />
+          </div>
+        </div>
+      </div>
+      <div class="btnbar">
+        <button id="addBtn" class="btn">Add to network</button>
+        <button id="clearFormBtn" class="btn secondary">Clear form</button>
+      </div>
+
+      <h2 style="margin-top:16px">Filters</h2>
+      <div class="grid2">
+        <input id="search" type="search" placeholder="Search entries..." />
+        <div>
+          <label style="margin:0 0 6px">Updated within (weeks)</label>
+          <input id="weeks" type="number" min="0" step="1" value="0" />
+        </div>
+      </div>
+
+      <div class="list" id="list"></div>
+
+      <div class="btnbar">
+        <button id="clearAllBtn" class="btn danger">Clear ALL data</button>
+      </div>
+      <div class="footer">Data is stored locally in your browser (localStorage). Export regularly if you need a backup.</div>
+    </section>
+
+    <!-- Right: Graph -->
+    <section class="card viz">
+      <div class="panel" style="padding-bottom:0">
+        <h2>Network</h2>
+        <div class="footer">Person ↔ Company; edge labels are projects/topics. Edges colored by most-recent status. Hover nodes or edges for details. Drag to tidy; auto-anti-overlap forces are on.</div>
+      </div>
+      <svg id="graph" width="100%" height="660"></svg>
+      <div class="legend">
+        <span class="pill"><span class="dot" style="background: var(--person)"></span> Person</span>
+        <span class="pill"><span class="dot" style="background: var(--company)"></span> Company / Contact</span>
+        <span class="pill"><span class="dot" style="background: var(--active)"></span> Active</span>
+        <span class="pill"><span class="dot" style="background: var(--discuss)"></span> Discussing</span>
+        <span class="pill"><span class="dot" style="background: var(--prospect)"></span> Prospecting</span>
+        <span class="pill"><span class="dot" style="background: var(--hold)"></span> On hold</span>
+        <span class="pill"><span class="dot" style="background: var(--done)"></span> Completed</span>
+      </div>
+      <div id="tooltip" class="tip"></div>
+    </section>
+  </div>
+
+  <script>
+  const STORAGE_KEY = 'pulse-network-v3';
+  const $ = sel => document.querySelector(sel);
+  const listEl = $('#list');
+  const svg = d3.select('#graph');
+  const tooltip = d3.select('#tooltip');
+
+  function loadData(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [] }catch(e){ return [] } }
+  function saveData(rows){ localStorage.setItem(STORAGE_KEY, JSON.stringify(rows)); }
+
+  let rows = loadData();
+  if(rows.length===0){
+    rows = [
+      {id:crypto.randomUUID(), member:'Jake', company:'Scania — Jesper', project:'Simulation case', status:'active', last_contact: new Date().toISOString().slice(0,10)},
+      {id:crypto.randomUUID(), member:'Erik', company:'Scania — Jesper', project:'Simulation case', status:'discuss', last_contact: new Date().toISOString().slice(0,10)},
+      {id:crypto.randomUUID(), member:'Erik', company:'Scania', project:'Simulation case', status:'prospect', last_contact: new Date(Date.now()-1000*60*60*24*25).toISOString().slice(0,10)},
+    ];
+    saveData(rows);
+  }
+
+  // ---------------------- Similarity + Canonicalization ----------------------
+  function normalize(s){ return (s||'').toLowerCase().replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim(); }
+  function bigrams(s){ const n=[]; for(let i=0;i<s.length-1;i++) n.push(s[i]+s[i+1]); return n; }
+  function dice(a,b){ a=bigrams(normalize(a)); b=bigrams(normalize(b)); const map=new Map(); b.forEach(x=>map.set(x,(map.get(x)||0)+1)); let inter=0; a.forEach(x=>{ if(map.get(x)>0){ inter++; map.set(x,map.get(x)-1);} }); return (2*inter)/Math.max(1,a.length+b.length); }
+  const SIM_THRESHOLD = 0.82;
+  function canonicalize(label, existing){ for(const e of existing){ if(dice(label, e) >= SIM_THRESHOLD) return e; } return label; }
+
+  // ----------------------------- UI: List -----------------------------------
+  function statusLabel(s){ return s==='prospect'?'Prospecting': s==='discuss'?'Discussing': s==='active'?'Active': s==='hold'?'On hold':'Completed'; }
+  function statusColor(s){ return getComputedStyle(document.documentElement).getPropertyValue('--'+s).trim() || '#888'; }
+
+  function renderList(){
+    const q = ($('#search').value||'').toLowerCase();
+    const weeks = parseInt($('#weeks').value||'0',10);
+    const cutoff = weeks>0 ? Date.now() - weeks*7*24*3600*1000 : null;
+    listEl.innerHTML='';
+    rows.filter(r => (r.member+r.company+r.project).toLowerCase().includes(q))
+        .filter(r => cutoff? (new Date(r.last_contact||0)).getTime() >= cutoff : true)
+        .forEach(r => {
+      const el = document.createElement('div');
+      el.className='item';
+      const dateTxt = r.last_contact? ` · Last: ${r.last_contact}`: '';
+      el.innerHTML = `
+        <div class="title">${escapeHTML(r.member)} ➜ ${escapeHTML(r.company)}</div>
+        <div class="meta">For: ${escapeHTML(r.project)} · <span class="status-pill" style="background:${statusColor(r.status)}20;color:${statusColor(r.status)}">${statusLabel(r.status)}</span>${dateTxt}</div>
+        <div class="actions">
+          <button class="btn secondary" data-act="edit" data-id="${r.id}">Edit</button>
+          <button class="btn secondary" data-act="dup" data-id="${r.id}">Duplicate</button>
+          <button class="btn danger" data-act="del" data-id="${r.id}">Delete</button>
+        </div>`;
+      listEl.appendChild(el);
+    });
+  }
+
+  listEl.addEventListener('click', e => {
+    const btn = e.target.closest('button'); if(!btn) return;
+    const id = btn.getAttribute('data-id'); const r = rows.find(x=>x.id===id); if(!r) return;
+    const act = btn.getAttribute('data-act');
+    if(act==='del'){ rows = rows.filter(x=>x.id!==id); }
+    if(act==='dup'){ rows.push({...r, id:crypto.randomUUID()}); }
+    if(act==='edit'){
+      $('#member').value=r.member; $('#company').value=r.company; $('#project').value=r.project; $('#status').value=r.status||'active'; $('#lastContact').value=r.last_contact||'';
+      $('#addBtn').dataset.editing=id; $('#addBtn').textContent='Save changes';
+    }
+    saveData(rows); renderList(); renderGraph();
+  });
+
+  $('#addBtn').addEventListener('click', () => {
+    const member=$('#member').value.trim();
+    const company=$('#company').value.trim();
+    const project=$('#project').value.trim();
+    const status=$('#status').value;
+    const last_contact=$('#lastContact').value || new Date().toISOString().slice(0,10);
+    if(!member || !company || !project){ alert('Please fill Member, Company/Contact and Project/Topic.'); return; }
+    const editing=$('#addBtn').dataset.editing;
+    if(editing){ rows = rows.map(r=> r.id===editing? {...r, member, company, project, status, last_contact}: r); delete $('#addBtn').dataset.editing; $('#addBtn').textContent='Add to network'; }
+    else { rows.push({id:crypto.randomUUID(), member, company, project, status, last_contact}); }
+    saveData(rows); renderList(); renderGraph(); clearForm();
+  });
+  $('#clearFormBtn').addEventListener('click', clearForm);
+  function clearForm(){ $('#member').value=''; $('#company').value=''; $('#project').value=''; $('#status').value='active'; $('#lastContact').value=''; delete $('#addBtn').dataset.editing; $('#addBtn').textContent='Add to network'; }
+  $('#clearAllBtn').addEventListener('click', ()=>{ if(confirm('Remove ALL entries?')){ rows=[]; saveData(rows); renderList(); renderGraph(); }});
+  $('#search').addEventListener('input', ()=>{ renderList(); renderGraph(); });
+  $('#weeks').addEventListener('input', ()=>{ renderList(); renderGraph(); });
+
+  // Export / Import JSON
+  $('#exportBtn').addEventListener('click', () => {
+    const data = JSON.stringify(rows, null, 2);
+    const blob = new Blob([data], {type:'application/json'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'pulse-network.json'; a.click();
+  });
+  $('#importFile').addEventListener('change', (e) => {
+    const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ try{ const data=JSON.parse(r.result); if(Array.isArray(data)){ rows=data.map(d=>({id:d.id||crypto.randomUUID(), member:d.member||'', company:d.company||'', project:d.project||'', status:d.status||'active', last_contact:d.last_contact||''})); saveData(rows); renderList(); renderGraph(); } else alert('Invalid JSON'); }catch{ alert('Failed to import'); } }; r.readAsText(f);
+  });
+
+  // Export / Import CSV
+  $('#exportCsvBtn').addEventListener('click', () => {
+    const header = ['member','company','project','status','last_contact'];
+    const lines = [header.join(',')].concat(rows.map(r=> header.map(k=> csvEscape(r[k]||'')).join(',')));
+    const blob = new Blob([lines.join('\n')],{type:'text/csv'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='pulse-network.csv'; a.click();
+  });
+  $('#importCsv').addEventListener('change', (e)=>{
+    const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{
+      const text = r.result.trim();
+      const [head,...rowsText] = text.split(/\r?\n/);
+      const cols = head.split(',').map(s=>s.trim().toLowerCase());
+      function get(row, key){ const idx = cols.indexOf(key); return idx>=0 ? row[idx] : ''; }
+      const parsed = rowsText.map(line=> parseCsvLine(line));
+      const next = parsed.map(arr=>({
+        id: crypto.randomUUID(),
+        member: get(arr,'member'),
+        company: get(arr,'company'),
+        project: get(arr,'project'),
+        status: get(arr,'status')||'active',
+        last_contact: get(arr,'last_contact')||''
+      }));
+      rows = rows.concat(next);
+      saveData(rows); renderList(); renderGraph();
+    }; r.readAsText(f);
+  });
+
+  function csvEscape(v){ if(/[,"\n]/.test(v)) return '"'+v.replace(/"/g,'""')+'"'; return v; }
+  function parseCsvLine(line){
+    const out=[]; let cur=''; let inQ=false; for(let i=0;i<line.length;i++){
+      const ch=line[i];
+      if(inQ){
+        if(ch==='"' && line[i+1]==='"'){ cur+='"'; i++; }
+        else if(ch==='"'){ inQ=false; }
+        else cur+=ch;
+      }else{
+        if(ch==='"'){ inQ=true; }
+        else if(ch===','){ out.push(cur); cur=''; }
+        else cur+=ch;
+      }
+    }
+    out.push(cur);
+    return out.map(x=>x.trim());
+  }
+
+  // ----------------------------- Graph build ---------------------------------
+  let sim;
+  function buildGraph(){
+    const q = ($('#search').value||'').toLowerCase();
+    const weeks = parseInt($('#weeks').value||'0',10);
+    const cutoff = weeks>0 ? Date.now() - weeks*7*24*3600*1000 : null;
+
+    const canonPersons = new Set();
+    const canonCompanies = new Set();
+
+    const nodesMap = new Map();
+    const linkMap = new Map();
+
+    function getNode(id, type, label){ if(!nodesMap.has(id)) nodesMap.set(id,{id,type,label,degree:0}); return nodesMap.get(id); }
+
+    rows.filter(r => (r.member+r.company+r.project).toLowerCase().includes(q))
+        .filter(r => cutoff? (new Date(r.last_contact||0)).getTime() >= cutoff : true)
+        .forEach(r => {
+      const person = canonicalize(r.member, canonPersons); canonPersons.add(person);
+      const company = canonicalize(r.company, canonCompanies); canonCompanies.add(company);
+
+      const pId = 'person:'+person; const cId='company:'+company;
+      getNode(pId,'person',person); getNode(cId,'company',company);
+
+      const key = person+'|||'+company;
+      if(!linkMap.has(key)) linkMap.set(key,{source:pId,target:cId,projects:[]});
+
+      const arr = linkMap.get(key).projects;
+      let matched = arr.find(x => dice(x.name, r.project) >= SIM_THRESHOLD);
+      if(matched){ matched.status = r.status; matched.count = (matched.count||1)+1; matched.last = r.last_contact; }
+      else arr.push({name:r.project, status:r.status, count:1, last:r.last_contact});
+    });
+
+    const links = Array.from(linkMap.values()).map(l=> ({...l, color: edgeColorByStatus(l.projects)}));
+    const nodes = Array.from(nodesMap.values());
+    links.forEach(l=>{ const a=nodesMap.get(l.source), b=nodesMap.get(l.target); if(a) a.degree++; if(b) b.degree++; });
+    return {nodes, links};
+  }
+
+  const STATUS_RANK = {hold:5, discuss:4, active:3, prospect:2, done:1};
+  function edgeColorByStatus(arr){
+    if(arr.length===0) return '#888';
+    // choose the status of the most recent project; tie-break by severity rank
+    arr.sort((a,b)=> (new Date(b.last||0)) - (new Date(a.last||0)) || (STATUS_RANK[b.status]||0) - (STATUS_RANK[a.status]||0));
+    const s = arr[0].status;
+    return getComputedStyle(document.documentElement).getPropertyValue('--'+s).trim() || '#888';
+  }
+
+  function renderGraph(){
+    const {nodes, links} = buildGraph();
+    svg.selectAll('*').remove();
+    const g = svg.append('g');
+
+    // zoom/pan
+    svg.call(d3.zoom().scaleExtent([0.6,2.6]).on('zoom', (ev)=>{ g.attr('transform', ev.transform); }));
+
+    // links
+    const linkSel = g.append('g').selectAll('line').data(links).enter().append('line')
+      .attr('stroke', d=>d.color)
+      .attr('stroke-opacity', 0.9)
+      .attr('stroke-width', 2);
+
+    // edge labels
+    const labelSel = g.append('g').selectAll('text').data(links).enter().append('text')
+      .attr('class','edge-label')
+      .text(d=> formatProjects(d.projects))
+      .on('mousemove', (ev,d)=> showTip(ev, edgeTooltipHTML(d)))
+      .on('mouseleave', hideTip);
+
+    // edge status chips (tiny dots)
+    const chipsG = g.append('g').selectAll('g').data(links).enter().append('g');
+    const chipRadius = 3.5;
+    chipsG.each(function(d){
+      const gchips = d3.select(this);
+      const uniq = Array.from(new Set(d.projects.map(p=>p.status)));
+      uniq.forEach((s,idx)=>{
+        gchips.append('circle').attr('r', chipRadius).attr('fill', statusColor(s)).attr('data-idx', idx);
+      });
+    });
+
+    // nodes
+    const nodeG = g.append('g').selectAll('g.node').data(nodes, d=>d.id).enter().append('g').attr('class','node');
+    const nodeSel = nodeG.append('circle')
+      .attr('r', d=> 12 + Math.min(18, d.degree*2.2))
+      .attr('fill', d=> d.type==='person'? getComputedStyle(document.documentElement).getPropertyValue('--person'): getComputedStyle(document.documentElement).getPropertyValue('--company'))
+      .attr('stroke', 'rgba(0,0,0,0.25)')
+      .attr('stroke-width', 1)
+      .on('mousemove', (ev,d)=> showTip(ev, `<b>${escapeHTML(d.label)}</b><br/>Type: ${d.type}`))
+      .on('mouseleave', hideTip);
+
+    const nodeLabel = nodeG.append('text')
+      .text(d=>d.label)
+      .attr('font-size','11px')
+      .attr('text-anchor','middle')
+      .attr('dy', d=> 12 + Math.min(18, d.degree*2.2) + 14)
+      .attr('fill','#cfd6ff');
+
+    // drag
+    nodeG.call(d3.drag()
+      .on('start', (ev,d)=>{ if(!ev.active) sim.alphaTarget(0.4).restart(); d.fx=d.x; d.fy=d.y; })
+      .on('drag', (ev,d)=>{ d.fx=ev.x; d.fy=ev.y; })
+      .on('end', (ev,d)=>{ if(!ev.active) sim.alphaTarget(0); d.fx=null; d.fy=null; }));
+
+    // layout forces (type-separated lanes + strong collision)
+    const box = svg.node().getBoundingClientRect();
+    sim = d3.forceSimulation(nodes)
+      .force('link', d3.forceLink(links).id(d=>d.id).distance(d=> 140 + (Math.max(d.source.degree,d.target.degree)*6)).strength(0.15))
+      .force('charge', d3.forceManyBody().strength(-320))
+      .force('center', d3.forceCenter(box.width/2, box.height/2))
+      .force('x', d3.forceX(d=> d.type==='person'? box.width*0.35 : box.width*0.65).strength(0.08))
+      .force('y', d3.forceY(box.height/2).strength(0.02))
+      .force('collide', d3.forceCollide().radius(d=> 18 + Math.min(18, d.degree*2.2)).iterations(2))
+      .on('tick', ()=>{
+        linkSel
+          .attr('x1', d=>d.source.x).attr('y1', d=>d.source.y)
+          .attr('x2', d=>d.target.x).attr('y2', d=>d.target.y);
+        nodeG.attr('transform', d=>`translate(${d.x},${d.y})`);
+        // edge labels midway, slightly above
+        labelSel
+          .attr('x', d => (d.source.x + d.target.x)/2)
+          .attr('y', d => (d.source.y + d.target.y)/2 - 8);
+        // status chips laid out next to label
+        chipsG.attr('transform', d=>`translate(${(d.source.x + d.target.x)/2}, ${(d.source.y + d.target.y)/2 - 20})`)
+          .each(function(d){
+            const gchips = d3.select(this).selectAll('circle');
+            gchips.attr('cx', function(){ return (+this.getAttribute('data-idx'))* (chipRadius*2 + 4); })
+                  .attr('cy', 0);
+          });
+      });
+  }
+
+  function formatProjects(arr){
+    const names = Array.from(new Set(arr.map(x=>x.name)));
+    if(names.length<=2) return names.join(' • ');
+    return names.slice(0,2).join(' • ') + ` +${names.length-2}`;
+  }
+  function edgeTooltipHTML(d){
+    const chips = d.projects.sort((a,b)=> (new Date(b.last||0)) - (new Date(a.last||0)))
+      .map(p=>{
+        const c = statusColor(p.status);
+        return `<div style="margin:2px 0"><span style="display:inline-block; width:8px; height:8px; background:${c}; border-radius:50%; margin-right:6px"></span>${escapeHTML(p.name)} <span style="opacity:.8">(${statusLabel(p.status)})</span>${p.last? ` — <span style=\"opacity:.8\">${p.last}</span>`:''}</div>`
+      }).join('');
+    return `<b>${escapeHTML(d.source.label)}</b> ↔ <b>${escapeHTML(d.target.label)}</b><br/>${chips}`;
+  }
+
+  // ----------------------------- Tooltip ------------------------------------
+  function showTip(ev, html){
+    tooltip.html(html).style('opacity',1);
+    const pad=14; const tW=300; const tH=160; // approx
+    let x = ev.clientX + 14, y = ev.clientY - 10;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    if(x + tW + pad > vw) x = ev.clientX - tW - 14;
+    if(y + tH + pad > vh) y = vh - tH - pad; if(y < pad) y = pad;
+    tooltip.style('left', x+'px').style('top', y+'px');
+  }
+  function hideTip(){ tooltip.style('opacity',0); }
+
+  // ----------------------------- Utils --------------------------------------
+  function escapeHTML(str){ return (str+"").replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+  // init
+  renderList();
+  renderGraph();
+  let resizeTimer; window.addEventListener('resize', ()=>{ clearTimeout(resizeTimer); resizeTimer=setTimeout(renderGraph, 120); });
+  </script>
+</body>
+</html>
