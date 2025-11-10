@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pulse Meeting – Contacts & Projects Network (V3)</title>
+  <title>Pulse Meeting – Contacts & Projects Network (V4)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
@@ -19,7 +19,7 @@
     body{margin:0; font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji","Segoe UI Emoji"; background:radial-gradient(1200px 800px at 80% -10%, #1b2460 0%, var(--bg) 60%); color:var(--ink)}
     header{padding:20px 24px; display:flex; align-items:center; justify-content:space-between; gap:16px}
     .brand{font-weight:800; letter-spacing:0.3px; font-size:20px}
-    .wrap{display:grid; grid-template-columns: 420px 1fr; gap:18px; padding:0 20px 20px}
+    .wrap{display:grid; grid-template-columns: 430px 1fr; gap:18px; padding:0 20px 20px}
     @media (max-width: 1100px){.wrap{grid-template-columns:1fr}}
     .card{background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); border:1px solid rgba(255,255,255,0.08); border-radius:16px; box-shadow:0 20px 40px rgba(0,0,0,0.25);}
     .panel{padding:18px}
@@ -39,7 +39,6 @@
     .item .meta{font-size:12px; color:#aab3ff}
     .item .title{font-weight:600}
     .item .actions{display:flex; gap:8px; margin-top:6px}
-    .status-pill{display:inline-flex; align-items:center; gap:6px; font-size:11px; padding:2px 8px; border-radius:999px; border:1px solid rgba(255,255,255,0.12)}
 
     .viz{position:relative}
     .legend{display:flex; gap:12px; flex-wrap:wrap; padding:12px 16px; border-top:1px solid rgba(255,255,255,0.08)}
@@ -68,13 +67,20 @@
       <h2>Add / Edit Entry</h2>
       <div class="row">
         <label>Member name</label>
-        <input id="member" type="text" placeholder="e.g., Jake" />
+        <input id="member" list="memberList" type="text" placeholder="e.g., Jake" />
+        <datalist id="memberList">
+          <option value="Jake"></option>
+          <option value="Magnus"></option>
+          <option value="Jannicke"></option>
+          <option value="Wajid"></option>
+        </datalist>
+
+        <label>Project / task</label>
+        <input id="project" list="projectList" type="text" placeholder="e.g., ML2302 simulation case" />
+        <datalist id="projectList"></datalist>
 
         <label>Company / contact person</label>
         <input id="company" type="text" placeholder="e.g., Scania — Jesper Gans" />
-
-        <label>Project / topic</label>
-        <input id="project" type="text" placeholder="e.g., Matrix production scheduling (battery)" />
 
         <div class="grid2">
           <div>
@@ -119,11 +125,12 @@
     <section class="card viz">
       <div class="panel" style="padding-bottom:0">
         <h2>Network</h2>
-        <div class="footer">Person ↔ Company; edge labels are projects/topics. Edges colored by most-recent status. Hover nodes or edges for details. Drag to tidy; auto-anti-overlap forces are on.</div>
+        <div class="footer">Layout: <b>Person → Project → Company</b>. Nodes colored by type (blue/紫/teal as before). The <b>project→company</b> link is colored by most‑recent status; a tiny chip set shows all statuses on that link. Drag to tidy.</div>
       </div>
       <svg id="graph" width="100%" height="660"></svg>
       <div class="legend">
         <span class="pill"><span class="dot" style="background: var(--person)"></span> Person</span>
+        <span class="pill"><span class="dot" style="background: var(--project)"></span> Project / Task</span>
         <span class="pill"><span class="dot" style="background: var(--company)"></span> Company / Contact</span>
         <span class="pill"><span class="dot" style="background: var(--active)"></span> Active</span>
         <span class="pill"><span class="dot" style="background: var(--discuss)"></span> Discussing</span>
@@ -136,21 +143,23 @@
   </div>
 
   <script>
-  const STORAGE_KEY = 'pulse-network-v3';
+  const STORAGE_KEY = 'pulse-network-v4';
   const $ = sel => document.querySelector(sel);
   const listEl = $('#list');
   const svg = d3.select('#graph');
   const tooltip = d3.select('#tooltip');
 
   function loadData(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [] }catch(e){ return [] } }
-  function saveData(rows){ localStorage.setItem(STORAGE_KEY, JSON.stringify(rows)); }
+  function saveData(rows){ localStorage.setItem(STORAGE_KEY, JSON.stringify(rows)); refreshDatalists(); }
 
   let rows = loadData();
   if(rows.length===0){
+    const today = new Date().toISOString().slice(0,10);
     rows = [
-      {id:crypto.randomUUID(), member:'Jake', company:'Scania — Jesper', project:'Simulation case', status:'active', last_contact: new Date().toISOString().slice(0,10)},
-      {id:crypto.randomUUID(), member:'Erik', company:'Scania — Jesper', project:'Simulation case', status:'discuss', last_contact: new Date().toISOString().slice(0,10)},
-      {id:crypto.randomUUID(), member:'Erik', company:'Scania', project:'Simulation case', status:'prospect', last_contact: new Date(Date.now()-1000*60*60*24*25).toISOString().slice(0,10)},
+      {id:crypto.randomUUID(), member:'Jake', project:'ML2302 simulation case', company:'Scania — Jesper Gans', status:'active', last_contact:today},
+      {id:crypto.randomUUID(), member:'Jake', project:'ML2302 simulation case', company:'Scania — Thomas', status:'active', last_contact:today},
+      {id:crypto.randomUUID(), member:'Jake', project:'ML2302 simulation case', company:'Scania — Pär & Daniel', status:'discuss', last_contact:today},
+      {id:crypto.randomUUID(), member:'Magnus', project:'A2: Hasselinen', company:'K2', status:'prospect', last_contact:today}
     ];
     saveData(rows);
   }
@@ -178,8 +187,8 @@
       el.className='item';
       const dateTxt = r.last_contact? ` · Last: ${r.last_contact}`: '';
       el.innerHTML = `
-        <div class="title">${escapeHTML(r.member)} ➜ ${escapeHTML(r.company)}</div>
-        <div class="meta">For: ${escapeHTML(r.project)} · <span class="status-pill" style="background:${statusColor(r.status)}20;color:${statusColor(r.status)}">${statusLabel(r.status)}</span>${dateTxt}</div>
+        <div class="title">${escapeHTML(r.member)} → ${escapeHTML(r.project)} → ${escapeHTML(r.company)}</div>
+        <div class="meta"><span class="status-pill" style="background:${statusColor(r.status)}20;color:${statusColor(r.status)}">${statusLabel(r.status)}</span>${dateTxt}</div>
         <div class="actions">
           <button class="btn secondary" data-act="edit" data-id="${r.id}">Edit</button>
           <button class="btn secondary" data-act="dup" data-id="${r.id}">Duplicate</button>
@@ -208,7 +217,7 @@
     const project=$('#project').value.trim();
     const status=$('#status').value;
     const last_contact=$('#lastContact').value || new Date().toISOString().slice(0,10);
-    if(!member || !company || !project){ alert('Please fill Member, Company/Contact and Project/Topic.'); return; }
+    if(!member || !company || !project){ alert('Please fill Member, Project/Task and Company/Contact.'); return; }
     const editing=$('#addBtn').dataset.editing;
     if(editing){ rows = rows.map(r=> r.id===editing? {...r, member, company, project, status, last_contact}: r); delete $('#addBtn').dataset.editing; $('#addBtn').textContent='Add to network'; }
     else { rows.push({id:crypto.randomUUID(), member, company, project, status, last_contact}); }
@@ -232,7 +241,7 @@
 
   // Export / Import CSV
   $('#exportCsvBtn').addEventListener('click', () => {
-    const header = ['member','company','project','status','last_contact'];
+    const header = ['member','project','company','status','last_contact'];
     const lines = [header.join(',')].concat(rows.map(r=> header.map(k=> csvEscape(r[k]||'')).join(',')));
     const blob = new Blob([lines.join('\n')],{type:'text/csv'});
     const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='pulse-network.csv'; a.click();
@@ -247,8 +256,8 @@
       const next = parsed.map(arr=>({
         id: crypto.randomUUID(),
         member: get(arr,'member'),
-        company: get(arr,'company'),
         project: get(arr,'project'),
+        company: get(arr,'company'),
         status: get(arr,'status')||'active',
         last_contact: get(arr,'last_contact')||''
       }));
@@ -276,6 +285,14 @@
   }
 
   // ----------------------------- Graph build ---------------------------------
+  const STATUS_RANK = {hold:5, discuss:4, active:3, prospect:2, done:1};
+  function edgeColorByStatus(arr){
+    if(arr.length===0) return '#888';
+    // choose the status of the most recent project; tie-break by severity
+    arr.sort((a,b)=> (new Date(b.last||0)) - (new Date(a.last||0)) || (STATUS_RANK[b.status]||0) - (STATUS_RANK[a.status]||0));
+    const s = arr[0].status; return getComputedStyle(document.documentElement).getPropertyValue('--'+s).trim() || '#888';
+  }
+
   let sim;
   function buildGraph(){
     const q = ($('#search').value||'').toLowerCase();
@@ -283,10 +300,12 @@
     const cutoff = weeks>0 ? Date.now() - weeks*7*24*3600*1000 : null;
 
     const canonPersons = new Set();
+    const canonProjects = new Set();
     const canonCompanies = new Set();
 
     const nodesMap = new Map();
-    const linkMap = new Map();
+    const linkMapPC = new Map(); // person->project
+    const linkMapCT = new Map(); // project->company (topics with statuses)
 
     function getNode(id, type, label){ if(!nodesMap.has(id)) nodesMap.set(id,{id,type,label,degree:0}); return nodesMap.get(id); }
 
@@ -294,63 +313,49 @@
         .filter(r => cutoff? (new Date(r.last_contact||0)).getTime() >= cutoff : true)
         .forEach(r => {
       const person = canonicalize(r.member, canonPersons); canonPersons.add(person);
+      const project = canonicalize(r.project, canonProjects); canonProjects.add(project);
       const company = canonicalize(r.company, canonCompanies); canonCompanies.add(company);
 
-      const pId = 'person:'+person; const cId='company:'+company;
-      getNode(pId,'person',person); getNode(cId,'company',company);
+      const pId='person:'+person, tId='project:'+project, cId='company:'+company;
+      getNode(pId,'person',person); getNode(tId,'project',project); getNode(cId,'company',company);
 
-      const key = person+'|||'+company;
-      if(!linkMap.has(key)) linkMap.set(key,{source:pId,target:cId,projects:[]});
-
-      const arr = linkMap.get(key).projects;
-      let matched = arr.find(x => dice(x.name, r.project) >= SIM_THRESHOLD);
-      if(matched){ matched.status = r.status; matched.count = (matched.count||1)+1; matched.last = r.last_contact; }
-      else arr.push({name:r.project, status:r.status, count:1, last:r.last_contact});
+      const keyPC = person+'|||'+project; if(!linkMapPC.has(keyPC)) linkMapPC.set(keyPC,{source:pId,target:tId});
+      const keyCT = project+'|||'+company;
+      if(!linkMapCT.has(keyCT)) linkMapCT.set(keyCT,{source:tId,target:cId,projects:[]});
+      const arr = linkMapCT.get(keyCT).projects; // store statuses by (person,project,company)
+      arr.push({status:r.status, last:r.last_contact});
     });
 
-    const links = Array.from(linkMap.values()).map(l=> ({...l, color: edgeColorByStatus(l.projects)}));
+    const linksPC = Array.from(linkMapPC.values()).map(l=> ({...l, color:'rgba(255,255,255,0.35)'}));
+    const linksCT = Array.from(linkMapCT.values()).map(l=> ({...l, color: edgeColorByStatus(l.projects), statuses:Array.from(new Set(l.projects.map(p=>p.status)))}));
+    const links = linksPC.concat(linksCT);
+
     const nodes = Array.from(nodesMap.values());
     links.forEach(l=>{ const a=nodesMap.get(l.source), b=nodesMap.get(l.target); if(a) a.degree++; if(b) b.degree++; });
-    return {nodes, links};
-  }
-
-  const STATUS_RANK = {hold:5, discuss:4, active:3, prospect:2, done:1};
-  function edgeColorByStatus(arr){
-    if(arr.length===0) return '#888';
-    // choose the status of the most recent project; tie-break by severity rank
-    arr.sort((a,b)=> (new Date(b.last||0)) - (new Date(a.last||0)) || (STATUS_RANK[b.status]||0) - (STATUS_RANK[a.status]||0));
-    const s = arr[0].status;
-    return getComputedStyle(document.documentElement).getPropertyValue('--'+s).trim() || '#888';
+    return {nodes, links, linksPC, linksCT};
   }
 
   function renderGraph(){
-    const {nodes, links} = buildGraph();
+    const {nodes, links, linksPC, linksCT} = buildGraph();
     svg.selectAll('*').remove();
     const g = svg.append('g');
 
     // zoom/pan
     svg.call(d3.zoom().scaleExtent([0.6,2.6]).on('zoom', (ev)=>{ g.attr('transform', ev.transform); }));
 
-    // links
+    // links: person->project (neutral), project->company (status-colored)
     const linkSel = g.append('g').selectAll('line').data(links).enter().append('line')
       .attr('stroke', d=>d.color)
       .attr('stroke-opacity', 0.9)
-      .attr('stroke-width', 2);
+      .attr('stroke-width', d=> linksCT.includes(d)? 2 : 1.2)
+      .attr('stroke-dasharray', d=> linksPC.includes(d)? '2,3': null);
 
-    // edge labels
-    const labelSel = g.append('g').selectAll('text').data(links).enter().append('text')
-      .attr('class','edge-label')
-      .text(d=> formatProjects(d.projects))
-      .on('mousemove', (ev,d)=> showTip(ev, edgeTooltipHTML(d)))
-      .on('mouseleave', hideTip);
-
-    // edge status chips (tiny dots)
-    const chipsG = g.append('g').selectAll('g').data(links).enter().append('g');
+    // status chips for project->company
+    const chipsG = g.append('g').selectAll('g').data(linksCT).enter().append('g');
     const chipRadius = 3.5;
     chipsG.each(function(d){
       const gchips = d3.select(this);
-      const uniq = Array.from(new Set(d.projects.map(p=>p.status)));
-      uniq.forEach((s,idx)=>{
+      d.statuses.forEach((s,idx)=>{
         gchips.append('circle').attr('r', chipRadius).attr('fill', statusColor(s)).attr('data-idx', idx);
       });
     });
@@ -359,7 +364,7 @@
     const nodeG = g.append('g').selectAll('g.node').data(nodes, d=>d.id).enter().append('g').attr('class','node');
     const nodeSel = nodeG.append('circle')
       .attr('r', d=> 12 + Math.min(18, d.degree*2.2))
-      .attr('fill', d=> d.type==='person'? getComputedStyle(document.documentElement).getPropertyValue('--person'): getComputedStyle(document.documentElement).getPropertyValue('--company'))
+      .attr('fill', d=> d.type==='person'? getComputedStyle(document.documentElement).getPropertyValue('--person') : d.type==='project'? getComputedStyle(document.documentElement).getPropertyValue('--project') : getComputedStyle(document.documentElement).getPropertyValue('--company'))
       .attr('stroke', 'rgba(0,0,0,0.25)')
       .attr('stroke-width', 1)
       .on('mousemove', (ev,d)=> showTip(ev, `<b>${escapeHTML(d.label)}</b><br/>Type: ${d.type}`))
@@ -378,52 +383,33 @@
       .on('drag', (ev,d)=>{ d.fx=ev.x; d.fy=ev.y; })
       .on('end', (ev,d)=>{ if(!ev.active) sim.alphaTarget(0); d.fx=null; d.fy=null; }));
 
-    // layout forces (type-separated lanes + strong collision)
+    // layout forces: three lanes (person left, project middle, company right) + strong collision
     const box = svg.node().getBoundingClientRect();
     sim = d3.forceSimulation(nodes)
-      .force('link', d3.forceLink(links).id(d=>d.id).distance(d=> 140 + (Math.max(d.source.degree,d.target.degree)*6)).strength(0.15))
+      .force('link', d3.forceLink(links).id(d=>d.id).distance(d=> 120 + (Math.max(d.source.degree,d.target.degree)*6)).strength(0.15))
       .force('charge', d3.forceManyBody().strength(-320))
       .force('center', d3.forceCenter(box.width/2, box.height/2))
-      .force('x', d3.forceX(d=> d.type==='person'? box.width*0.35 : box.width*0.65).strength(0.08))
-      .force('y', d3.forceY(box.height/2).strength(0.02))
+      .force('x', d3.forceX(d=> d.type==='person'? box.width*0.25 : d.type==='project'? box.width*0.5 : box.width*0.75).strength(0.12))
+      .force('y', d3.forceY(box.height/2).strength(0.05))
       .force('collide', d3.forceCollide().radius(d=> 18 + Math.min(18, d.degree*2.2)).iterations(2))
       .on('tick', ()=>{
         linkSel
           .attr('x1', d=>d.source.x).attr('y1', d=>d.source.y)
           .attr('x2', d=>d.target.x).attr('y2', d=>d.target.y);
         nodeG.attr('transform', d=>`translate(${d.x},${d.y})`);
-        // edge labels midway, slightly above
-        labelSel
-          .attr('x', d => (d.source.x + d.target.x)/2)
-          .attr('y', d => (d.source.y + d.target.y)/2 - 8);
-        // status chips laid out next to label
-        chipsG.attr('transform', d=>`translate(${(d.source.x + d.target.x)/2}, ${(d.source.y + d.target.y)/2 - 20})`)
-          .each(function(d){
-            const gchips = d3.select(this).selectAll('circle');
-            gchips.attr('cx', function(){ return (+this.getAttribute('data-idx'))* (chipRadius*2 + 4); })
-                  .attr('cy', 0);
-          });
+        chipsG.attr('transform', d=>`translate(${(d.source.x + d.target.x)/2}, ${(d.source.y + d.target.y)/2 - 18})`)
+              .each(function(d){
+                const gchips = d3.select(this).selectAll('circle');
+                gchips.attr('cx', function(){ return (+this.getAttribute('data-idx'))* (chipRadius*2 + 4); })
+                      .attr('cy', 0);
+              });
       });
-  }
-
-  function formatProjects(arr){
-    const names = Array.from(new Set(arr.map(x=>x.name)));
-    if(names.length<=2) return names.join(' • ');
-    return names.slice(0,2).join(' • ') + ` +${names.length-2}`;
-  }
-  function edgeTooltipHTML(d){
-    const chips = d.projects.sort((a,b)=> (new Date(b.last||0)) - (new Date(a.last||0)))
-      .map(p=>{
-        const c = statusColor(p.status);
-        return `<div style="margin:2px 0"><span style="display:inline-block; width:8px; height:8px; background:${c}; border-radius:50%; margin-right:6px"></span>${escapeHTML(p.name)} <span style="opacity:.8">(${statusLabel(p.status)})</span>${p.last? ` — <span style=\"opacity:.8\">${p.last}</span>`:''}</div>`
-      }).join('');
-    return `<b>${escapeHTML(d.source.label)}</b> ↔ <b>${escapeHTML(d.target.label)}</b><br/>${chips}`;
   }
 
   // ----------------------------- Tooltip ------------------------------------
   function showTip(ev, html){
     tooltip.html(html).style('opacity',1);
-    const pad=14; const tW=300; const tH=160; // approx
+    const pad=14; const tW=300; const tH=160;
     let x = ev.clientX + 14, y = ev.clientY - 10;
     const vw = window.innerWidth, vh = window.innerHeight;
     if(x + tW + pad > vw) x = ev.clientX - tW - 14;
@@ -432,10 +418,19 @@
   }
   function hideTip(){ tooltip.style('opacity',0); }
 
+  // ----------------------------- Datalist -----------------------------------
+  function refreshDatalists(){
+    const mem = new Set(['Jake','Erik','Magnus','Jannicke','Wajid']); rows.forEach(r=> mem.add(r.member));
+    const proj = new Set(); rows.forEach(r=> proj.add(r.project));
+    const memberDL = $('#memberList'); memberDL.innerHTML = Array.from(mem).sort().map(v=>`<option value="${escapeHTML(v)}"></option>`).join('');
+    const projDL = $('#projectList'); projDL.innerHTML = Array.from(proj).sort().map(v=>`<option value="${escapeHTML(v)}"></option>`).join('');
+  }
+
   // ----------------------------- Utils --------------------------------------
   function escapeHTML(str){ return (str+"").replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
 
   // init
+  refreshDatalists();
   renderList();
   renderGraph();
   let resizeTimer; window.addEventListener('resize', ()=>{ clearTimeout(resizeTimer); resizeTimer=setTimeout(renderGraph, 120); });
