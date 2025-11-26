@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SKERIC – Science Diplomacy White Paper Contribution</title>
+    <style>
+        :root {
+            --primary: #004b87;
+            --primary-dark: #00345d;
+            --accent: #f5c23d;
+            --bg: #f4f7f6;
+            --text: #222;
+            --border: #d0d7de;
+            --danger: #c62828;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                sans-serif;
+            background: radial-gradient(circle at top, #eef3f9 0, #f4f7f6 45%, #f4f7f6 100%);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .page {
+            max-width: 960px;
+            margin: 32px auto 48px;
+            padding: 0 16px;
+        }
+
+        header {
+            background: white;
+            border-radius: 14px;
+            padding: 24px 24px 20px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(0, 75, 135, 0.08),
+                rgba(245, 194, 61, 0.1)
+            );
+            opacity: 0.9;
+            pointer-events: none;
+        }
+
+        .header-inner {
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 1.7rem;
+            color: var(--primary);
+        }
+
+        .subtitle {
+            margin: 0 0 8px;
+            color: #444;
+            font-size: 0.98rem;
+        }
+
+        .note {
+            font-size: 0.85rem;
+            color: #555;
+        }
+
+        .note strong {
+            font-weight: 600;
+        }
+
+        .pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .pill {
+            font-size: 0.78rem;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .pill.important {
+            border-color: var(--primary);
+            background: rgba(0, 75, 135, 0.06);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        form {
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            padding: 20px 20px 24px;
+        }
+
+        @media (min-width: 768px) {
+            form {
+                padding: 28px 30px 30px;
+            }
+
+            header {
+                padding: 26px 28px 22px;
+            }
+
+            h1 {
+                font-size: 1.9rem;
+            }
+        }
+
+        .section {
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.08);
+        }
+
+        .section:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+            color: var(--primary-dark);
+        }
+
+        .section-title span.number {
+            width: 24px;
+            height: 24px;
+            border-radius: 999px;
+            background: var(--primary);
+            color: white;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .section-desc {
+            font-size: 0.86rem;
+            color: #555;
+            margin-bottom: 16px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        @media (min-width: 720px) {
+            .grid-2 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+
+        label .req {
+            color: var(--danger);
+            font-size: 0.8rem;
+        }
+
+        .hint {
+            font-size: 0.8rem;
+            color: #777;
+            margin-bottom: 6px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 11px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 0.9rem;
+            background: #fafbfc;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease,
+                background 0.15s ease;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 110px;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 75, 135, 0.18);
+            background: #fff;
+        }
+
+        .inline-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 16px;
+            margin-top: 4px;
+        }
+
+        .checkbox-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #fafbfc;
+            font-size: 0.8rem;
+        }
+
+        .checkbox-pill input {
+            margin: 0;
+        }
+
+        .small {
+            font-size: 0.8rem;
+        }
+
+        .consent-box {
+            background: #f9fafb;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 12px 12px 8px;
+        }
+
+        .consent-item {
+            margin-bottom: 8px;
+        }
+
+        .consent-item label {
+            font-weight: 500;
+        }
+
+        .alert {
+            display: none;
+            margin-bottom: 12px;
+            padding: 8px 10px;
+            font-size: 0.86rem;
+            border-radius: 6px;
+        }
+
+        .alert.error {
+            background: #ffebee;
+            color: #b71c1c;
+            border: 1px solid #ffcdd2;
+        }
+
+        .alert.success {
+            background: #e8f5e9;
+            color: #1b5e20;
+            border: 1px solid #c8e6c9;
+        }
+
+        button[type="submit"] {
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 11px 22px;
+            border-radius: 999px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.05s ease,
+                box-shadow 0.15s ease;
+            box-shadow: 0 6px 14px rgba(0, 75, 135, 0.26);
+        }
+
+        button[type="submit"]:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 18px rgba(0, 75, 135, 0.3);
+        }
+
+        button[type="submit"]:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(0, 75, 135, 0.2);
+        }
+
+        button .spinner {
+            display: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 999px;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+        }
+
+        button.loading .spinner {
+            display: inline-block;
+        }
+
+        button.loading .btn-text {
+            opacity: 0.85;
+        }
+
+        footer {
+            margin-top: 14px;
+            font-size: 0.78rem;
+            color: #777;
+            text-align: right;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header>
+        <div class="header-inner">
+            <h1>SKERIC Science Diplomacy – Contribution Form</h1>
+            <p class="subtitle">
+                Help us build a multi-perspective white paper on Sweden–Korea
+                science diplomacy in education, research, and innovation.
+            </p>
+            <p class="note">
+                <strong>Estimated time:</strong> 10–15 minutes.
+                Please focus on <strong>one concrete case</strong> or experience.
+            </p>
+            <div class="pill-row">
+                <div class="pill important">For SKERIC White Paper</div>
+                <div class="pill">Bottom-up perspectives</div>
+                <div class="pill">Case-based contributions</div>
+                <div class="pill">Academia · Industry · Policy · Students</div>
+            </div>
+        </div>
+    </header>
+
+    <!--
+      ▶️ BACKEND 설정
+      - Formspree 등을 쓸 경우 action="https://formspree.io/f/XXXXXX" 로 변경
+      - method="POST" 유지
+    -->
+    <form id="skericForm" action="#" method="POST">
+        <div id="alertBox" class="alert error"></div>
+        <div id="successBox" class="alert success"></div>
+
+        <!-- 1. Contributor Profile -->
+        <section class="section">
+            <div class="section-title">
+                <span class="number">1</span>
+                <span>Contributor Profile</span>
+            </div>
+            <p class="section-desc">
+                Please tell us who you are. This helps us understand from which
+                context your perspective comes. <span class="small">(영문 입력
+                권장)</span>
+            </p>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="name">
+                        Full name <span class="req">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        required
+                        autocomplete="name"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="email">
+                        Email (for follow-up, not published)
+                    </label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        autocomplete="email"
+                        placeholder="optional"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="role">
+                        Role & organisation <span class="req">*</span>
+                    </label>
+                    <div class="hint">
+                        e.g. Associate Professor, Seoul National University
+                    </div>
+                    <input
+                        type="text"
+                        id="role"
+                        name="role"
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="country">
+                        Country / location
+                    </label>
+                    <input
+                        type="text"
+                        id="country"
+                        name="country"
+                        placeholder="e.g. Sweden, Korea, etc."
+                    />
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="sector">
+                        Primary sector <span class="req">*</span>
+                    </label>
+                    <select id="sector" name="sector" required>
+                        <option value="">Please select…</option>
+                        <option value="academia">Academia & Research</option>
+                        <option value="industry">Industry / Private Sector</option>
+                        <option value="government">Government / Policy</option>
+                        <option value="ngo">
+                            NGO / Civil Society / International Organisation
+                        </option>
+                        <option value="student">Student / Early Career</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="field">
+                        Field / area of expertise
+                    </label>
+                    <div class="hint">
+                        e.g. battery manufacturing, AI, higher education policy
+                    </div>
+                    <input type="text" id="field" name="field" />
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Case Description -->
+        <section class="section">
+            <div class="section-title">
+                <span class="number">2</span>
+                <span>Case Description – Science Diplomacy in Practice</span>
+            </div>
+            <p class="section-desc">
+                Please describe <strong>one concrete case</strong> where Sweden–Korea
+                collaboration, or a related initiative, played a role.
+            </p>
+
+            <div class="form-group">
+                <label for="caseTitle">
+                    Case / project title <span class="req">*</span>
+                </label>
+                <div class="hint">
+                    Short, descriptive title – e.g. “Joint Summer School on
+                    Sustainable Manufacturing”.
+                </div>
+                <input
+                    type="text"
+                    id="caseTitle"
+                    name="caseTitle"
+                    required
+                />
+            </div>
+
+            <div class="form-group">
+                <label>
+                    Type of activity <span class="req">*</span>
+                </label>
+                <div class="hint">
+                    Select all that apply. (나중에 white paper에서 유형별로 정리)
+                </div>
+                <div class="inline-checkboxes" id="activityGroup">
+                    <label class="checkbox-pill">
+                        <input
+                            type="checkbox"
+                            name="activityType"
+                            value="research"
+                        />
+                        <span>Research collaboration</span>
+                    </label>
+                    <label class="checkbox-pill">
+                        <input
+                            type="checkbox"
+                            name="activityType"
+                            value="education"
+                        />
+                        <span>Education / mobility</span>
+                    </label>
+                    <label class="checkbox-pill">
+                        <input
+                            type="checkbox"
+                            name="activityType"
+                            value="innovation"
+                        />
+                        <span>Innovation / industry partnership</span>
+                    </label>
+                    <label class="checkbox-pill">
+                        <input
+                            type="checkbox"
+                            name="activityType"
+                            value="policy"
+                        />
+                        <span>Policy / multilateral initiative</span>
+                    </label>
+                    <label class="checkbox-pill">
+                        <input
+                            type="checkbox"
+                            name="activityType"
+                            value="other"
+                        />
+                        <span>Other</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="timeframe">
+                    Timeframe
+                </label>
+                <div class="hint">
+                    e.g. 2020–2023, or “ongoing since 2024”.
+                </div>
+                <input type="text" id="timeframe" name="timeframe" />
+            </div>
+
+            <div class="form-group">
+                <label for="context">
+                    Context & challenge <span class="req">*</span>
+                </label>
+                <div class="hint">
+                    What problem, gap, or opportunity were you addressing?
+                    Please be as concrete as possible.
+                </div>
+                <textarea
+                    id="context"
+                    name="context"
+                    required
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="mechanism">
+                    Mechanism / process <span class="req">*</span>
+                </label>
+                <div class="hint">
+                    How did the collaboration or science diplomacy actually
+                    happen? (actors involved, instruments, agreements, activities)
+                </div>
+                <textarea
+                    id="mechanism"
+                    name="mechanism"
+                    required
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="outcomes">
+                    Outcomes & impact
+                </label>
+                <div class="hint">
+                    What were the results? (e.g. publications, programmes, policy
+                    changes, networks, lessons learned)
+                </div>
+                <textarea id="outcomes" name="outcomes"></textarea>
+            </div>
+        </section>
+
+        <!-- 3. Strategic Perspective -->
+        <section class="section">
+            <div class="section-title">
+                <span class="number">3</span>
+                <span>Strategic Perspective – Barriers and Future Directions</span>
+            </div>
+            <p class="section-desc">
+                Here we focus on your reflections. These answers will be used to
+                identify common themes and recommendations in the white paper.
+            </p>
+
+            <div class="form-group">
+                <label for="barrier">
+                    Main barrier <span class="req">*</span>
+                </label>
+                <div class="hint">
+                    In your view, what is the single most important obstacle to
+                    effective Sweden–Korea collaboration in this case or in general?
+                </div>
+                <textarea
+                    id="barrier"
+                    name="barrier"
+                    required
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="enablers">
+                    Enablers / what helped
+                </label>
+                <div class="hint">
+                    Were there factors, people, or instruments that made the
+                    collaboration work better?
+                </div>
+                <textarea id="enablers" name="enablers"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="futurePriority">
+                    Future priority (next 5 years) <span class="req">*</span>
+                </label>
+                <div class="hint">
+                    In one or two sentences: What should be the top priority for
+                    Sweden–Korea science diplomacy in your area?
+                </div>
+                <textarea
+                    id="futurePriority"
+                    name="futurePriority"
+                    required
+                    style="min-height: 80px"
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="recommendation">
+                    One concrete recommendation (one sentence)
+                </label>
+                <div class="hint">
+                    e.g. “Establish a joint seed funding scheme for early-career
+                    Sweden–Korea teams in green manufacturing.”
+                </div>
+                <input
+                    type="text"
+                    id="recommendation"
+                    name="recommendation"
+                />
+            </div>
+        </section>
+
+        <!-- 4. Consent & Use of Data -->
+        <section class="section">
+            <div class="section-title">
+                <span class="number">4</span>
+                <span>Consent & Use of Your Contribution</span>
+            </div>
+            <p class="section-desc">
+                Your answers will be used for the SKERIC science diplomacy white
+                paper and related academic / policy outputs. We will handle them
+                carefully and respectfully.
+            </p>
+
+            <div class="consent-box">
+                <div class="consent-item">
+                    <label for="quoteConsent">
+                        Permission to quote <span class="req">*</span>
+                    </label>
+                    <div class="hint">
+                        May we use short excerpts of your text in the white paper?
+                        (We will edit for length and clarity if needed.)
+                    </div>
+                    <select
+                        id="quoteConsent"
+                        name="quoteConsent"
+                        required
+                    >
+                        <option value="">Please select…</option>
+                        <option value="yes_name">
+                            Yes, with my name and affiliation
+                        </option>
+                        <option value="yes_anon">
+                            Yes, but please anonymise (no name)
+                        </option>
+                        <option value="no">No, please do not quote directly</option>
+                    </select>
+                </div>
+
+                <div class="consent-item">
+                    <label for="ackConsent">
+                        Acknowledgement in annex
+                    </label>
+                    <div class="hint">
+                        We may include a list of contributors in an annex.
+                    </div>
+                    <select id="ackConsent" name="ackConsent">
+                        <option value="">Please select…</option>
+                        <option value="yes">
+                            Yes, you may include my name and affiliation
+                        </option>
+                        <option value="no">
+                            No, I prefer not to be listed
+                        </option>
+                    </select>
+                </div>
+
+                <p class="small" style="margin-top: 8px;">
+                    By submitting this form, you confirm that your contribution is
+                    based on your own experience or observation, and that you have
+                    the right to share it for analytical and publication purposes
+                    within the SKERIC initiative.
+                </p>
+            </div>
+        </section>
+
+        <button type="submit" id="submitBtn">
+            <span class="spinner" aria-hidden="true"></span>
+            <span class="btn-text">Submit contribution</span>
+        </button>
+
+        <footer>
+            &copy; 2025 SKERIC – Sweden Korea Education, Research and Innovation Collaboration
+        </footer>
+    </form>
+</div>
+
+<script>
+    // Simple client-side validation for "at least one activity type"
+    const form = document.getElementById("skericForm");
+    const alertBox = document.getElementById("alertBox");
+    const successBox = document.getElementById("successBox");
+    const submitBtn = document.getElementById("submitBtn");
+
+    function showError(msg) {
+        if (!msg) {
+            alertBox.style.display = "none";
+            return;
+        }
+        alertBox.textContent = msg;
+        alertBox.classList.remove("success");
+        alertBox.classList.add("error");
+        alertBox.style.display = "block";
+        successBox.style.display = "none";
+    }
+
+    function showSuccess(msg) {
+        if (!msg) {
+            successBox.style.display = "none";
+            return;
+        }
+        successBox.textContent = msg;
+        successBox.classList.remove("error");
+        successBox.classList.add("success");
+        successBox.style.display = "block";
+        alertBox.style.display = "none";
+    }
+
+    form.addEventListener("submit", function (e) {
+        // If you connect to real backend (Formspree 등), 이 부분은 제거/수정 가능
+        e.preventDefault();
+
+        showError("");
+        showSuccess("");
+
+        // Check that at least one activityType is checked
+        const activityChecks = form.querySelectorAll(
+            "input[name='activityType']"
+        );
+        const oneChecked = Array.from(activityChecks).some((c) => c.checked);
+
+        if (!oneChecked) {
+            showError("Please select at least one type of activity.");
+            return;
+        }
+
+        // Basic HTML5 validity check
+        if (!form.checkValidity()) {
+            showError("Please fill in all required fields (marked with *).");
+            return;
+        }
+
+        // Simulate submit UI
+        submitBtn.classList.add("loading");
+        submitBtn.disabled = true;
+
+        // ▶ 실제 백엔드 연동 시: 여기서 fetch() 또는 실제 form.submit() 사용
+        // 예시 (Formspree 사용 시):
+        //
+        // form.action = "https://formspree.io/f/your-id";
+        // form.submit();
+        //
+        // 지금은 데모용 메시지만 띄우고 reset.
+
+        setTimeout(() => {
+            submitBtn.classList.remove("loading");
+            submitBtn.disabled = false;
+            showSuccess(
+                "Thank you! Your contribution has been recorded. You may close this page or submit another case."
+            );
+            form.reset();
+        }, 600);
+    });
+</script>
+</body>
+</html>
