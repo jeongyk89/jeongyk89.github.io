@@ -121,9 +121,9 @@ h2{font-size:clamp(2.4rem,6vw,5rem);line-height:1;font-weight:900;letter-spacing
 .tagw{font-size:.72rem;font-weight:900;letter-spacing:.06em;padding:.3em .8em;border-radius:999px;color:#08080f}
 .bars{display:grid;grid-template-columns:1fr 1fr;gap:1.6rem;margin-top:1.1rem}
 .bl .t{display:flex;justify-content:space-between;font-weight:800;font-size:.95rem;margin-bottom:.35rem}
-.bar{height:16px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden}
-.bar>i{display:block;height:100%;width:0;border-radius:9px}
-.bar.s>i{background:var(--mag)} .bar.a>i{background:var(--cyan)}
+.bar{height:16px;border-radius:9px;background:rgba(255,255,255,.16);overflow:hidden}
+.bar>i{display:block;height:100%;width:0;border-radius:9px;transition:width .25s linear}
+.bar.bus>i{background:var(--mag)} .bar.od>i{background:var(--cyan)}
 .od{opacity:0;transition:opacity .6s}.od.show{opacity:1}
 .rhint{margin-top:1rem;font-weight:700;color:var(--mut)} .rhint.gone{display:none}
 .rhint kbd{background:var(--cyan);color:#08080f;border-radius:7px;padding:.15em .55em;font-weight:900}
@@ -235,8 +235,8 @@ h2{font-size:clamp(2.4rem,6vw,5rem);line-height:1;font-weight:900;letter-spacing
       <span class="kick rv">Why warehouses stay stuck</span>
       <h2 class="rv d1">We&#39;re running <span class="gm">half-blind.</span></h2>
       <div class="cards c2 rv d2">
-        <div class="card"><h3 class="gc">Gap 1 &middot; Data</h3><p>Low digitalisation &mdash; we can barely see or trace what really happens on the floor.</p></div>
-        <div class="card"><h3 class="gm">Gap 2 &middot; Scheduling</h3><p>Built to buffer, not to flow. Resourced to absorb change rather than adapt to it.</p></div>
+        <div class="card"><h3 class="gc">Gap 1 &middot; Information</h3><p>Not enough information &mdash; we rarely know what operators really do, or how long it takes.</p></div>
+        <div class="card"><h3 class="gm">Gap 2 &middot; Workload</h3><p>Unbalanced, unsustainable workload &mdash; heavy items, repetition and one-size-fits-all routes, rarely tuned to the individual.</p></div>
       </div>
     </div>
   </section>
@@ -267,8 +267,8 @@ h2{font-size:clamp(2.4rem,6vw,5rem);line-height:1;font-weight:900;letter-spacing
           <div class="stage" style="aspect-ratio:1/1;max-height:32vh"><canvas id="cmpAdapt"></canvas></div></div>
       </div>
       <div class="bars rv d3">
-        <div class="bl"><div class="t"><span>Bus &mdash; walked</span><span id="cmpStaticVal">0 m</span></div><div class="bar s"><i id="cmpStaticBar"></i></div></div>
-        <div id="odBarWrap" class="bl od"><div class="t"><span>On-demand &mdash; walked</span><span id="cmpAdaptVal">0 m</span></div><div class="bar a"><i id="cmpAdaptBar"></i></div></div>
+        <div class="bl"><div class="t"><span>Bus &mdash; walked</span><span id="cmpStaticVal">0 m</span></div><div class="bar bus"><i id="cmpStaticBar"></i></div></div>
+        <div id="odBarWrap" class="bl od"><div class="t"><span>On-demand &mdash; walked</span><span id="cmpAdaptVal">0 m</span></div><div class="bar od"><i id="cmpAdaptBar"></i></div></div>
       </div>
       <div class="rv d4"><span id="cmpHint" class="rhint">Press <kbd>&#8594;</kbd> to reveal on-demand</span>
         <span id="cmpMeta" class="cmeta gc">On-demand picking = dynamic scheduling.</span></div>
@@ -384,8 +384,8 @@ h2{font-size:clamp(2.4rem,6vw,5rem);line-height:1;font-weight:900;letter-spacing
       <span class="kick rv">Back to where we started</span>
       <h2 class="rv d1">The two gaps &mdash; <span class="gl">narrower.</span></h2>
       <div class="cards c2 rv d2">
-        <div class="card"><h3 class="gc">Gap 1 &middot; Data</h3><p>Low digitalisation <b class="gl">&rarr; improved with AI vision.</b> More of the work becomes visible, closer to real time.</p></div>
-        <div class="card"><h3 class="gm">Gap 2 &middot; Scheduling</h3><p>Built to buffer <b class="gl">&rarr; improved with dynamic scheduling.</b> On-demand picking that re-plans as things change.</p></div>
+        <div class="card"><h3 class="gc">Gap 1 &middot; Information</h3><p>Not enough information <b class="gl">&rarr; improved with AI vision.</b> More of the work becomes visible, closer to real time.</p></div>
+        <div class="card"><h3 class="gm">Gap 2 &middot; Workload</h3><p>Unbalanced workload <b class="gl">&rarr; improved with workload-aware scheduling.</b> Balances operator workload &amp; cart capacity, not just distance (Wang et&nbsp;al., 2025).</p></div>
       </div>
     </div>
   </section>
@@ -550,7 +550,7 @@ function makeCompare(){const stat=WarehouseEngine(document.getElementById('cmpSt
   const adap=WarehouseEngine(document.getElementById('cmpAdapt'),{optimize:true,replanOnChange:true,speed:30});
   const sV=document.getElementById('cmpStaticVal'),aV=document.getElementById('cmpAdaptVal'),sB=document.getElementById('cmpStaticBar'),aB=document.getElementById('cmpAdaptBar');
   const odW=document.getElementById('odWrap'),odB=document.getElementById('odBarWrap'),hint=document.getElementById('cmpHint'),meta=document.getElementById('cmpMeta');
-  let vis=false,last=0,dem=0,cyc=0,otc=0,done=false,fr=0,rev=false;const CAP=12,SCALE=1800;
+  let vis=false,last=0,dem=0,cyc=0,otc=0,done=false,fr=0,rev=false;const CAP=12,SCALE=2600;
   function bus(){stat.reset(0);const ids=rnd(6);stat.addSpecific(ids);otc=ids.length;dem=1.5;}
   function both(){stat.reset(0);adap.reset(0);const ids=rnd(6);stat.addSpecific(ids);adap.addSpecific(ids);dem=1.5;cyc=0;otc=ids.length;done=false;fr=0;}
   function reveal(){if(rev)return;rev=true;both();odW.classList.add('show');odB.classList.add('show');meta.classList.add('show');if(hint)hint.classList.add('gone');}
