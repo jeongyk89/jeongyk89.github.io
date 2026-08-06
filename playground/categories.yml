@@ -1,0 +1,14 @@
+productive:
+  - scholar.google.com
+  - ieeexplore.ieee.org
+  - arxiv.org
+  - kth.se
+  - office365.com
+neutral:
+  - google.com
+  - wikipedia.org
+distracting:
+  - youtube.com
+  - reddit.com
+  - twitter.com
+  - tiktok.com

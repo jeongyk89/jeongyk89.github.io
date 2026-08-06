@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Cyber-Ethical Blueprint for Trustworthy AI in Logistics</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "neutral",
+      securityLevel: "strict"   // assume strict renderers
+    });
+  </script>
+  <style>
+    body { font-family: system-ui, Arial, Helvetica, sans-serif; margin: 40px; line-height: 1.6; background: #fafafa; }
+    h1 { margin-top: 0; }
+    h2 { color: #00205B; margin-top: 36px; }
+    .mermaid { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 0 8px #ddd; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Cyber-Ethical Blueprint for Trustworthy AI in Logistics</h1>
+
+  <h2>1. Ethics-by-Design Lifecycle (Methodology Pipeline)</h2>
+  <div class="mermaid">
+  flowchart TD
+      A([Start: Project Kickoff]) --> B[Ethical Risk Assessment (Requirements Stage)]
+      B --> C[Map Risks -> Controls (Principles -> Design Controls)]
+      C --> D[Standards Mapping (EU AI Act / GDPR / IEC 62443 / ISO 23247 / IEEE 7000)]
+      D --> E[Embed Controls in Architecture (Human Override, Logging, Consent, Safety)]
+      E --> F[Validation and Compliance Testing (Simulations, Audits, Checklists)]
+      F --> G{Meets Ethical Criteria}
+      G -- No --> B
+      G -- Yes --> H[Release Gate: Ethics and Security Sign-off]
+      H --> I[Continuous Monitoring (Operational Audits, Incident Reviews)]
+  </div>
+
+  <h2>2. Runtime Sequence: Human–Twin–AI with Consent &amp; Governance</h2>
+  <div class="mermaid">
+  sequenceDiagram
+      autonumber
+      participant Op as Operator
+      participant Sensor as Sensors/AMRs/Vision
+      participant Comm as Device Communication (OPC UA/MQTT/ROS2)
+      participant Consent as Data Consent Layer
+      participant Twin as Digital Twin
+      participant AI as AI/Optimization Service
+      participant Gov as Ethical Governance Module
+      participant Sup as Human Supervisor
+      participant Safety as Safety PLCs
+
+      Op->>AI: Task or Query
+      Sensor-->>Comm: Telemetry (positions, images, events)
+      Comm-->>Consent: Raw data
+      Consent-->>Twin: Approved and tagged data (PII policy)
+      Consent-->>Gov: Data usage log
+      Twin-->>AI: Context state (orders, KPIs)
+
+      AI->>Gov: Proposed decision (routing, rescheduling)
+      Gov->>Gov: Policy check (fairness, workload, transparency)
+      alt Violates policy
+          Gov-->>AI: Block or modify
+          Gov-->>Sup: Alert with rationale and options
+          Sup-->>AI: Human override or approve
+      else Passes checks
+          AI-->>Comm: Control command
+          Comm-->>Safety: Safety check (zones, stops)
+          Safety-->>Comm: OK
+          Comm-->>Sensor: Execute action
+      end
+
+      AI-->>Gov: Decision explanation
+      Gov-->>Twin: Store audit log (decision and rationale)
+      Gov-->>Sup: Explainable summary
+  </div>
+
+  <h2>3. Container View (Who Talks to Whom)</h2>
+  <div class="mermaid">
+  graph TD
+      subgraph phys[Physical and People]
+          H[Human Operator]
+          M[Machines and AMRs / Vision / RTLS]
+      end
+
+      subgraph edge[Edge and Connectivity]
+          C[Device Communication (OPC UA / ROS2 / MQTT)]
+      end
+
+      subgraph gov[Governance and Data Rights]
+          DCL[Data Classification and Consent Layer]
+          GOV[Ethical Governance Module (Audit, XAI, Policy Engine)]
+      end
+
+      subgraph twin[Twin Platform]
+          DT[Digital Twin Core (Models, Simulation, State)]
+          AImod[AI and Optimization Services]
+      end
+
+      subgraph apps[Applications]
+          UI[Human-AI Interaction UI (Dashboard, NL Interface)]
+          WMS[WMS / MES / ERP Connectors]
+      end
+
+      H --- UI
+      UI --- H
+      M --> C
+      C --> DCL
+      DCL --> DT
+      DCL --> GOV
+      DT --- AImod
+      AImod --> GOV
+      GOV --> UI
+      UI --> AImod
+      DT --> WMS
+      AImod --> C
+      C --> M
+  </div>
+</body>
+</html>

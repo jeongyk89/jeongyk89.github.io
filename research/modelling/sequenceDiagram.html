@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Human-Robot Order Picking Sequence Diagram</title>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      securityLevel: 'loose',
+      sequence: {
+        showSequenceNumbers: true,
+        wrap: true,
+        actorMargin: 60,
+        messageMargin: 18,
+        noteMargin: 10
+      }
+    });
+  </script>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.05);
+      padding: 24px;
+      overflow-x: auto;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.8rem;
+    }
+    p {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .legend div {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: #fafafa;
+      font-size: 0.95rem;
+    }
+    .mermaid {
+      min-width: 1400px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Human–Robot Collaborative Order Picking</h1>
+      <p>
+        Sequence diagram synthesized from the 15-stage workflow. It shows the main information exchanges among WMS,
+        robot control, human picker, AMR/cart, layout/navigation services, and sensing/validation technologies.
+      </p>
+
+      <div class="legend">
+        <div><strong>Static branches</strong>: rule-based options such as FIFO, fixed allocation, paper/digital display.</div>
+        <div><strong>Dynamic branches</strong>: adaptive decisions based on congestion, availability, fatigue, and real-time state.</div>
+        <div><strong>Human factors</strong>: fatigue, stress, cognitive load, autonomy, job satisfaction, ergonomics.</div>
+      </div>
+
+      <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Customer as Order Source
+    participant WMS as WMS
+    participant Layout as Layout / Navigation System
+    participant RCS as Robot Control System
+    actor Picker as Human Picker
+    participant AMR as AMR / Picking Cart
+    participant AR as Paper / Digital / AR Interface
+    participant Sense as Sensors / Vision / Shelf Tech
+
+    Note over Customer,WMS: 1. Order arrival
+    Customer->>WMS: New order arrives
+    alt Static batch mode
+        WMS->>WMS: Decide single vs batch picking\n(rule-based)
+    else Dynamic batch mode
+        WMS->>WMS: Decide batch mode from real-time state\n(workload, congestion, capacity)
+    end
+    alt Static order allocation
+        WMS->>WMS: Apply FIFO / FILO / due-date priority
+    else Dynamic order allocation
+        WMS->>WMS: Re-prioritize by live system state
+    end
+    Note right of WMS: Uses order quantity, profile, due dates, robot/cart capacity\nHuman factors: workload spikes, stress, cognitive load
+
+    Note over WMS,RCS: 2. Robot allocation
+    WMS->>RCS: Request robot assignment for selected order(s)
+    alt Static robot assignment
+        RCS->>RCS: Match order size to robot capacity
+    else Dynamic robot assignment
+        RCS->>RCS: Assign by real-time availability/location/state
+    end
+    RCS-->>WMS: Assigned robot ID / series / capacity
+
+    Note over WMS,Picker: 3. Task allocation
+    alt Static fixed assignment
+        WMS->>Picker: Assign human-leading or robot-leading task set
+        WMS->>RCS: Send robot task set
+    else Dynamic collaborative sharing
+        WMS->>Picker: Adaptive task split based on state/fatigue/location
+        WMS->>RCS: Adaptive robot task split
+    end
+    Note right of Picker: Factors: fatigue, autonomy, job satisfaction, ergonomics, experience
+
+    Note over WMS,Layout: 4. Zoning
+    WMS->>Layout: Request zoning strategy
+    alt Static zoning
+        Layout-->>WMS: Parallel or sequential zone plan
+    else Dynamic zoning
+        Layout-->>WMS: Adaptive zoning based on congestion
+    end
+
+    Note over WMS,Layout: 5. Sequence / Routing
+    WMS->>Layout: Request route / picking sequence
+    alt Static routing
+        Layout-->>WMS: Layout-based / multi-objective / AI-planned path
+    else Dynamic routing
+        Layout-->>WMS: Updated path for new orders / congestion / delays
+    end
+    WMS->>RCS: Send route and next locations to robot
+    WMS->>AR: Send route/task info to human interface
+
+    Note over WMS,AR: 6. Task presentation
+    alt Paper mode
+        WMS-->>Picker: Print / provide paper pick list
+    else Digital mode
+        AR-->>Picker: Show digital checklist/instructions
+    end
+    Note right of Picker: Human factors: visual fatigue, interpretation effort, cognitive load
+
+    Note over Picker,Layout: 7. Go to picking zone
+    alt Physically represented zone guidance
+        Layout-->>Picker: Physical signs / visual wayfinding
+    else WMS-guided navigation
+        WMS->>AR: Digital map / video / text / voice guidance
+        AR-->>Picker: Route to picking zone
+    end
+
+    Note over Picker,AMR: 8. Grab picking cart / find robot
+    alt Picker goes to idle equipment zone
+        WMS->>AR: Show robot series no. and usual/current location
+        AR-->>Picker: Assigned robot identification
+        opt Robot helps identification
+            WMS->>RCS: Trigger robot beacon
+            RCS->>AMR: Activate light / sound signal
+            AMR-->>Picker: Emit light / sound cue
+        end
+    else Meet robot at zone entrance
+        WMS->>RCS: Dispatch assigned robot to zone entrance
+        RCS->>AMR: Move to entrance
+        AMR-->>Picker: Arrive and wait for picker
+    end
+    Note over Picker,AMR: Human factors: travel fatigue, waiting stress, unnecessary-work perception
+
+    Note over Picker,AMR: 9. Search for storage location
+    alt Human-leading with paper
+        AR-->>Picker: Physical map / aisle number / pick-by-light reference
+    else Human-leading with digital/AR
+        WMS->>AR: Storage location + current position
+        AR-->>Picker: Map / voice / GPS / AR guidance
+    else Robot-leading
+        WMS->>RCS: Next storage location
+        RCS->>AMR: Navigate to target SKU location
+        AMR-->>Picker: Lead picker toward storage location
+    end
+
+    Note over Picker,AMR: 10. Move to storage location
+    alt Human follows instructions
+        Picker->>Layout: Move according to displayed guidance
+    else Human follows robot
+        Picker->>AMR: Follow robot movement
+        AMR->>Layout: Navigate path
+    end
+    Note right of Picker: Factors: fatigue, workload, cognitive load
+
+    Note over Picker,AR: 11. Search dedicated shelf
+    alt Static shelf identification
+        AR-->>Picker: Shelf number on paper/digital display
+    else Technology-assisted identification
+        Sense-->>Picker: Light / sound / AR cue for exact shelf
+    else Robot-assisted identification
+        AMR-->>Picker: Voice guidance for aisle/shelf position
+    end
+
+    Note over Picker,AMR: 12. Pick item
+    WMS->>RCS: Share SKU characteristics and storage constraints
+    RCS->>AMR: Determine if lifting aid is needed
+    alt Lifting tool needed
+        AMR-->>Picker: Instruct where/how to get lifting tool
+    else No lifting tool needed
+        AMR-->>Picker: Continue manual picking
+    end
+    AMR-->>Picker: Grasping guidance\n(one hand / two hands / posture)
+    Picker->>Picker: Pick item from shelf
+    Note right of Picker: Factors: fatigue, physical strain
+
+    Note over Picker,Sense: 13. Check part type, condition, quantity
+    alt Manual verification
+        Picker->>Picker: Inspect shape / part number / quantity
+        Picker->>WMS: Manually confirm exception or mismatch
+    else Digital condition check
+        Sense->>Sense: Camera/3D vision checks damage and identity
+        Sense-->>WMS: Condition/identity result
+    end
+    alt Manual quantity confirmation
+        Picker->>WMS: Scan barcode / confirm quantity
+    else Automated quantity confirmation
+        Sense-->>WMS: Shelf/pressure sensor validates picked amount
+    end
+    Note right of Picker: Factors: perception accuracy, workload, cognitive load
+
+    Note over Picker,AMR: 14. Place item on AMR / cart
+    alt Random placement
+        Picker->>AMR: Place item anywhere available
+    else Physically predefined bin position
+        AMR-->>Picker: Use labeled/order-specific bin location
+        Picker->>AMR: Place item in designated bin
+    else Robot-guided placement
+        AMR-->>Picker: Light / voice cue for exact placement position
+        Picker->>AMR: Place item at guided coordinates
+    end
+
+    Note over Picker,WMS: 15. Confirm order completion
+    alt WMS-based human confirmation
+        WMS-->>Picker: Updated checklist after each pick
+        Picker->>WMS: Confirm all items picked
+    else Automatic robot confirmation
+        AMR->>Sense: Detect placed item via vision / pressure sensor
+        Sense-->>RCS: Placement verified
+        RCS-->>WMS: Update picked-item list automatically
+        WMS-->>Picker: Notify order complete
+    end
+    Note over WMS,Picker: End state: completed order, updated system status, traceable human-robot collaboration
+      </div>
+    </div>
+  </div>
+</body>
+</html>

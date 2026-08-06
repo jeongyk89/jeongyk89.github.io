@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>HPLM – Simple Mermaid Diagrams</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "neutral",
+      securityLevel: "strict"   // maximum compatibility
+    });
+  </script>
+  <style>
+    body{font-family:system-ui,Arial,Helvetica,sans-serif;margin:40px;background:#fafafa}
+    h1{margin:0 0 8px}
+    h2{color:#00205B;margin:28px 0 8px}
+    p.caption{margin:6px 0 14px;color:#333}
+    .mermaid{background:#fff;border-radius:8px;padding:18px;box-shadow:0 0 8px #ddd}
+  </style>
+</head>
+<body>
+  <h1>HPLM – Simple Mermaid Diagrams</h1>
+
+  <!-- 1) Ethics-by-Design Lifecycle -->
+  <h2>1. Ethics-by-Design Lifecycle</h2>
+  <p class="caption">Treat ethics like engineering: define risks, map to controls, embed, verify, improve.</p>
+  <div class="mermaid">
+  flowchart LR
+      A[Start] --> B[Ethical risk assessment]
+      B --> C[Map risks to controls]
+      C --> D[Embed controls in architecture]
+      D --> E[Validate and check compliance]
+      E --> F[Release and monitor]
+  </div>
+
+  <!-- 2) Runtime Sequence -->
+  <h2>2. Runtime Sequence</h2>
+  <p class="caption">Consent before data enters twin, governance before AI acts, human can override.</p>
+  <div class="mermaid">
+  sequenceDiagram
+      autonumber
+      participant Op as Operator
+      participant Comm as Device comms
+      participant Consent as Consent layer
+      participant Twin as Digital twin
+      participant AI as AI service
+      participant Gov as Governance
+      participant Sup as Supervisor
+
+      Op->>AI: Task or question
+      Comm-->>Consent: Raw data
+      Consent-->>Twin: Approved data
+      Twin-->>AI: Context
+      AI->>Gov: Proposed decision
+      alt policy fails
+          Gov-->>AI: Block or change
+          Gov-->>Sup: Alert
+          Sup-->>AI: Override or approve
+      else policy ok
+          AI-->>Comm: Command to devices
+      end
+      Gov-->>Twin: Log decision
+  </div>
+
+  <!-- 3) Container View -->
+  <h2>3. Container View</h2>
+  <p class="caption">Consent and governance are first-class services next to twin and AI.</p>
+  <div class="mermaid">
+  graph TD
+      Phys[Physical world] --> Comms[Device communications]
+      Comms --> Consent[Consent layer]
+      Consent --> Twin[Digital twin]
+      Twin --> AI[AI services]
+      AI --> Comms
+      Consent --> Gov[Governance]
+      Gov --> UI[Supervisor UI]
+      UI --> AI
+  </div>
+
+</body>
+</html>

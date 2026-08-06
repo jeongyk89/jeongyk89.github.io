@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mars City Window - Anamorphic</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', Courier, monospace; }
+        #ui { position: absolute; top: 20px; left: 20px; color: #ff6600; pointer-events: none; text-shadow: 0 0 5px #ff6600; z-index: 10; }
+        #eye-tracker { 
+            position: absolute; width: 8px; height: 8px; 
+            background: #ffcc00; border-radius: 50%; border: 2px solid white;
+            transform: translate(-50%, -50%); display: block; z-index: 100; opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        LOCATION: MARS COLONY PRIME - DOME 7<br>
+        STATUS: ENV_SYNC ACTIVE
+    </div>
+    <div id="eye-tracker"></div>
+    <video id="input_video" style="display:none;"></video>
+
+    <script>
+        const tracker = document.getElementById('eye-tracker');
+        
+        // --- 1. Mars Scene Setup ---
+        const scene = new THREE.Scene();
+        // 화성 특유의 붉은 대기 느낌을 위한 안개 (Fog)
+        scene.fog = new THREE.FogExp2(0xcc5500, 0.03); 
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // [Layer 1] 가깝고 어두운 돔 구조물 (Foreground)
+        // 사용자가 움직일 때 가장 크게 변형되어 깊이감을 줌
+        const domeGeo = new THREE.BoxGeometry(20, 20, 1);
+        const domeMat = new THREE.MeshBasicMaterial({ 
+            color: 0x111111, // 아주 어두운 금속
+            wireframe: true,
+            wireframeLinewidth: 3,
+            transparent: true,
+            opacity: 0.7
+        });
+        const domeFrame = new THREE.Mesh(domeGeo, domeMat);
+        domeFrame.position.z = -0.5; // 화면 바로 앞에 배치
+        scene.add(domeFrame);
+
+        // [Layer 2] 화성 도시 구조물 (Midground)
+        // 기존 기둥들을 '미래 도시 마천루'처럼 변형
+        const cityGroup = new THREE.Group();
+        for(let i = 0; i < 60; i++) {
+            const h = Math.random() * 15 + 5;
+            const pGeo = new THREE.BoxGeometry(Math.random()*0.5+0.1, h, Math.random()*0.5+0.1);
+            
+            // 도시 불빛 느낌을 주는 재질 (약간 붉고, 스스로 빛남)
+            const pMat = new THREE.MeshBasicMaterial({ 
+                color: Math.random() > 0.8 ? 0xffcc00 : 0xaa4400, // 가끔 노란 불빛
+                transparent: true,
+                opacity: 0.9
+            });
+            const building = new THREE.Mesh(pGeo, pMat);
+            building.position.set(
+                (Math.random() - 0.5) * 25, 
+                -10 + h/2 + (Math.random()-0.5)*2, // 바닥에 세움
+                -Math.random() * 30 - 5
+            );
+            cityGroup.add(building);
+        }
+        scene.add(cityGroup);
+
+        // [Layer 3] 우주 배경 (Background)
+        // 별들과 먼 우주 행성
+        const starGeo = new THREE.BufferGeometry();
+        const starPos = [];
+        for(let i=0; i<500; i++) {
+            starPos.push((Math.random()-0.5)*100, (Math.random()-0.5)*100, -50);
+        }
+        starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
+        const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.1 });
+        const stars = new THREE.Points(starGeo, starMat);
+        scene.add(stars);
+
+        // 먼 화성 노을 (배경을 채우는 평면)
+        const sunsetGeo = new THREE.PlaneGeometry(100, 100);
+        const sunsetMat = new THREE.MeshBasicMaterial({ color: 0x442200, transparent: true, opacity: 0.5 });
+        const sunset = new THREE.Mesh(sunsetGeo, sunsetMat);
+        sunset.position.z = -45;
+        scene.add(sunset);
+
+        // --- 2. Advanced Off-Axis Logic ---
+        let targetX = 0, targetY = 0;
+        let curX = 0, curY = 0;
+
+        function updateAnamorphicProjection(x, y) {
+            const aspect = window.innerWidth / window.innerHeight;
+            const near = 0.1;
+            const screenDist = 7; // 실제 당신과 모니터 사이의 거리 (수정 가능)
+
+            const left = (-aspect / 2 - x) * (near / screenDist);
+            const right = (aspect / 2 - x) * (near / screenDist);
+            const bottom = (-0.5 - y) * (near / screenDist);
+            const top = (0.5 - y) * (near / screenDist);
+
+            camera.projectionMatrix.makePerspective(left, right, top, bottom, near, 1000);
+            
+            // Camera position amplified to 'peek' further
+            camera.position.set(x * 20, y * 15, screenDist); 
+            camera.lookAt(0, 0, -15);
+        }
+
+        // --- 3. MediaPipe Face Tracking ---
+        const videoElement = document.getElementById('input_video');
+        const faceMesh = new FaceMesh({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+        });
+
+        faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.5 });
+        faceMesh.onResults(results => {
+            if (results.multiFaceLandmarks && results.multiFaceLandmarks[0]) {
+                const landmarks = results.multiFaceLandmarks[0];
+                targetX = (1 - (landmarks[159].x + landmarks[386].x) / 2) - 0.5;
+                targetY = -( (landmarks[159].y + landmarks[386].y) / 2 - 0.5 );
+
+                tracker.style.left = `${(1-landmarks[159].x) * 100}%`;
+                tracker.style.top = `${landmarks[159].y * 100}%`;
+            }
+        });
+
+        const cameraFeed = new Camera(videoElement, {
+            onFrame: async () => { await faceMesh.send({image: videoElement}); },
+            width: 640, height: 480
+        });
+        cameraFeed.start();
+
+        // --- 4. Render Loop ---
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            curX += (targetX - curX) * 0.1; // Lerp smoothing
+            curY += (targetY - curY) * 0.1;
+
+            updateAnamorphicProjection(curX, curY);
+
+            // 도시 불빛이 미세하게 깜빡이게
+            cityGroup.children.forEach(b => {
+                if(Math.random()>0.99) b.material.opacity = Math.random()*0.5+0.5;
+            });
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

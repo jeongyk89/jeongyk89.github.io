@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>HPLM Trustworthy AI Checklist — Human-Centric Production Logistics</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Checklist and results for a human-centric, ethical production logistics platform (HPLM) with digital twins and AI." />
+  <style>
+    :root{
+      --blue:#00205B; --ink:#1f2937; --muted:#6b7280; --bg:#f7f9fc; --card:#ffffff; --line:#e5e7eb;
+      --ok:#15803d; --warn:#b45309; --pill:#eef2ff; --pill-ink:#3730a3;
+    }
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    header{background:var(--card);border-bottom:1px solid var(--line)}
+    .wrap{max-width:980px;margin:0 auto;padding:28px 20px}
+    h1{color:var(--blue);font-size:28px;line-height:1.2;margin:0 0 8px}
+    h2{color:var(--blue);font-size:20px;margin:28px 0 12px}
+    p.lead{margin:6px 0 18px;color:var(--muted)}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 18px 10px;margin:14px 0;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+    .q{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:flex-start;margin:10px 0 14px}
+    .q input{margin-top:4px;transform:scale(1.2)}
+    .meta{font-size:12px;color:var(--muted);margin-top:4px}
+    .tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--pill);color:var(--pill-ink);margin-left:6px}
+    .status{float:right;font-size:12px;color:var(--ok);font-weight:600}
+    .status::before{content:"✔ ";font-weight:700}
+    details{margin:10px 0}
+    summary{cursor:pointer}
+    footer{color:var(--muted);font-size:12px;margin:28px 0 40px}
+
+    /* Print-friendly */
+    @media print{
+      body{background:#fff}
+      .card{break-inside:avoid}
+      a[href]:after{content:" (" attr(href) ")";font-size:10px;color:#777}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>HPLM Trustworthy AI Checklist</h1>
+      <p class="lead">
+        Human-centric, ethical production logistics — aligned with EU Trustworthy AI, GDPR, IEC&nbsp;62443, ISO&nbsp;23247, and safety norms.
+        The checklist below shows each criterion and the corresponding HPLM evidence (our Year&nbsp;1 result).
+      </p>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- 1 -->
+    <div class="card">
+      <h2>1) Human Agency &amp; Oversight <span class="tag">Human-in-command</span> <span class="status">Compliant</span></h2>
+      <div class="q">
+        <input type="checkbox" checked disabled />
+        <div>
+          <div><strong>Question:</strong> Can a human stay in command and override autonomous actions?</div>
+          <div class="meta"><strong>HPLM Answer:</strong> Yes — Supervisor UI with explicit override; high-risk actions require human confirmation; decision log is visible in real time.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2 -->
+    <div class="card">
+      <h2>2) Technical Robustness &amp; Safety <span class="tag">ISO 13849 • IEC 61508 • IEC 62443</span> <span class="status">Compliant</span></h2>
+      <div class="q">
+        <input type="checkbox" checked disabled />
+        <div>
+          <div><strong>Question:</strong> Are fail-safes, reliability and physical safety engineered into the system?</div>
+          <div class="meta"><strong>HPLM Answer:</strong> Yes — Safety PLCs and interlocks bound actuation; worst-case twin simulations executed; cybersecurity hardened per IEC&nbsp;62443.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="card">
+      <h2>3) Privacy &amp; Data Governance <span class="tag">GDPR • Data minimization</span> <span class="status">Compliant</span></h2>
+      <div class="q">
+        <input type="checkbox" checked disabled />
+        <div>
+          <div><strong>Question:</strong> Are privacy, consent, and minimization ensured for personal data?</div>
+          <div class="meta"><strong>HPLM Answer:</strong> Yes — <em>Data Classification &amp; Consent Layer</em> identifies personal streams, enforces minimization, consent/opt-out, and anonymization where applicable.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="card">
+      <h2>4) Transparency &amp; Explainability <span class="tag">XAI • Decision logs</span> <span class="status">Compliant</span></h2>
+      <div class="q">
+        <input type="checkbox" checked disabled />
+        <div>
+          <div><strong>Question:</strong> Can users understand why the AI acted or recommended an action?</div>
+          <div class="meta"><strong>HPLM Answer:</strong> Yes — <em>Ethical Governance Module</em> records rationale and inputs for every significant decision; explanations are accessible via the operator dashboard.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="card">
+      <h2>5) Fairness &amp; Non-Discrimination <span class="tag">Workload equity</span> <span class="status">Compliant</span></h2>
+      <div class="q">
+        <input type="checkbox" checked disabled />
+        <div>
+          <div><strong>Question:</strong> Are task allocations free of bias or undue burden?</div>
+          <div class="meta"><strong>HPLM Answer:</strong> Yes — Governance rules monitor workload distribution across workers and shifts; alerts raised on patterns that look unfair or exceed thresholds.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6 -->
+    <div class="card">
+      <h2>6) Human Well-being &amp; Ergonomics <span class="tag">Industry 5.0</span> <span class="status">Compliant</span></h2>
+      <div class="q">
+        <input type="checkbox" checked disabled />
+        <div>
+          <div><strong>Question:</strong> Does optimization respect ergonomic limits and health?</div>
+          <div class="meta"><strong>HPLM Answer:</strong> Yes — Human task models in the twin; policy encodes ergonomic limits and break rules; schedules avoid fatigue-inducing plans.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7 -->
+    <div class="card">
+      <h2>7) Accountability &amp; Audit <span class="tag">Traceability</span> <span class="status">Compliant</span></h2>
+      <div class="q">
+        <input type="checkbox" checked disabled />
+        <div>
+          <div><strong>Question:</strong> Is there an end-to-end audit trail and assigned responsibility?</div>
+          <div class="meta"><strong>HPLM Answer:</strong> Yes — Complete decision audit trail; designated reviewer role (e.g., “Digital Twin Ethics Officer”); incident playbook and root-cause analysis process.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8 -->
+    <div class="card">
+      <h2>8) Cybersecurity &amp; Data Integrity <span class="tag">Defense-in-depth</span> <span class="status">Compliant</span></h2>
+      <div class="q">
+        <input type="checkbox" checked disabled />
+        <div>
+          <div><strong>Question:</strong> Are communications secured and the system resilient to cyber threats?</div>
+          <div class="meta"><strong>HPLM Answer:</strong> Yes — Encrypted and authenticated channels, least-privilege access, network zoning; OPC&nbsp;UA security profiles and access controls enforced.</div>
+        </div>
+      </div>
+    </div>
+
+    <details class="card">
+      <summary><strong>Mapping to HPLM components (legend)</strong></summary>
+      <ul>
+        <li><strong>Consent &amp; Privacy:</strong> Data Classification &amp; Consent Layer</li>
+        <li><strong>Transparency &amp; Accountability:</strong> Ethical Governance Module</li>
+        <li><strong>Safety &amp; Robustness:</strong> Safety PLCs, interlocks, simulation tests</li>
+        <li><strong>Human Agency:</strong> Supervisor UI with override &amp; approvals</li>
+        <li><strong>Cybersecurity:</strong> AuthN/AuthZ, encrypted transport, IEC&nbsp;62443 zones</li>
+      </ul>
+    </details>
+
+    <footer>
+      © 2025 KTH — Human-Centric Production Logistics Multiverse (HPLM). This page illustrates the checklist and example HPLM answers (Year&nbsp;1).
+    </footer>
+  </main>
+</body>
+</html>

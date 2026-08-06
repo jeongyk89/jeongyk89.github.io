@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AUGMENT – Slim Theme Builder (Fixed)</title>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<style>
+  :root{--bg:#0b1020;--panel:#111831;--ink:#eaf1ff;--muted:#9fb2da;--line:#22305a;--sw:36px}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+  .wrap{max-width:900px;margin:28px auto;padding:0 16px}
+  h1{font-size:20px;margin:0 0 8px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .sw{width:var(--sw);height:var(--sw);border-radius:8px;border:1px solid #0003;box-shadow:inset 0 0 0 1px #fff2}
+  .strip{display:flex;gap:8px;align-items:center}
+  .btn{background:#1d2a53;border:1px solid #283b78;color:var(--ink);padding:8px 12px;border-radius:9px;cursor:pointer}
+  .btn:hover{background:#22305a}
+  .btn.alt{background:#17324c;border-color:#24486e}
+  .btn.good{background:#0f3a2c;border-color:#19543f}
+  .label{color:var(--muted);font-size:12px}
+  input[type="range"]{width:220px}
+  .grid6{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+  .slot{display:flex;flex-direction:column;gap:4px}
+  .slot .box{height:36px;border-radius:8px;border:1px solid #0003;box-shadow:inset 0 0 0 1px #fff2}
+  .mini{color:var(--muted);font-size:12px}
+  textarea, input[type="text"], input[type="password"]{background:#0d1328;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px;width:100%}
+  .drop{border:1px dashed #345;border-radius:10px;padding:12px;text-align:center;color:#bcd}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AUGMENT – Color → PowerPoint Theme</h1>
+  <div class="mini">Pick a palette, tweak brightness, preview theme slots, then export a <b>THMX</b> or update a dropped <b>POTX</b>.</div>
+
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <div><b>Choose palette</b></div>
+      <button class="btn alt" id="randomBtn">Random</button>
+    </div>
+    <div id="paletteLib"></div>
+    <div class="mini" style="margin-top:6px">Click a row to use it.</div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div class="label">Brightness</div>
+      <input type="range" id="bright" min="-30" max="30" step="1" value="0">
+      <div class="mini" id="brightVal">0</div>
+    </div>
+    <div class="row">
+      <div class="label">Working palette</div>
+      <div id="currentStrip" class="strip"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <b>Text → palette</b>
+    <div class="row" style="margin-top:8px">
+      <textarea id="prompt" rows="2" placeholder="e.g., deep ocean at night with neon accents"></textarea>
+    </div>
+    <div class="row">
+      <button class="btn alt" id="offlineGen">Generate (offline keywords)</button>
+      <span class="mini">or use OpenAI:</span>
+      <input type="password" id="openaiKey" placeholder="OpenAI API key (sk-...)" style="max-width:280px">
+      <button class="btn" id="openaiGen">Generate with OpenAI</button>
+    </div>
+    <div class="mini" id="aiMsg"></div>
+  </div>
+
+  <div class="card">
+    <b>PowerPoint theme slots</b>
+    <div class="mini" style="margin:6px 0 10px">dk1, lt1, dk2, lt2, accent1–6, hlink, folHlink</div>
+    <div id="themePreview" class="grid6"></div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <button class="btn good" id="downloadThmx">Download THMX</button>
+      <span class="mini">— or —</span>
+      <div class="drop" id="dropper">Drop a base <b>.potx</b> here (or click) to update its theme</div>
+      <input type="file" id="fileInput" accept=".potx" hidden>
+    </div>
+    <div class="mini">We replace the theme part inside your POTX. Fonts/layouts/masters stay intact.</div>
+  </div>
+
+  <div class="mini">All local in your browser. Only OpenAI mode sends your prompt to OpenAI.</div>
+</div>
+
+<script>
+/* ========== helpers ========== */
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+const hexToRgb=h=>{h=h.replace('#',''); if(h.length===3){h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2]} const n=parseInt(h,16); return {r:(n>>16)&255,g:(n>>8)&255,b:n&255}};
+const rgbToHex=(r,g,b)=>"#"+[r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("");
+const adjust=(hex,amt)=>{const {r,g,b}=hexToRgb(hex); const f=c=>clamp(Math.round(c+255*(amt/100)),0,255); return rgbToHex(f(r),f(g),f(b));};
+const h = s => s.replace('#','');
+
+/* ========== robust theme XML (Office-friendly) ========== */
+function themeXml(cols){
+  const [dk1,lt1,dk2,lt2,a1,a2,a3,a4,a5,a6,hl,fl]=cols;
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="AUGMENT">
+  <a:themeElements>
+    <a:clrScheme name="AUGMENT">
+      <a:dk1><a:srgbClr val="${h(dk1)}"/></a:dk1>
+      <a:lt1><a:srgbClr val="${h(lt1)}"/></a:lt1>
+      <a:dk2><a:srgbClr val="${h(dk2)}"/></a:dk2>
+      <a:lt2><a:srgbClr val="${h(lt2)}"/></a:lt2>
+      <a:accent1><a:srgbClr val="${h(a1)}"/></a:accent1>
+      <a:accent2><a:srgbClr val="${h(a2)}"/></a:accent2>
+      <a:accent3><a:srgbClr val="${h(a3)}"/></a:accent3>
+      <a:accent4><a:srgbClr val="${h(a4)}"/></a:accent4>
+      <a:accent5><a:srgbClr val="${h(a5)}"/></a:accent5>
+      <a:accent6><a:srgbClr val="${h(a6)}"/></a:accent6>
+      <a:hlink><a:srgbClr val="${h(hl)}"/></a:hlink>
+      <a:folHlink><a:srgbClr val="${h(fl)}"/></a:folHlink>
+    </a:clrScheme>
+    <a:fontScheme name="Office Theme">
+      <a:majorFont><a:latin typeface="Calibri Light"/></a:majorFont>
+      <a:minorFont><a:latin typeface="Calibri"/></a:minorFont>
+    </a:fontScheme>
+    <a:fmtScheme name="Office Theme">
+      <a:fillStyleLst/><a:lnStyleLst/><a:effectStyleLst/><a:bgFillStyleLst/>
+    </a:fmtScheme>
+  </a:themeElements>
+  <a:objectDefaults/>
+  <a:extraClrSchemeLst/>
+</a:theme>`;
+}
+
+/* Correct THMX package files */
+function contentTypesTHMX(){return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/theme/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>
+  <Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>
+  <Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>
+</Types>`;}
+function rootRelsTHMX(){return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="theme/theme/theme1.xml"/>
+  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
+  <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
+</Relationships>`;}
+function appProps(){return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"
+ xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">
+  <Application>Microsoft Office Theme</Application>
+  <DocSecurity>0</DocSecurity><ScaleCrop>false</ScaleCrop>
+  <Company>AUGMENT</Company><LinksUpToDate>false</LinksUpToDate>
+  <SharedDoc>false</SharedDoc><HyperlinksChanged>false</HyperlinksChanged>
+  <AppVersion>16.0000</AppVersion>
+</Properties>`;}
+function coreProps(){const d=new Date().toISOString();
+return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
+ xmlns:dc="http://purl.org/dc/elements/1.1/"
+ xmlns:dcterms="http://purl.org/dc/terms/" xmlns:dcmitype="http://purl.org/dc/dcmitype/"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <dc:title>AUGMENT Theme</dc:title>
+  <dc:subject>Color Theme</dc:subject>
+  <dc:creator>AUGMENT</dc:creator>
+  <cp:lastModifiedBy>AUGMENT</cp:lastModifiedBy>
+  <dcterms:created xsi:type="dcterms:W3CDTF">${d}</dcterms:created>
+  <dcterms:modified xsi:type="dcterms:W3CDTF">${d}</dcterms:modified>
+</cp:coreProperties>`;}
+
+/* ========== palettes ========== */
+const LIB = [
+  {name:"Horizon Core", c:["#0B1020","#EAF1FF","#12203B","#9FB2DA","#1A3B5D","#E27229","#1F7A4C","#28A3D1","#8E2B8F","#3E8A2C","#1B66B3","#B35D1B"]},
+  {name:"Glacier Mint", c:["#10161F","#F4FAFF","#1C2A3A","#BBD4E7","#0A5C73","#1AA2A2","#0C7A5F","#3FA77F","#82C7A5","#CDE9D7","#0D78B5","#0E4D69"]},
+  {name:"Sunset Clay", c:["#1B0F10","#FFF4ED","#2E1C18","#F2CCB7","#A44A2A","#D4733A","#F29E63","#F5B892","#8E3B5B","#C7798F","#7B5C2A","#3B1D0F"]},
+  {name:"Abyss Neon", c:["#060B18","#E8F0FF","#0B1B3A","#A6B9E9","#071837","#1162FF","#23D2F2","#00E8A3","#FF6AD5","#FFB800","#7B61FF","#00C853"]},
+  {name:"Verdant Slate", c:["#0E1416","#F2F7F5","#1C2A2F","#BFD6CF","#2F4F4F","#3E7C59","#70A37F","#A3C9A8","#DCEFD8","#7E89A6","#495867","#A44A3F"]},
+];
+let state = { colors: [...LIB[0].c], bright: 0 };
+
+function adjusted(){return state.colors.map(c=>adjust(c,state.bright));}
+
+/* UI */
+function drawLib(){
+  const host=document.getElementById('paletteLib'); host.innerHTML="";
+  LIB.forEach(p=>{
+    const row=document.createElement('div'); row.className="row"; row.style.margin="6px 0";
+    const name=document.createElement('div'); name.textContent=p.name; name.className="mini"; name.style.width="120px";
+    const strip=document.createElement('div'); strip.className="strip";
+    p.c.forEach(c=>{const s=document.createElement('div'); s.className="sw"; s.style.background=c; strip.appendChild(s);});
+    row.appendChild(name); row.appendChild(strip);
+    row.addEventListener('click',()=>{state.colors=[...p.c]; refresh();});
+    host.appendChild(row);
+  });
+}
+function drawWorking(){
+  const w=document.getElementById('currentStrip'); w.innerHTML="";
+  adjusted().forEach(c=>{const s=document.createElement('div'); s.className="sw"; s.style.background=c; w.appendChild(s);});
+}
+function drawPreview(){
+  const labels=["dk1","lt1","dk2","lt2","acc1","acc2","acc3","acc4","acc5","acc6","hlink","folH"];
+  const cols=adjusted();
+  const host=document.getElementById('themePreview'); host.innerHTML="";
+  labels.forEach((lab,i)=>{
+    const cell=document.createElement('div'); cell.className="slot";
+    const box=document.createElement('div'); box.className="box"; box.style.background=cols[i];
+    const cap=document.createElement('div'); cap.className="mini"; cap.textContent=lab+"  "+cols[i];
+    cell.appendChild(box); cell.appendChild(cap); host.appendChild(cell);
+  });
+}
+function refresh(){ drawWorking(); drawPreview(); }
+
+/* randomize */
+function randomPalette(){
+  const lib=LIB[Math.floor(Math.random()*LIB.length)];
+  const base=lib.c.slice(0,4), acc=lib.c.slice(4,10), links=lib.c.slice(10,12);
+  for(let i=acc.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [acc[i],acc[j]]=[acc[j],acc[i]];}
+  state.colors=[...base,...acc,...links]; refresh();
+}
+
+/* offline text → palette */
+const KEY_COLORS={ ocean:"#1B66B3",sea:"#1397D6",sky:"#28A3D1",forest:"#2E7D32",moss:"#5B8F5B",
+  night:"#0B1020",neon:"#8E2B8F",coral:"#FF7F50",copper:"#B35D1B",sand:"#D9CBA3",
+  steel:"#5A6A7A",slate:"#495867",berry:"#A4005B",lime:"#6CC24A",amber:"#FFB800" };
+function fromTextLocal(s){
+  const words=(s||"").toLowerCase().match(/[a-z]+/g)||[];
+  const picks=[];
+  for(const w of words){ if(KEY_COLORS[w] && !picks.includes(KEY_COLORS[w])) picks.push(KEY_COLORS[w]); }
+  while(picks.length<6){
+    const lib=LIB[Math.floor(Math.random()*LIB.length)];
+    picks.push(lib.c[4+Math.floor(Math.random()*6)]);
+  }
+  const dk1="#0B1020", lt1="#EAF1FF", dk2="#12203B", lt2="#9FB2DA";
+  const [a1,a2,a3,a4,a5,a6]=picks.slice(0,6);
+  state.colors=[dk1,lt1,dk2,lt2,a1,a2,a3,a4,a5,a6,a1,a2]; refresh();
+}
+
+/* OpenAI text → palette */
+async function fromTextOpenAI(prompt, apiKey){
+  const msg=document.getElementById('aiMsg'); msg.textContent="contacting OpenAI…";
+  try{
+    const r=await fetch("https://api.openai.com/v1/chat/completions",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json", "Authorization":"Bearer "+apiKey },
+      body:JSON.stringify({
+        model:"gpt-4o-mini",
+        messages:[
+          {role:"system",content:"Return a JSON array of exactly 6 hex colors (like [\"#112233\", ...]). No commentary."},
+          {role:"user",content:prompt||"human-centric industrial theme, deep blue base with vivid accents"}
+        ],
+        temperature:0.7
+      })
+    });
+    if(!r.ok){ throw new Error("HTTP "+r.status); }
+    const data=await r.json();
+    const txt=(data.choices?.[0]?.message?.content||"").trim();
+    const arr = JSON.parse(txt);
+    if(!Array.isArray(arr)||arr.length!==6) throw new Error("Model did not return 6 hex colors.");
+    const [a1,a2,a3,a4,a5,a6]=arr;
+    const dk1="#0B1020", lt1="#EAF1FF", dk2="#12203B", lt2="#9FB2DA";
+    state.colors=[dk1,lt1,dk2,lt2,a1,a2,a3,a4,a5,a6,a1,a2];
+    msg.textContent="palette applied."; refresh();
+  }catch(e){
+    console.error(e); msg.textContent="OpenAI failed; using offline generator.";
+    fromTextLocal(prompt);
+  }
+}
+
+/* THMX download (valid package) */
+async function downloadTHMX(){
+  const cols=adjusted();
+  const zip=new JSZip();
+  zip.file("[Content_Types].xml", contentTypesTHMX());
+  zip.folder("_rels").file(".rels", rootRelsTHMX());
+  zip.folder("docProps").file("app.xml", appProps());
+  zip.folder("docProps").file("core.xml", coreProps());
+  zip.folder("theme").folder("theme").file("theme1.xml", themeXml(cols));
+  const blob=await zip.generateAsync({type:"blob"});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download="AUGMENT-Theme.thmx"; a.click();
+}
+
+/* POTX update: detect theme part path first */
+function findThemePathInPotx(zip){
+  // Typical: ppt/theme/theme1.xml (or theme2.xml, etc.)
+  const keys=Object.keys(zip.files);
+  const candidates=keys.filter(k=>/^ppt\/theme\/theme\d+\.xml$/i.test(k));
+  // If none, maybe ppt/theme/theme1.xml without number
+  if(candidates.length) return candidates[0];
+  const fallback=keys.find(k=>/^ppt\/theme\/.*\.xml$/i.test(k));
+  return fallback||null;
+}
+async function updatePotx(file){
+  const cols=adjusted();
+  const theme=themeXml(cols);
+  let base;
+  try{
+    base = await JSZip.loadAsync(file);
+  }catch(e){
+    alert("Could not open POTX (zip parse error)."); return;
+  }
+  const path=findThemePathInPotx(base);
+  if(!path){ alert("No theme part found in this POTX (expected something like ppt/theme/theme1.xml)."); return; }
+  base.file(path, theme);
+  const out=await base.generateAsync({type:"blob"});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(out); a.download="AUGMENT-Updated.potx"; a.click();
+}
+
+/* wire-up */
+function init(){
+  drawLib(); refresh();
+  document.getElementById('bright').addEventListener('input',e=>{
+    state.bright=parseInt(e.target.value,10); document.getElementById('brightVal').textContent=state.bright; refresh();
+  });
+  document.getElementById('randomBtn').addEventListener('click', randomPalette);
+  document.getElementById('offlineGen').addEventListener('click', ()=>fromTextLocal(document.getElementById('prompt').value));
+  document.getElementById('openaiGen').addEventListener('click', ()=>{
+    const key=document.getElementById('openaiKey').value.trim();
+    if(!key){ alert("Enter your OpenAI API key first."); return; }
+    fromTextOpenAI(document.getElementById('prompt').value, key);
+  });
+  document.getElementById('downloadThmx').addEventListener('click', downloadTHMX);
+
+  const drop=document.getElementById('dropper');
+  const fileInput=document.getElementById('fileInput');
+  drop.addEventListener('click', ()=>fileInput.click());
+  drop.addEventListener('dragover', e=>{e.preventDefault(); drop.style.background="#0f1731";});
+  drop.addEventListener('dragleave', ()=>{drop.style.background="";});
+  drop.addEventListener('drop', e=>{
+    e.preventDefault(); drop.style.background="";
+    const f=e.dataTransfer.files?.[0]; if(f) updatePotx(f);
+  });
+  fileInput.addEventListener('change', e=>{
+    const f=e.target.files?.[0]; if(f) updatePotx(f);
+    fileInput.value="";
+  });
+}
+init();
+</script>
+</body>
+</html>

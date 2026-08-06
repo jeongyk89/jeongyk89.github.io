@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Human Order Picking – UML Sequence & Activity (Mermaid)</title>
+  <style>
+    body { font-family: Inter, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 24px; line-height: 1.4; }
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    h2 { margin-top: 28px; }
+    .note { font-size: 12px; opacity: 0.8; }
+    .panel { background: #f7f7fb; border: 1px solid #e6e6ef; border-radius: 14px; padding: 14px 16px; }
+    .mermaid { margin: 18px 0; }
+    details { background: #fafafa; border-radius: 12px; padding: 12px 14px; border: 1px solid #ececf1; }
+    code, pre { background: #f5f5f7; border-radius: 8px; padding: 8px 10px; display: block; overflow-x: auto; }
+  </style>
+  <!-- Mermaid CDN -->
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs'
+    mermaid.initialize({ startOnLoad: true, theme: 'default', securityLevel: 'loose' })
+  </script>
+</head>
+<body>
+  <h1>Human Order Picking – UML Sequence & Activity Diagrams</h1>
+  <p class="note">Edit the Mermaid blocks below to fit your site. The sequence focuses on the operator and assisting agents; the activity map shows the procedural flow.</p>
+
+  <h2>1) Sequence Diagram (Operator × Agents × WMS)</h2>
+  <div class="panel note">Tip: If this is too crowded, duplicate the block and scope per zone (e.g., Planning-only, In-Aisle-only).</div>
+
+  <div class="mermaid">
+    sequenceDiagram
+    autonumber
+    participant OP as Operator
+    participant WMS as WMSystem
+    participant PL as Planner
+    participant DI as Dispatcher
+    participant GD as Guide_ARNav
+    participant VF as Verifier_Vision
+    participant RS as Resolver
+    participant QA as Auto_QAGate
+    participant EG as ErgoGuard
+    participant SL as Slotter
+    participant TT as Tutor
+
+    Note over OP,WMS: Task Intake & Setup
+    OP->>WMS: Login & fetch pick list
+    WMS-->>OP: Wave, SKUs, priorities
+    OP->>PL: Request optimized route/batch
+    PL->>WMS: Get slot map & item locations
+    WMS-->>PL: Locations, constraints
+    PL-->>OP: Route plan + batch (ETA/travel)
+    DI-->>OP: Work assignment balancing
+    EG-->>OP: Setup posture check (cart height)
+
+    Note over OP,GD: Travel & Search Loop
+    loop For each line in route
+    OP->>GD: Start navigation to next bin
+    GD-->>OP: Turn-by-turn guidance
+    OP->>VF: Scan shelf/label or camera view
+    VF-->>OP: Match? (SKU/lot/expiry)
+    alt Item not found or mismatch
+        OP->>RS: Raise exception
+        RS->>WMS: Query nearby bins
+        WMS-->>RS: Return substitute suggestion
+        RS-->>OP: Show alternate bin/substitute
+    end
+    EG-->>OP: Micro nudge (reduce reach/neck flexion)
+    OP->>WMS: Confirm pick qty
+    end
+
+    Note over OP,QA: Handover & Quality
+    OP->>QA: Push tote through gate
+    QA-->>OP: Pass/Fail check
+    OP->>WMS: Close order & stage for packing
+
+    Note over SL,TT: Learning & Improvement
+    WMS->>SL: Send traces (paths, errors)
+    SL-->>OP: Slotting recommendations
+    WMS->>TT: Picker metrics (accuracy, posture)
+    TT-->>OP: Micro-coaching feedback
+  </div>
+
+  <details>
+    <summary>Show Mermaid source for copy/paste</summary>
+    <pre><code>sequenceDiagram
+autonumber
+participant OP as Operator
+participant WMS as WMS System
+participant PL as Planner
+participant DI as Dispatcher
+participant GD as Guide (AR/Nav)
+participant VF as Verifier (Vision/Scan)
+participant RS as Resolver (Exceptions)
+participant QA as Auto QA Gate
+participant EG as Ergo-Guard
+participant SL as Slotter (Analytics)
+participant TT as Tutor (Training)
+
+Note over OP,WMS: 1) Task Intake & Setup
+OP->>WMS: Login & fetch pick list
+WMS-->>OP: Wave, SKUs, priorities
+OP->>PL: Request optimized route/batch
+PL->>WMS: Get slot map & item locations
+WMS-->>PL: Locations, constraints
+PL-->>OP: Route plan + batch (ETA/travel)
+DI-->>OP: Work assignment balancing
+EG-->>OP: Setup posture check (cart height)
+
+Note over OP,GD: 2) Travel & Search Loop
+loop For each line in route
+  OP->>GD: Start navigation to next bin
+  GD-->>OP: Turn-by-turn / aisle guidance
+  OP->>VF: Scan shelf/label (or camera view)
+  VF-->>OP: Match? (SKU/lot/expiry)
+  alt Item not found / mismatch
+    OP->>RS: Raise exception
+    RS->>WMS: Query inventory deltas/nearby bins
+    WMS-->>RS: Recent moves / substitutes
+    RS-->>OP: Suggest alternate bin/substitute
+  end
+  EG-->>OP: Micro nudge (reduce reach/neck flexion)
+  OP->>WMS: Confirm pick (qty/tote)
+end
+
+Note over OP,QA: 3) Handover & Quality
+OP->>QA: Push tote through gate (in-motion)
+QA-->>OP: Pass/Fail (weight/image check)
+OP->>WMS: Close order & stage for packing
+
+Note over SL,TT: 4) Learning & Improvement
+WMS->>SL: Send traces (paths, errors, heatmap)
+SL-->>WMS: Slotting recommendations
+SL-->>OP: “Move look-alikes apart; heavy to mid-shelf”
+WMS->>TT: Picker metrics (accuracy, posture flags)
+TT-->>OP: Micro-coaching & progress feedback
+</code></pre>
+  </details>
+
+  <h2>2) Procedural Activity Diagram (Flow)</h2>
+  <div class="mermaid">
+  flowchart TD
+    A[Task intake & PPE check] --> B[Login to WMS / sync pick list]
+    B --> C[Cart/totes & labels setup]
+    C --> D{Route/batch plan}
+    D -->|Planner OK| E[Travel to location]
+    D -->|Re-plan needed| D
+
+    subgraph In-aisle loop
+      E --> F[Search bin / read label]
+      F --> G{Verify SKU/lot/qty}
+      G -->|Match| H[Pick & tote place]
+      G -->|Mismatch/Not found| I[Exception handling]
+      I --> J[Resolver: alternate bin or ticket]
+      J --> F
+      H --> K[Ergo-Guard micro-nudges]
+      K --> L{More lines left?}
+      L -->|Yes| E
+      L -->|No| M[Stage totes]
+    end
+
+    M --> N[Auto QA gate: weight/image check]
+    N -->|Pass| O[Close order in WMS]
+    N -->|Fail| F
+    O --> P[Post-run review]
+    P --> Q[Slotter recommendations]
+    P --> R[Tutor micro-learning]
+  </div>
+
+  <details>
+    <summary>Show Mermaid source for copy/paste (activity/flow)</summary>
+    <pre><code>flowchart TD
+A[Task intake & PPE check] --> B[Login to WMS / sync pick list]
+B --> C[Cart/totes & labels setup]
+C --> D{Route/batch plan}
+D -->|Planner OK| E[Travel to location]
+D -->|Re-plan needed| D
+
+subgraph In-aisle loop
+  E --> F[Search bin / read label]
+  F --> G{Verify SKU/lot/qty}
+  G -->|Match| H[Pick & tote place]
+  G -->|Mismatch/Not found| I[Exception handling]
+  I --> J[Resolver: alternate bin or ticket]
+  J --> F
+  H --> K[Ergo-Guard micro-nudges]
+  K --> L{More lines left?}
+  L -->|Yes| E
+  L -->|No| M[Stage totes]
+end
+
+M --> N[Auto QA gate: weight/image check]
+N -->|Pass| O[Close order in WMS]
+N -->|Fail| F
+O --> P[Post-run review]
+P --> Q[Slotter recommendations]
+P --> R[Tutor micro-learning]
+</code></pre>
+  </details>
+
+  <h2>3) Optional: PlantUML (text only)</h2>
+  <p class="note">Use this on a PlantUML server if your toolchain prefers it.</p>
+  <pre>@startuml
+actor Operator as OP
+participant "WMS" as WMS
+participant "Planner" as PL
+participant "Dispatcher" as DI
+participant "Guide" as GD
+participant "Verifier" as VF
+participant "Resolver" as RS
+participant "Auto QA Gate" as QA
+participant "Ergo-Guard" as EG
+participant "Slotter" as SL
+participant "Tutor" as TT
+
+== Task Intake & Setup ==
+OP -> WMS : Login & fetch pick list
+WMS --> OP : Wave, SKUs, priorities
+OP -> PL : Request optimized route/batch
+PL -> WMS : Get map & item locs
+WMS --> PL : Locations, constraints
+PL --> OP : Route plan
+DI --> OP : Work assignment
+EG --> OP : Setup posture check
+
+== Travel & Search Loop ==
+loop For each line
+  OP -> GD : Navigate to next bin
+  GD --> OP : Turn-by-turn
+  OP -> VF : Scan/verify item
+  alt Not found/mismatch
+    OP -> RS : Raise exception
+    RS -> WMS : Inventory delta query
+    WMS --> RS : Deltas/nearby bins
+    RS --> OP : Alternate bin/substitute
+  end
+  EG --> OP : Micro nudge
+  OP -> WMS : Confirm pick
+end
+
+== Handover & QA ==
+OP -> QA : In-motion check
+QA --> OP : Pass/Fail
+OP -> WMS : Close order & stage
+
+== Learning & Improvement ==
+WMS -> SL : Traces
+SL --> WMS : Slotting recs
+SL --> OP : Move look-alikes apart
+WMS -> TT : Picker metrics
+TT --> OP : Micro-coaching
+@enduml</pre>
+
+  <h2>How to use</h2>
+  <ul>
+    <li>Copy the Mermaid blocks into docs, GitHub markdown, Notion, or MkDocs to render diagrams instantly.</li>
+    <li>Tune lifelines/steps to your site (e.g., drop agents you don’t pilot in phase 1).</li>
+    <li>For web apps, keep this HTML as a starting point and programmatically replace the Mermaid source with your runtime model.</li>
+  </ul>
+</body>
+</html>

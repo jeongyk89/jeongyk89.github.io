@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>AUGMENT — Gantt (from Excel) with milestones as vertical lines & M1..M48 scale</title>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<style>
+  :root {
+    --deliv:#333333;
+    --ms:#2b8a3e;
+  }
+  body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;margin:16px}
+  h2{margin:0 0 8px}
+  .legend{display:flex;gap:12px;flex-wrap:wrap;margin:8px 0 14px;align-items:center}
+  .pill{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border:1px solid #ddd;border-radius:999px;font-size:12px;background:#fff}
+  .sw{width:12px;height:12px;border-radius:2px;display:inline-block}
+  #wrap{position:relative}
+  #overlay{position:absolute;left:0;top:0;pointer-events:none}
+  #details{margin-top:16px;padding:14px;border:1px solid #e5e7eb;border-radius:12px;background:#fafafa}
+  #details h3{margin:0 0 6px;font-size:16px}
+  #details .meta{display:flex;gap:16px;flex-wrap:wrap;color:#334155;font-size:13px;margin-bottom:6px}
+  #details p{margin:8px 0 0;line-height:1.4}
+  .muted{color:#64748b}
+  .tt{padding:6px 8px}
+  .note{font-size:12px;color:#475569;margin-top:6px}
+</style>
+<script>
+google.charts.load('current',{packages:['timeline']});
+google.charts.setOnLoadCallback(drawChart);
+
+const EXCEL_ROWS = [{"type": "Task", "wp": "WP1", "label": "1.1 Literature review on I5.0 implementation roadmaps", "s": 2, "e": 9, "lead": "UoP", "code": "1.1", "leadKey": "UOP"}, {"type": "Task", "wp": "WP1", "label": "1.2 Human-centric requirements & tools for augmentation design", "s": 3, "e": 12, "lead": "UoP", "code": "1.2", "leadKey": "UOP"}, {"type": "Task", "wp": "WP1", "label": "1.3 Hands-on training for work-centred design", "s": 9, "e": 26, "lead": "UoP", "code": "1.3", "leadKey": "UOP"}, {"type": "Task", "wp": "WP1", "label": "1.4 Voice 5.0 \u2013 Assessment of augmentation technologies", "s": 27, "e": 48, "lead": "UoP", "code": "1.4", "leadKey": "UOP"}, {"type": "Task", "wp": "WP1", "label": "1.5 Multi-level Training Framework for Reskilling/Upskilling", "s": 26, "e": 48, "lead": "UoP", "code": "1.5", "leadKey": "UOP"}, {"type": "Task", "wp": "WP2", "label": "2.1 Identify requirements for integrating AI agents & PRC tech", "s": 6, "e": 24, "lead": "UH", "code": "2.1", "leadKey": "UH"}, {"type": "Task", "wp": "WP2", "label": "2.2 Define interoperability & data exchange for AI agents", "s": 12, "e": 24, "lead": "UH", "code": "2.2", "leadKey": "UH"}, {"type": "Task", "wp": "WP2", "label": "2.3 Develop guidelines & design principles for adaptive AI agents", "s": 12, "e": 30, "lead": "UH", "code": "2.3", "leadKey": "UH"}, {"type": "Task", "wp": "WP2", "label": "2.4 Evaluate acceptance of AI agent augmentation", "s": 18, "e": 46, "lead": "UH", "code": "2.4", "leadKey": "UH"}, {"type": "Task", "wp": "WP2", "label": "2.5 Assess ethical, privacy & policy implications of AI agents", "s": 18, "e": 46, "lead": "UH", "code": "2.5", "leadKey": "UH"}, {"type": "Task", "wp": "WP3", "label": "3.1 Specification of Data Standards for Federated AI & DTs", "s": 1, "e": 36, "lead": "SKKU", "code": "3.1", "leadKey": "SKKU"}, {"type": "Task", "wp": "WP3", "label": "3.2 Interoperability Specification for DTs", "s": 19, "e": 42, "lead": "SKKU", "code": "3.2", "leadKey": "SKKU"}, {"type": "Task", "wp": "WP3", "label": "3.3 Interoperability Specification for AI Models", "s": 19, "e": 42, "lead": "AICT", "code": "3.3", "leadKey": "AICT"}, {"type": "Task", "wp": "WP3", "label": "3.4 Validation Pipelines & Interoperability Benchmarks", "s": 25, "e": 48, "lead": "AICT", "code": "3.4", "leadKey": "AICT"}, {"type": "Task", "wp": "WP4", "label": "4.1 Defining current state of DT methodologies & standards", "s": 1, "e": 18, "lead": "KTH", "code": "4.1", "leadKey": "KTH"}, {"type": "Task", "wp": "WP4", "label": "4.2 Co-designing DT-based methodology for acceptance", "s": 6, "e": 24, "lead": "KTH", "code": "4.2", "leadKey": "KTH"}, {"type": "Task", "wp": "WP4", "label": "4.3 Implementing DT-based methodologies in lifecycle of tasks", "s": 18, "e": 46, "lead": "KTH", "code": "4.3", "leadKey": "KTH"}, {"type": "Task", "wp": "WP4", "label": "4.4 Verifying & validating DT implementation results", "s": 36, "e": 46, "lead": "KTH", "code": "4.4", "leadKey": "KTH"}, {"type": "Task", "wp": "WP5", "label": "5.1 Co-design industiral demonstrators", "s": 1, "e": 6, "lead": "UoP", "code": "5.1", "leadKey": "UOP"}, {"type": "Task", "wp": "WP5", "label": "5.2 Shipbuilding use cases & baselines", "s": 2, "e": 10, "lead": "HDKSOE", "code": "5.2", "leadKey": "HDKSOE"}, {"type": "Task", "wp": "WP5", "label": "5.3 Mining use cases & baselines", "s": 2, "e": 10, "lead": "NMT", "code": "5.3", "leadKey": "NMT"}, {"type": "Task", "wp": "WP5", "label": "5.4 Food & beverage use cases & baselines", "s": 2, "e": 10, "lead": "IDL", "code": "5.4", "leadKey": "IDL"}, {"type": "Task", "wp": "WP6", "label": "6.1 Needs confirmation & use-case finalisation", "s": 6, "e": 12, "lead": "HDKSOE", "code": "6.1", "leadKey": "HDKSOE"}, {"type": "Task", "wp": "WP6", "label": "6.2 Deployment of human-centric digital solutions", "s": 13, "e": 32, "lead": "HDKSOE", "code": "6.2", "leadKey": "HDKSOE"}, {"type": "Task", "wp": "WP6", "label": "6.3 Testing & validation in real tasks", "s": 19, "e": 32, "lead": "HDKSOE", "code": "6.3", "leadKey": "HDKSOE"}, {"type": "Task", "wp": "WP7", "label": "7.1 Pilot roll-out planning & governance", "s": 25, "e": 28, "lead": "HDKSOE", "code": "7.1", "leadKey": "HDKSOE"}, {"type": "Task", "wp": "WP7", "label": "7.2 Impact measurement & stakeholder evaluation", "s": 28, "e": 40, "lead": "HDKSOE", "code": "7.2", "leadKey": "HDKSOE"}, {"type": "Task", "wp": "WP7", "label": "7.3 Consolidation & scale-up plan", "s": 36, "e": 46, "lead": "SNU", "code": "7.3", "leadKey": "SNU"}, {"type": "Task", "wp": "WP8", "label": "8.1 Needs confirmation & use-case finalisation", "s": 6, "e": 12, "lead": "NMT", "code": "8.1", "leadKey": "NMT"}, {"type": "Task", "wp": "WP8", "label": "8.2 Deployment of digital solutions", "s": 13, "e": 32, "lead": "NMT", "code": "8.2", "leadKey": "NMT"}, {"type": "Task", "wp": "WP8", "label": "8.3 Testing & validation in real tasks", "s": 19, "e": 32, "lead": "NMT", "code": "8.3", "leadKey": "NMT"}, {"type": "Task", "wp": "WP9", "label": "9.1 Pilot roll-out planning & governance", "s": 25, "e": 28, "lead": "NMT", "code": "9.1", "leadKey": "NMT"}, {"type": "Task", "wp": "WP9", "label": "9.2 Impact measurement & stakeholder evaluation", "s": 28, "e": 40, "lead": "NMT", "code": "9.2", "leadKey": "NMT"}, {"type": "Task", "wp": "WP9", "label": "9.3 Consolidation & mining scale-up toolkit", "s": 36, "e": 46, "lead": "KTH", "code": "9.3", "leadKey": "KTH"}, {"type": "Task", "wp": "WP10", "label": "10.1 Needs confirmation & use-case finalisation", "s": 6, "e": 12, "lead": "IDL", "code": "10.1", "leadKey": "IDL"}, {"type": "Task", "wp": "WP10", "label": "10.2 Deployment of human-centric digital solutions", "s": 13, "e": 32, "lead": "IDL", "code": "10.2", "leadKey": "IDL"}, {"type": "Task", "wp": "WP10", "label": "10.3 Testing & validation in real distillation tasks", "s": 19, "e": 32, "lead": "IDL", "code": "10.3", "leadKey": "IDL"}, {"type": "Task", "wp": "WP11", "label": "11.1 Pilot roll-out planning & governance", "s": 25, "e": 28, "lead": "IDL", "code": "11.1", "leadKey": "IDL"}, {"type": "Task", "wp": "WP11", "label": "11.2 Impact measurement & stakeholder evaluation", "s": 28, "e": 40, "lead": "IDL", "code": "11.2", "leadKey": "IDL"}, {"type": "Task", "wp": "WP11", "label": "11.3 Consolidation & F&B scale-up playbook", "s": 36, "e": 46, "lead": "KTH", "code": "11.3", "leadKey": "KTH"}, {"type": "Task", "wp": "WP12", "label": "12.1 Coordination, management, reporting & committees", "s": 1, "e": 18, "lead": "KTH", "code": "12.1", "leadKey": "KTH"}, {"type": "Task", "wp": "WP12", "label": "12.2 Data management", "s": 1, "e": 18, "lead": "KTH", "code": "12.2", "leadKey": "KTH"}, {"type": "Task", "wp": "WP12", "label": "12.3 Risk management", "s": 1, "e": 18, "lead": "KTH", "code": "12.3", "leadKey": "KTH"}, {"type": "Task", "wp": "WP12", "label": "12.4 Quality management", "s": 1, "e": 18, "lead": "KTH", "code": "12.4", "leadKey": "KTH"}, {"type": "Task", "wp": "WP13", "label": "13.1 Continuation of WP12 tasks in RP2", "s": 19, "e": 36, "lead": "KTH", "code": "13.1", "leadKey": "KTH"}, {"type": "Task", "wp": "WP14", "label": "14.1 Continuation of WP12/13 tasks in RP3", "s": 37, "e": 48, "lead": "KTH", "code": "14.1", "leadKey": "KTH"}, {"type": "Task", "wp": "WP15", "label": "15.1 DEC Planning and Management", "s": 1, "e": 18, "lead": "KTH", "code": "15.1", "leadKey": "KTH"}, {"type": "Task", "wp": "WP15", "label": "15.2 Communication and branding", "s": 1, "e": 18, "lead": "KTH", "code": "15.2", "leadKey": "KTH"}, {"type": "Task", "wp": "WP15", "label": "15.3 Exploitation baselining", "s": 1, "e": 18, "lead": "KTH", "code": "15.3", "leadKey": "KTH"}, {"type": "Task", "wp": "WP15", "label": "15.4 Clustering & policy engagement", "s": 1, "e": 18, "lead": "KTH", "code": "15.4", "leadKey": "KTH"}, {"type": "Task", "wp": "WP16", "label": "16.1 DEC Governance and Management", "s": 19, "e": 36, "lead": "KTH", "code": "16.1", "leadKey": "KTH"}, {"type": "Task", "wp": "WP16", "label": "16.2 Communication campaigns", "s": 19, "e": 36, "lead": "KTH", "code": "16.2", "leadKey": "KTH"}, {"type": "Task", "wp": "WP16", "label": "16.3 Dissemination of interim results", "s": 19, "e": 36, "lead": "KTH", "code": "16.3", "leadKey": "KTH"}, {"type": "Task", "wp": "WP16", "label": "16.4 Exploitation strategies", "s": 19, "e": 36, "lead": "KTH", "code": "16.4", "leadKey": "KTH"}, {"type": "Task", "wp": "WP16", "label": "16.5 Policy and standardisation engagement", "s": 19, "e": 36, "lead": "KTH", "code": "16.5", "leadKey": "KTH"}, {"type": "Task", "wp": "WP17", "label": "17.1 DEC Governance and Management", "s": 37, "e": 48, "lead": "KTH", "code": "17.1", "leadKey": "KTH"}, {"type": "Task", "wp": "WP17", "label": "17.2 High-profile communication campaign", "s": 37, "e": 48, "lead": "KTH", "code": "17.2", "leadKey": "KTH"}, {"type": "Task", "wp": "WP17", "label": "17.3 Dissemination consolidation", "s": 37, "e": 48, "lead": "KTH", "code": "17.3", "leadKey": "KTH"}, {"type": "Task", "wp": "WP17", "label": "17.4 Exploitation & sustainability", "s": 37, "e": 48, "lead": "KTH", "code": "17.4", "leadKey": "KTH"}, {"type": "Task", "wp": "WP17", "label": "17.5 Policy & standardisation consolidation", "s": 37, "e": 48, "lead": "KTH", "code": "17.5", "leadKey": "KTH"}, {"type": "Deliverable", "wp": "WP1", "label": "D1.1 Fieldwork Methodological Roadmap", "s": 12, "e": 12, "lead": "UoP", "code": "D1.1", "leadKey": "UOP"}, {"type": "Deliverable", "wp": "WP1", "label": "D1.2 Multi-level Framework for I5.0 skills", "s": 42, "e": 42, "lead": "UoP", "code": "D1.2", "leadKey": "UOP"}, {"type": "Deliverable", "wp": "WP2", "label": "D2.1 Guidelines for Adaptive AI Agents", "s": 30, "e": 30, "lead": "UH", "code": "D2.1", "leadKey": "UH"}, {"type": "Deliverable", "wp": "WP2", "label": "D2.2 Integrated AI Agent Models", "s": 46, "e": 46, "lead": "UH", "code": "D2.2", "leadKey": "UH"}, {"type": "Deliverable", "wp": "WP3", "label": "D3.1 Data Taxonomy & Schema", "s": 18, "e": 18, "lead": "SKKU", "code": "D3.1", "leadKey": "SKKU"}, {"type": "Deliverable", "wp": "WP3", "label": "D3.2 Scenario Specification & Mapping", "s": 36, "e": 36, "lead": "SKKU", "code": "D3.2", "leadKey": "SKKU"}, {"type": "Deliverable", "wp": "WP3", "label": "D3.4 KPI & Interoperability Report", "s": 45, "e": 45, "lead": "SKKU", "code": "D3.4", "leadKey": "SKKU"}, {"type": "Deliverable", "wp": "WP4", "label": "D4.1 DT-based Assessment Methodology", "s": 24, "e": 24, "lead": "KTH", "code": "D4.1", "leadKey": "KTH"}, {"type": "Deliverable", "wp": "WP4", "label": "D4.2 Evaluation of DT Assessment", "s": 46, "e": 46, "lead": "KTH", "code": "D4.2", "leadKey": "KTH"}, {"type": "Deliverable", "wp": "WP5", "label": "D5.1 Consolidated Use Case & KPI Pack", "s": 10, "e": 10, "lead": "KTH", "code": "D5.1", "leadKey": "KTH"}, {"type": "Deliverable", "wp": "WP6", "label": "D6.1 Shipbuilding use case & KPI pack", "s": 12, "e": 12, "lead": "HDKSOE", "code": "D6.1", "leadKey": "HDKSOE"}, {"type": "Deliverable", "wp": "WP6", "label": "D6.2 Shipbuilding deployment report", "s": 33, "e": 33, "lead": "HDKSOE", "code": "D6.2", "leadKey": "HDKSOE"}, {"type": "Deliverable", "wp": "WP7", "label": "D7.1 Pilot Roll-Out Plan (Shipbuilding)", "s": 28, "e": 28, "lead": "HDKSOE", "code": "D7.1", "leadKey": "HDKSOE"}, {"type": "Deliverable", "wp": "WP7", "label": "D7.3 Final Impact & Scale-Up (Shipbuilding)", "s": 46, "e": 46, "lead": "SNU", "code": "D7.3", "leadKey": "SNU"}, {"type": "Deliverable", "wp": "WP8", "label": "D8.1 Mining use case & KPI pack", "s": 12, "e": 12, "lead": "NMT", "code": "D8.1", "leadKey": "NMT"}, {"type": "Deliverable", "wp": "WP8", "label": "D8.2 Mining deployment report", "s": 33, "e": 33, "lead": "NMT", "code": "D8.2", "leadKey": "NMT"}, {"type": "Deliverable", "wp": "WP9", "label": "D9.1 Pilot Roll-Out Plan (Mining)", "s": 28, "e": 28, "lead": "NMT", "code": "D9.1", "leadKey": "NMT"}, {"type": "Deliverable", "wp": "WP9", "label": "D9.3 Final Impact & Scale-Up (Mining)", "s": 46, "e": 46, "lead": "NMT", "code": "D9.3", "leadKey": "NMT"}, {"type": "Deliverable", "wp": "WP10", "label": "D10.1 F&B use case & KPI pack", "s": 12, "e": 12, "lead": "IDL", "code": "D10.1", "leadKey": "IDL"}, {"type": "Deliverable", "wp": "WP10", "label": "D10.2 F&B deployment report", "s": 33, "e": 33, "lead": "IDL", "code": "D10.2", "leadKey": "IDL"}, {"type": "Deliverable", "wp": "WP11", "label": "D11.1 Pilot Roll-Out Plan (F&B)", "s": 28, "e": 28, "lead": "IDL", "code": "D11.1", "leadKey": "IDL"}, {"type": "Deliverable", "wp": "WP11", "label": "D11.3 Final Impact & Scale-Up (F&B)", "s": 46, "e": 46, "lead": "IDL", "code": "D11.3", "leadKey": "IDL"}, {"type": "Deliverable", "wp": "WP12", "label": "D12.1 Project management plan", "s": 3, "e": 3, "lead": "KTH", "code": "D12.1", "leadKey": "KTH"}, {"type": "Deliverable", "wp": "WP12", "label": "D12.2 Project management plan (update)", "s": 18, "e": 18, "lead": "KTH", "code": "D12.2", "leadKey": "KTH"}, {"type": "Deliverable", "wp": "WP21", "label": "D12.3 Data management plan", "s": 6, "e": 6, "lead": "KTH", "code": "D12.3", "leadKey": "KTH"}, {"type": "Deliverable", "wp": "WP12", "label": "D12.4 Data management plan (update)", "s": 18, "e": 18, "lead": "KTH", "code": "D12.4", "leadKey": "KTH"}, {"type": "Deliverable", "wp": "WP13", "label": "D13.1 Project management plan (RP2)", "s": 36, "e": 36, "lead": "KTH", "code": "D13.1", "leadKey": "KTH"}, {"type": "Deliverable", "wp": "WP13", "label": "D13.2 Data management plan (RP2)", "s": 36, "e": 36, "lead": "KTH", "code": "D13.2", "leadKey": "KTH"}, {"type": "Deliverable", "wp": "WP14", "label": "D14.1 Project management plan (RP3)", "s": 48, "e": 48, "lead": "KTH", "code": "D14.1", "leadKey": "KTH"}, {"type": "Deliverable", "wp": "WP14", "label": "D14.2 Data management plan (RP3)", "s": 48, "e": 48, "lead": "KTH", "code": "D14.2", "leadKey": "KTH"}, {"type": "Deliverable", "wp": "WP15", "label": "D15.1 DEC Plan", "s": 3, "e": 3, "lead": "CHX", "code": "D15.1", "leadKey": "CHX"}, {"type": "Deliverable", "wp": "WP15", "label": "D15.2 Website and Communication Kit", "s": 3, "e": 3, "lead": "CHX", "code": "D15.2", "leadKey": "CHX"}, {"type": "Deliverable", "wp": "WP15", "label": "D15.3 Initial Portfolio of Exploitation Plans", "s": 12, "e": 12, "lead": "CHX", "code": "D15.3", "leadKey": "CHX"}, {"type": "Deliverable", "wp": "WP16", "label": "D16.1 Updated DEC Plan", "s": 21, "e": 21, "lead": "CHX", "code": "D16.1", "leadKey": "CHX"}, {"type": "Deliverable", "wp": "WP16", "label": "D16.2 Interim Exploitation Portfolio", "s": 24, "e": 24, "lead": "KTH", "code": "D16.2", "leadKey": "KTH"}, {"type": "Deliverable", "wp": "WP16", "label": "D16.3 First Policy Brief Package", "s": 30, "e": 30, "lead": "CHX / KTH", "code": "D16.3", "leadKey": "CHX/KTH"}, {"type": "Deliverable", "wp": "WP17", "label": "D17.1 Final DEC Report", "s": 42, "e": 42, "lead": "CHX", "code": "D17.1", "leadKey": "CHX"}, {"type": "Deliverable", "wp": "WP17", "label": "D17.2 Final Exploitation Portfolio & Business Cases", "s": 45, "e": 45, "lead": "KTH", "code": "D17.2", "leadKey": "KTH"}, {"type": "Deliverable", "wp": "WP17", "label": "D17.3 Sustainability Strategy", "s": 48, "e": 48, "lead": "CHX", "code": "D17.3", "leadKey": "CHX"}, {"type": "Deliverable", "wp": "WP17", "label": "D17.4 Final Policy Briefs and Recommendations", "s": 48, "e": 48, "lead": "CHX / KTH", "code": "D17.4", "leadKey": "CHX/KTH"}, {"type": "Deliverable", "wp": "", "label": "nan nan", "s": 9, "e": 9, "lead": "MS2", "code": "nan", "leadKey": "MS2"}, {"type": "Deliverable", "wp": "", "label": "nan nan", "s": 12, "e": 12, "lead": "MS3", "code": "nan", "leadKey": "MS3"}, {"type": "Deliverable", "wp": "", "label": "nan nan", "s": 18, "e": 18, "lead": "MS4", "code": "nan", "leadKey": "MS4"}, {"type": "Deliverable", "wp": "", "label": "nan nan", "s": 24, "e": 24, "lead": "MS5", "code": "nan", "leadKey": "MS5"}, {"type": "Deliverable", "wp": "", "label": "nan nan", "s": 32, "e": 32, "lead": "MS7", "code": "nan", "leadKey": "MS7"}, {"type": "Deliverable", "wp": "", "label": "nan nan", "s": 40, "e": 40, "lead": "MS8", "code": "nan", "leadKey": "MS8"}, {"type": "Deliverable", "wp": "", "label": "nan nan", "s": 42, "e": 42, "lead": "MS9", "code": "nan", "leadKey": "MS9"}, {"type": "Deliverable", "wp": "", "label": "nan nan", "s": 46, "e": 46, "lead": "MS10", "code": "nan", "leadKey": "MS10"}, {"type": "Deliverable", "wp": "", "label": "nan nan", "s": 46, "e": 46, "lead": "MS11", "code": "nan", "leadKey": "MS11"}, {"type": "Milestone", "wp": "WP1", "label": "M1.1 Systematic Review Protocol Registered and Validated", "s": 9, "e": 9, "lead": "", "code": "M1.1", "leadKey": ""}, {"type": "Milestone", "wp": "WP2, WP3, WP5\u201311, WP13", "label": "M1.3 Voice 5.0 Beta-Methodology Developed and Tested", "s": 38, "e": 38, "lead": "", "code": "M1.3", "leadKey": ""}, {"type": "Milestone", "wp": "WP1, WP13", "label": "M1.4 Scientific Dissemination of WP1 Results", "s": 48, "e": 48, "lead": "", "code": "M1.4", "leadKey": ""}, {"type": "Milestone", "wp": "WP1, WP3, WP4, WP5\u201311", "label": "M2.1 Guidelines for adaptive and personalized AI agents approved by consortium", "s": 24, "e": 24, "lead": "", "code": "M2.1", "leadKey": ""}, {"type": "Milestone", "wp": "WP4, WP5\u201311, WP13", "label": "M2.2 Integrated AI agent models validated in lab and ready for industrial demonstration", "s": 42, "e": 42, "lead": "", "code": "M2.2", "leadKey": ""}, {"type": "Milestone", "wp": "WP3, WP5", "label": "M3.1 Completion of Human\u2013Site Data Taxonomy and Standard Schema", "s": 15, "e": 15, "lead": "", "code": "M3.1", "leadKey": ""}, {"type": "Milestone", "wp": "WP3, WP5\u201311", "label": "M3.3 Validation Pipelines and Benchmark Setup Operational", "s": 42, "e": 42, "lead": "", "code": "M3.3", "leadKey": ""}, {"type": "Milestone", "wp": "WP1, WP2, WP3, WP5\u201311, WP13", "label": "M4.1 Digital Twin-based methodology and standards ready", "s": 24, "e": 24, "lead": "", "code": "M4.1", "leadKey": ""}, {"type": "Milestone", "wp": "WP1, WP5", "label": "M5.2 Use cases and baselines finalised", "s": 10, "e": 10, "lead": "", "code": "M5.2", "leadKey": ""}, {"type": "Milestone", "wp": "WP5, WP7", "label": "M6.1 Use case and KPIs finalised", "s": 8, "e": 8, "lead": "", "code": "M6.1", "leadKey": ""}, {"type": "Milestone", "wp": "WP5, WP7", "label": "M6.2 Demonstrator deployed and tested", "s": 31, "e": 31, "lead": "", "code": "M6.2", "leadKey": ""}, {"type": "Milestone", "wp": "WP5, WP6", "label": "M7.4 Scale-Up Playbook endorsed by HDKSOE leadership", "s": 42, "e": 42, "lead": "", "code": "M7.4", "leadKey": ""}, {"type": "Milestone", "wp": "WP5, WP9", "label": "M8.1 Use case and KPIs finalised", "s": 8, "e": 8, "lead": "", "code": "M8.1", "leadKey": ""}, {"type": "Milestone", "wp": "WP5, WP9", "label": "M8.2 Demonstrator deployed and tested", "s": 31, "e": 31, "lead": "", "code": "M8.2", "leadKey": ""}, {"type": "Milestone", "wp": "WP5, WP8", "label": "M9.3 Mining Scale-Up Toolkit validated", "s": 42, "e": 42, "lead": "", "code": "M9.3", "leadKey": ""}, {"type": "Milestone", "wp": "WP5, WP11", "label": "M10.1 Use case and KPIs finalised", "s": 8, "e": 8, "lead": "", "code": "M10.1", "leadKey": ""}, {"type": "Milestone", "wp": "WP5, WP11", "label": "M10.2 F&B Demonstrator deployed and tested", "s": 31, "e": 31, "lead": "", "code": "M10.2", "leadKey": ""}, {"type": "Milestone", "wp": "WP5, WP10", "label": "M11.3 Scale-Up Playbook endorsed", "s": 42, "e": 42, "lead": "", "code": "M11.3", "leadKey": ""}, {"type": "Milestone", "wp": "WP15", "label": "MS1 Communication channels and DEC plan", "s": 3, "e": 3, "lead": "", "code": "MS1", "leadKey": ""}, {"type": "Milestone", "wp": "WP1", "label": "MS2 Systematic review protocol validated and shared", "s": 9, "e": 9, "lead": "", "code": "MS2", "leadKey": ""}, {"type": "Milestone", "wp": "WP5, WP6, WP8, WP10", "label": "MS3 Use case and KPIs finalised", "s": 12, "e": 12, "lead": "", "code": "MS3", "leadKey": ""}, {"type": "Milestone", "wp": "WP3", "label": "MS4 Data taxonomy and standard schema fianlised", "s": 18, "e": 18, "lead": "", "code": "MS4", "leadKey": ""}, {"type": "Milestone", "wp": "WP2, WP4", "label": "MS5 AI agents guideline and DT methodology ready", "s": 24, "e": 24, "lead": "", "code": "MS5", "leadKey": ""}, {"type": "Milestone", "wp": "WP16", "label": "MS6 Exploitation roadmaps", "s": 30, "e": 30, "lead": "", "code": "MS6", "leadKey": ""}, {"type": "Milestone", "wp": "WP6, WP8, WP10", "label": "MS7 Digital solutions deployed and tested", "s": 32, "e": 32, "lead": "", "code": "MS7", "leadKey": ""}, {"type": "Milestone", "wp": "WP1, WP7, WP9, WP11", "label": "MS8 Augmentation technology implemented and assessed by \"Voice 5.0\"", "s": 40, "e": 40, "lead": "", "code": "MS8", "leadKey": ""}, {"type": "Milestone", "wp": "WP2, WP3, WP4", "label": "MS9 Validated scientific development results", "s": 42, "e": 42, "lead": "", "code": "MS9", "leadKey": ""}, {"type": "Milestone", "wp": "WP7, WP9, WP11", "label": "MS10 Scale-up playbook/toolkit validated", "s": 46, "e": 46, "lead": "", "code": "MS10", "leadKey": ""}, {"type": "Milestone", "wp": "WP1, WP2, WP3, WP4, WP15, WP16, WP17", "label": "MS11 Scientific dissemination of project results", "s": 46, "e": 46, "lead": "", "code": "MS11", "leadKey": ""}, {"type": "Milestone", "wp": "WP17", "label": "MS12 Final exploitation portfolios and impact package", "s": 46, "e": 46, "lead": "", "code": "MS12", "leadKey": ""}];
+const MS_MONTHS = [3, 8, 9, 10, 12, 15, 18, 24, 30, 31, 32, 38, 40, 42, 46, 48];
+const COLOR_MAP = {"KTH": "#1f77b4", "UOP": "#ff7f0e", "UoP": "#ff7f0e", "UH": "#2ca02c", "SKKU": "#9467bd", "SNU": "#8c564b", "AICT": "#e377c2", "HDKSOE": "#7f7f7f", "NMT": "#bcbd22", "IDL": "#17becf"};
+const DELIV = getComputedStyle(document.documentElement).getPropertyValue('--deliv').trim();
+const MILES = getComputedStyle(document.documentElement).getPropertyValue('--ms').trim();
+
+function drawChart(){
+  const el = document.getElementById('gantt');
+  const chart = new google.visualization.Timeline(el);
+  const data = new google.visualization.DataTable();
+  data.addColumn({type:'string', id:'WP'});
+  data.addColumn({type:'string', id:'Item'});
+  data.addColumn({type:'date', id:'Start'});
+  data.addColumn({type:'date', id:'End'});
+  data.addColumn({type:'string', role:'style'});
+  data.addColumn({type:'string', role:'tooltip', p:{html:true}});
+
+  const baseYear = 2025;
+  const M  = m => new Date(baseYear, m-1, 1);
+  const Md = m => new Date(baseYear, m-1, 2);
+
+  const styleFor = hex => [
+    `color:${hex}`,
+    `stroke-color:${hex}`,
+    `stroke-width:2`,
+    `fill-color:${hex}`,
+    `fill-opacity:0.95`
+  ].join(';');
+
+  const fmtM = m => 'M'+m;
+
+  const tip = (title, type, lead, s, e, desc, color) => `
+    <div class="tt" style="border-left:4px solid ${color}">
+      <div style="font-weight:600">${title}</div>
+      <div class="muted" style="font-size:12px">${type}${lead?` • Lead: ${lead}`:''}</div>
+      <div class="muted" style="font-size:12px">${s?('Start: '+fmtM(s)):''}${e?(' • End/Due: '+fmtM(e)):''}</div>
+      <div style="margin-top:6px;max-width:420px">${desc||''}</div>
+    </div>`;
+
+  const rows = [];
+  const reg = {};
+  const add = (wp, label, s, e, styleHex, type, lead, code, desc) => {
+    const item = label + (lead?` (${lead})`:'');
+    rows.push([wp, item, M(s), type==='Task'? M(e): Md(e), styleFor(styleHex), tip(label, type, lead, s, e, desc, styleHex)]);
+    reg[wp+'|'+item] = {wp, type, label, lead, s, e, desc};
+  };
+
+  const order = {'Task':0,'Deliverable':1,'Milestone':2};
+  const parsed = EXCEL_ROWS.map(r => {
+    const wp = r.wp;
+    const t = r.type;
+    const s = r.s|0, e = r.e|0;
+    const leadKey = (r.leadKey||'').toUpperCase();
+    const color = t==='Task' ? (COLOR_MAP[leadKey]||'#999') : (t==='Deliverable' ? DELIV : MILES);
+    const code = r.code||'';
+    return {...r,wp,t,color,code,s,e};
+  }).sort((a,b) => a.wp.localeCompare(b.wp) || order[a.type]-order[b.type] || String(a.code).localeCompare(String(b.code)));
+
+  for(const r of parsed){
+    const band = r.type==='Milestone' ? '— Milestones —' : r.wp;
+    add(band, `${r.label}`, r.s, r.e, r.color, r.type, r.lead, r.code, r.desc||'');
+  }
+
+  data.addRows(rows);
+
+  const options = {
+    backgroundColor:'#fff',
+    timeline:{ colorByRowLabel:false, barLabelStyle:{fontSize:12}, rowLabelStyle:{fontSize:12} },
+    avoidOverlappingGridLines:false,
+    height: 2200,
+    tooltip:{isHtml:true}
+  };
+
+  chart.draw(data, options);
+
+  requestAnimationFrame(() => drawOverlay(el, MS_MONTHS, M(1), M(48)));
+
+  google.visualization.events.addListener(chart,'select',function(){
+    const sel = chart.getSelection();
+    const box = document.getElementById('details');
+    if(!sel.length){ box.innerHTML = '<span class="muted">Click a bar/marker to see details.</span>'; return; }
+    const r = sel[0].row;
+    const wp = data.getValue(r,0), item = data.getValue(r,1);
+    const rec = reg[wp+'|'+item];
+    if(!rec){ box.innerHTML = '<span class="muted">No details.</span>'; return; }
+    box.innerHTML = `
+      <h3>${rec.label} — <span class="muted">${rec.type}</span></h3>
+      <div class="meta">
+        <span><strong>Band/WP:</strong> ${rec.wp}</span>
+        <span><strong>Lead:</strong> ${rec.lead||'-'}</span>
+        <span><strong>${rec.type==='Task'?'Start':'Due'}:</strong> ${fmtM(rec.s)}</span>
+        <span><strong>${rec.type==='Task'?'End':''}</strong> ${rec.type==='Task'? fmtM(rec.e): ''}</span>
+      </div>
+      <p>${rec.desc||''}</p>`;
+  });
+}
+
+function drawOverlay(container, msMonths, minDate, maxDate){
+  const svg = container.querySelector('svg');
+  if(!svg) return;
+  const bbox = svg.getBoundingClientRect();
+  const clipRect = svg.querySelector('clipPath rect');
+  const plot = clipRect ? {
+    x: parseFloat(clipRect.getAttribute('x')),
+    y: parseFloat(clipRect.getAttribute('y')),
+    w: parseFloat(clipRect.getAttribute('width')),
+    h: parseFloat(clipRect.getAttribute('height')),
+  } : { x: 120, y: 40, w: bbox.width-160, h: bbox.height-80 };
+
+  const wrap = document.getElementById('wrap');
+  let canvas = document.getElementById('overlay');
+  if(!canvas){
+    canvas = document.createElement('canvas');
+    canvas.id='overlay';
+    wrap.appendChild(canvas);
+  }
+  canvas.width = Math.ceil(bbox.width);
+  canvas.height = Math.ceil(bbox.height);
+  canvas.style.width = bbox.width+'px';
+  canvas.style.height = bbox.height+'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  const t0 = +minDate, t1 = +maxDate;
+  const px = t => plot.x + ( (t - t0) / (t1 - t0) ) * plot.w;
+
+  ctx.save();
+  ctx.font = '11px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial';
+  ctx.fillStyle = '#334155';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  for(let m=1;m<=48;m++) {
+    const date = new Date(2025, m-1, 1);
+    const x = px(+date);
+    if(m%2===0){
+      ctx.globalAlpha = 0.08;
+      ctx.beginPath(); ctx.moveTo(x, plot.y); ctx.lineTo(x, plot.y+plot.h); ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    if(m%6===0){
+      ctx.fillText('M'+m, x, Math.max(0, plot.y-16));
+    }
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--ms').trim() || '#2b8a3e';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([6,4]);
+  for(const m of msMonths){
+    const date = new Date(2025, m-1, 1);
+    const x = Math.round(px(+date)) + 0.5;
+    ctx.beginPath();
+    ctx.moveTo(x, plot.y);
+    ctx.lineTo(x, plot.y+plot.h);
+    ctx.stroke();
+    ctx.fillStyle = ctx.strokeStyle;
+    ctx.font = 'bold 10px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('MS M'+m, x+4, Math.max(0, plot.y-2));
+  }
+  ctx.restore();
+}
+</script>
+</head>
+<body>
+  <h2>AUGMENT — Live Gantt (Excel-driven)</h2>
+  <div class="legend">
+    <span class="pill"><span class="sw" style="background:#ff7f0e"></span>UoP (lead)</span>
+    <span class="pill"><span class="sw" style="background:#2ca02c"></span>UH (lead)</span>
+    <span class="pill"><span class="sw" style="background:#1f77b4"></span>KTH (lead)</span>
+    <span class="pill"><span class="sw" style="background:#9467bd"></span>SKKU</span>
+    <span class="pill"><span class="sw" style="background:#8c564b"></span>SNU</span>
+    <span class="pill"><span class="sw" style="background:#e377c2"></span>AICT</span>
+    <span class="pill"><span class="sw" style="background:#7f7f7f"></span>HDKSOE</span>
+    <span class="pill"><span class="sw" style="background:#bcbd22"></span>NMT</span>
+    <span class="pill"><span class="sw" style="background:#17becf"></span>IDL</span>
+    <span class="pill"><span class="sw" style="background:var(--deliv)"></span>Deliverable</span>
+    <span class="pill"><span class="sw" style="background:var(--ms)"></span>Milestone (vertical guide)</span>
+  </div>
+
+  <div id="wrap">
+    <div id="gantt"></div>
+    <canvas id="overlay"></canvas>
+  </div>
+  <div class="note">Notes: Milestones are drawn as vertical dashed guides in the overlay and listed in a separate top band. Timeline labels are shown as M1..M48 in the overlay (every 6 months); hover any item for exact month codes.</div>
+  <div id="details"><span class="muted">Click a bar/marker to see details.</span></div>
+</body>
+</html>
