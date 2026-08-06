@@ -437,8 +437,6 @@ function releaseWake(){ try{ wakeLock && wakeLock.release(); }catch{} finally{ w
 el.wake.addEventListener('change',e=>{ e.target.checked?requestWake():releaseWake(); });
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible' && el.wake.checked) requestWake(); });
 
-/* ========= AI (확장 프롬프트) ========= */
-
 async function askLLM(text){
   el.aiErr.textContent=''; el.aiOut.textContent=''; el.aiBusy.style.display='inline-flex'; el.aiBtn.disabled=true;
   try{
