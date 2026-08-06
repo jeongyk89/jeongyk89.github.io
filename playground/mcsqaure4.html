@@ -438,7 +438,6 @@ el.wake.addEventListener('change',e=>{ e.target.checked?requestWake():releaseWak
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible' && el.wake.checked) requestWake(); });
 
 /* ========= AI (확장 프롬프트) ========= */
-const OPENAI_KEY="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"; // ← 로컬 테스트에서만 넣기
 
 async function askLLM(text){
   el.aiErr.textContent=''; el.aiOut.textContent=''; el.aiBusy.style.display='inline-flex'; el.aiBtn.disabled=true;

@@ -396,8 +396,6 @@ el.loadFav.onclick=()=>{
 };
 
 /* ===================== AI Assistant ===================== */
-/* 브라우저에 키를 넣으면 유출 위험이 있습니다. 로컬에서만 테스트하세요. */
-const OPENAI_KEY = "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";
 
 async function askLLM(q){
   el.aiError.textContent=''; el.aiOutput.textContent=''; el.aiBusy.style.display='inline-flex'; el.aiBtn.disabled=true;
