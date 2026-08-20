@@ -252,8 +252,8 @@
                 <li>2026</li>
                 <ul>
                     <li>Erik Flores-García and <b>Yongkuk Jeong</b> (2026), <span style="color:#1d6ab8">Scheduling of Assembly and Logistics Systems with AI</span>, Swedish Manufacturing Conference, Södertälje, Sweden, 20-21 May, 2026</li>
-                    <li><b>Yongkuk Jeong</b> (2026), <span style="color:#1d6ab8">AI and Digitalisation in Production Logistics: Opportunities and Challenges</span>, EKC 2026 (Europe-Korea Conference on Science and Technology), Toulouse, France, 20-23 July, 2026</li>
-                    <li><b>Yongkuk Jeong</b> (2026), <span style="color:#1d6ab8">What Do You Do with a Digital Twin Once It Is Built? Connecting LLM Agents in a Production Logistics Lab</span>, DigiTwin 2026 (6th Digital Twin International Conference), Oxford, UK, 4-8 August, 2026 (invited talk)</li>
+                    <li><b>Yongkuk Jeong</b> (2026), <span style="color:#1d6ab8">AI and Digitalisation in Production Logistics: Opportunities and Challenges</span>, EKC 2026 (Europe-Korea Conference on Science and Technology), Toulouse, France, 20-23 July, 2026 (invited talk)</li>
+                    <li><b>Yongkuk Jeong</b> (2026), <span style="color:#1d6ab8">What Do You Do with a Digital Twin Once It Is Built? Connecting LLM Agents in a Production Logistics Lab</span>, DigiTwin 2026 (6th Digital Twin International Conference), Oxford, UK, 4-8 August, 2026</li>
                 </ul>
                 <li>2025</li>
                 <ul>
@@ -398,15 +398,32 @@
      </footer>
       <!-- Collapsible Sections Script -->
       <script>
-         document.querySelectorAll('.collapsible').forEach(button => {
+         document.querySelectorAll('.collapsible').forEach(function(button) {
+             var content = button.nextElementSibling;
              button.addEventListener('click', function() {
-                 this.classList.toggle('active');
-                 var content = this.nextElementSibling;
-                 if (content.style.maxHeight){
-                     content.style.maxHeight = null;
+                 var opening = !button.classList.contains('active');
+                 button.classList.toggle('active');
+                 if (opening) {
+                     content.style.maxHeight = content.scrollHeight + 'px';
+                     var done = function(e) {
+                         if (e && e.propertyName !== 'max-height') return;
+                         if (button.classList.contains('active')) content.style.maxHeight = 'none';
+                         content.removeEventListener('transitionend', done);
+                     };
+                     content.addEventListener('transitionend', done);
+                     setTimeout(function() { if (button.classList.contains('active')) content.style.maxHeight = 'none'; }, 400);
                  } else {
-                     content.style.maxHeight = content.scrollHeight + "px";
-                 } 
+                     content.style.maxHeight = content.scrollHeight + 'px';
+                     requestAnimationFrame(function() {
+                         requestAnimationFrame(function() { content.style.maxHeight = null; });
+                     });
+                 }
+             });
+         });
+         window.addEventListener('resize', function() {
+             document.querySelectorAll('.collapsible.active').forEach(function(b) {
+                 var c = b.nextElementSibling;
+                 if (c.style.maxHeight && c.style.maxHeight !== 'none') c.style.maxHeight = c.scrollHeight + 'px';
              });
          });
       </script>
