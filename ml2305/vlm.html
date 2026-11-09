@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#146f68">
+  <title>ML2305 · Vision-language comparison</title>
+  <style>:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#182c36;background:#f3f6f7;font-synthesis:none;--accent:#146f68;--line:#d7e2e5;--muted:#5d707b}*{box-sizing:border-box}body{margin:0}a{color:var(--accent)}button,input,select,textarea{font:inherit}button,.file-button{border:1px solid var(--line);border-radius:9px;background:#fff;color:#182c36;padding:11px 17px;font-weight:650;cursor:pointer;touch-action:manipulation;min-height:44px}button:disabled{opacity:.45;cursor:default}.primary{background:var(--accent);border-color:var(--accent);color:white}button:hover:not(:disabled),.file-button:hover{filter:brightness(.96)}button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #80b5e7;outline-offset:3px}[hidden]{display:none!important}header{max-width:1180px;margin:auto;padding:23px 24px 16px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{color:#182c36;text-decoration:none;font-size:13px;font-weight:750;letter-spacing:.5px}header nav{display:flex;gap:17px;font-size:13px}header nav a{text-decoration:none;color:var(--muted)}header nav a[aria-current=page]{color:var(--accent);font-weight:750}main{max-width:1180px;margin:auto;padding:5px 24px 24px}h1{font-size:clamp(26px,4vw,36px);font-weight:680;letter-spacing:-1px;margin:8px 0}h2{font-size:18px;margin:0 0 12px}p{line-height:1.5}.subtitle{color:var(--muted);font-size:14px;margin:0 0 22px}.lab-grid{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(220px,1fr);gap:19px}.viewer,.readout,.record,.prompt-card{background:white;border:1px solid var(--line);border-radius:15px;overflow:hidden}.stage{width:100%;aspect-ratio:4/3;max-height:65vh;background:#132b34;position:relative;display:grid;place-items:center;overflow:hidden}.stage video,.stage img,.stage canvas{width:100%;height:100%;object-fit:contain;position:absolute;inset:0}.stage canvas{pointer-events:none;z-index:2}.stage .empty{max-width:80%;text-align:center;color:#c4d6da;font-size:16px;padding:35px;z-index:3}.empty strong{display:block;color:white;font-size:24px;margin-bottom:12px}.toolbar{display:flex;gap:8px;padding:14px 15px 8px;flex-wrap:wrap}.file-button{position:relative;display:inline-flex;align-items:center}.file-button input{position:absolute;width:1px;height:1px;opacity:0}.file-button:focus-within{outline:3px solid #80b5e7}.settings{display:flex;align-items:center;gap:18px;padding:7px 16px;flex-wrap:wrap}.settings label{font-size:12px;color:var(--muted)}.threshold{flex:1;min-width:160px;display:grid;grid-template-columns:1fr auto;gap:5px}.threshold input{grid-column:span 2;width:100%;accent-color:var(--accent)}select{border:1px solid var(--line);padding:8px;border-radius:7px;background:white;color:#182c36}.status{font-size:13px;line-height:1.4;padding:9px 16px 15px;margin:0;color:var(--muted);min-height:39px}.status.error{color:#a43035}.error-help{padding:0 16px 14px;color:#a43035;font-size:12px;overflow-wrap:anywhere}.readout{padding:22px;align-self:start}.metric{font-size:50px;letter-spacing:-2px;line-height:1;margin:8px 0}.metric small{font-size:12px;letter-spacing:0;display:block;color:var(--muted);margin-top:10px;line-height:1.4}.measure-note{font-size:11px;color:var(--muted);margin:10px 0 16px}.result-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #edf2f4;font-size:13px;gap:8px}.result-row small{color:var(--muted)}.results{max-height:235px;overflow:auto}.empty-result{font-size:13px;color:var(--muted);line-height:1.4}.angles{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}.angles strong{font-size:27px;font-weight:600}.angles span{display:block;font-size:11px;color:var(--muted);margin-top:3px}.encounter-list{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}.chip{font-size:11px;background:#eef5f0;border-radius:5px;padding:6px 8px}.controls-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.readout details{font-size:12px;margin-top:20px;border-top:1px solid var(--line);padding-top:13px}.readout details p{font-size:12px}.readout details button{padding:7px 11px;font-size:11px;min-height:36px}.below{display:grid;grid-template-columns:1fr 1fr;gap:19px;margin-top:19px}.record{padding:17px 20px}.record summary{font-weight:650;font-size:14px;cursor:pointer}.record-content{padding-top:16px}.record label{display:block;font-size:12px;color:var(--muted);margin-bottom:11px}.record input,.record textarea,.record select{width:100%;margin-top:5px;padding:9px;border:1px solid var(--line);border-radius:6px;box-sizing:border-box;font-size:13px;background:#fff}.row-fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}.record .caption{font-size:11px;color:var(--muted);margin:10px 0 0}.guide{font-size:13px;color:#405761;line-height:1.6}.guide ol{padding-left:19px;margin:10px 0}.guide li{margin:7px 0}.guide .quiet{font-size:11px;color:var(--muted)}footer{max-width:1180px;margin:auto;padding:0 24px 24px;color:var(--muted);font-size:11px;line-height:1.5}footer details{margin-top:10px;max-width:800px}footer summary{cursor:pointer}.home{padding-top:8vh;max-width:1000px}.station-links{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:30px 0}.station-links a{display:block;padding:28px;text-decoration:none;color:#182c36;background:white;border:1px solid var(--line);border-radius:15px;min-height:200px}.station-links b{font-size:13px;color:var(--accent)}.station-links h2{font-size:24px;margin:28px 0 10px}.station-links p{color:var(--muted);font-size:13px;margin:0}.vlm-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.prompt-card{padding:22px}.prompt-card p{font-size:13px;color:var(--muted)}.prompt-card textarea{width:100%;min-height:190px;resize:vertical;padding:13px;border:1px solid var(--line);border-radius:8px;font-size:13px;line-height:1.5}.prompt-card button{margin-top:10px}.provider-links{display:flex;gap:9px;flex-wrap:wrap;margin:20px 0}.provider-links a{background:white;border:1px solid var(--line);border-radius:8px;padding:10px 15px;text-decoration:none;font-size:13px}.short-status{font-size:12px;color:var(--muted);min-height:18px}.notice{font-size:12px;color:var(--muted);max-width:850px}#class-list{font-size:11px;line-height:1.6}.trial-toast{font-size:12px;color:var(--accent)}@media(max-width:800px){.lab-grid{grid-template-columns:1fr}.readout{display:block;padding:17px 20px}.results{max-height:160px}.metric{font-size:40px}.angles{grid-template-columns:repeat(4,1fr);margin-top:13px}.below,.vlm-grid{grid-template-columns:1fr}.station-links{gap:12px}.station-links a{padding:20px}.stage{max-height:60vh}.home{padding-top:3vh}}@media(max-width:540px){header{padding:18px 16px 10px}header nav{gap:12px;font-size:12px}main{padding:5px 16px 20px}h1{font-size:29px}.subtitle{font-size:13px;margin-bottom:16px}.toolbar{gap:6px;padding:11px 11px 7px}.toolbar button,.file-button{padding:10px 12px;font-size:13px}.settings{padding:7px 12px;gap:12px}.stage{aspect-ratio:3/4;max-height:57vh}.status{padding:9px 12px 12px}.below{gap:14px;margin-top:14px}.lab-grid{gap:14px}.station-links{grid-template-columns:1fr;margin-top:23px}.station-links a{min-height:125px}.station-links h2{margin:14px 0 7px}.angles strong{font-size:23px}.angles span{font-size:10px}footer{padding-left:16px;padding-right:16px}.prompt-card{padding:18px}.home{padding-top:3vh}}
+</style>
+</head>
+<body>
+  <header><span class="brand">ML2305 · VISION LAB</span></header>
+  <main>
+    <h1>Vision-language comparison</h1>
+    <p class="subtitle">Use the same lab images, then check each claim against what you can see.</p>
+    <div class="provider-links" aria-label="Open a vision-language service">
+      <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT ↗</a>
+      <a href="https://claude.ai/" target="_blank" rel="noopener noreferrer">Claude ↗</a>
+      <a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer">Gemini ↗</a>
+    </div>
+    <div class="vlm-grid">
+      <section class="prompt-card">
+        <h2>Objects and counts</h2>
+        <textarea id="object-prompt" aria-label="Object comparison prompt" readonly>This is an approved image from a production-logistics teaching lab. List only visibly supported objects and counts in a table: object, count, visible evidence, uncertainty. Mark occluded or unfamiliar items as uncertain. Do not invent hidden inventory or unique asset identities. Do not identify people or infer health. Do not generate my report or analysis.</textarea>
+        <button type="button" class="primary" data-copy="object">Copy prompt</button>
+        <p id="object-copy-status" class="short-status" role="status" aria-live="polite"></p>
+      </section>
+      <section class="prompt-card">
+        <h2>Visible posture</h2>
+        <textarea id="pose-prompt" aria-label="Pose comparison prompt" readonly>This is an approved, consented staged image from a production-logistics teaching lab. Describe only visible body posture and occluded joints. Separate observations from uncertain interpretations. State what a still image cannot establish about movement, load, force or duration. Do not identify the person, infer health, diagnose injury or assign an ergonomic risk score. Do not generate my report or analysis.</textarea>
+        <button type="button" class="primary" data-copy="pose">Copy prompt</button>
+        <p id="pose-copy-status" class="short-status" role="status" aria-live="polite"></p>
+      </section>
+    </div>
+    <div class="below">
+      <details class="record guide">
+        <summary>20-minute task</summary>
+        <ol>
+          <li><strong>0–4 min:</strong> Use the shared object and pose images. Record your own expected counts or visible posture first.</li>
+          <li><strong>4–10 min:</strong> Run both prompts. Compare the answers with your manual reference and the object/pose app results.</li>
+          <li><strong>10–16 min:</strong> Change one condition—viewpoint, lighting or occlusion. Keep the prompt fixed; check omissions and unsupported claims.</li>
+          <li><strong>16–20 min:</strong> Record one useful observation, one failure and the extra information a no-touch service would need.</li>
+        </ol>
+        <p class="quiet">VLM first? Save the answers and compare after the other stations. If this rotation spans the break, pause at 10 minutes and resume here.</p>
+        <p class="quiet">Use approved images with consent and no sensitive labels or screens. VLM responses are experimental evidence; write your own project analysis and disclose the tool use.</p>
+      </details>
+      <details class="record">
+        <summary>Record a trial · <span id="trial-count">0 saved</span></summary>
+        <form id="record-form" class="record-content">
+          <div class="row-fields">
+            <label>Provider<select id="provider"><option>ChatGPT</option><option>Claude</option><option>Gemini</option><option>Other</option></select></label>
+            <label>Displayed model<input id="model" required maxlength="160" placeholder="As shown in the service"></label>
+          </div>
+          <div class="row-fields">
+            <label>Prompt used<select id="prompt-used"><option value="object">Objects and counts</option><option value="pose">Visible posture</option></select></label>
+            <label>Image / condition<input id="condition" required maxlength="200" placeholder="Scene A · baseline / occluded"></label>
+          </div>
+          <label>Expected result<textarea id="expected" rows="2" required maxlength="3000" placeholder="Your manual count or visible posture"></textarea></label>
+          <label>Observation<textarea id="notes" rows="3" required maxlength="6000" placeholder="What matched, what was missed, and what was unsupported?"></textarea></label>
+          <div class="controls-row"><button type="submit" class="primary">Save trial</button><button id="export" type="button" disabled>Export CSV</button></div>
+          <p id="trial-toast" class="trial-toast" role="status" aria-live="polite"></p>
+          <p id="storage-note" class="caption">Notes stay in this tab’s session. No images are stored. Export before closing the tab.</p>
+        </form>
+      </details>
+    </div>
+  </main>
+  <footer>External services receive images you upload; use only approved, non-sensitive images with consent and follow the service’s privacy settings.</footer>
+  <script id="ml2305-license-notices" type="text/plain">SPDX-License-Identifier: AGPL-3.0-or-later
+Copyright (c) 2026 ML2305 Vision Lab contributors.
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version3 of the License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+License text: https://www.gnu.org/licenses/agpl-3.0.html
+
+
+Application source: this HTML contains the complete student application source.
+ONNX Runtime Web 1.20.1 (MIT): https://github.com/microsoft/onnxruntime/tree/v1.20.1
+MediaPipe Tasks Vision 0.10.21 (Apache-2.0 code): https://github.com/google-ai-edge/mediapipe/tree/v0.10.21
+YOLO26n (AGPL-3.0): https://github.com/ultralytics/ultralytics
+Pinned ONNX export: https://huggingface.co/prithivMLmods/YOLO26-ONNX/tree/1079a1c407c945f7af2c7cf8fa30e3bcfba518b5
+Pose model source and terms: https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker
+</script>
+<!-- ML2305_EMBEDDED_ASSETS -->
+<script>window.ML2305_STANDALONE=true;
+(()=>{
+'use strict';
+const LABELS = 'person,bicycle,car,motorcycle,airplane,bus,train,truck,boat,traffic light,fire hydrant,stop sign,parking meter,bench,bird,cat,dog,horse,sheep,cow,elephant,bear,zebra,giraffe,backpack,umbrella,handbag,tie,suitcase,frisbee,skis,snowboard,sports ball,kite,baseball bat,baseball glove,skateboard,surfboard,tennis racket,bottle,wine glass,cup,fork,knife,spoon,bowl,banana,apple,sandwich,orange,broccoli,carrot,hot dog,pizza,donut,cake,chair,couch,potted plant,bed,dining table,toilet,tv,laptop,mouse,remote,keyboard,cell phone,microwave,oven,toaster,sink,refrigerator,book,clock,vase,scissors,teddy bear,hair drier,toothbrush'.split(',');
+function iou(a,b){const w=Math.max(0,Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x)),h=Math.max(0,Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y));const union=a.w*a.h+b.w*b.h-w*h;return union>0?w*h/union:0;}
+class Tracker{constructor(){this.reset();}reset(){this.tracks=[];this.next=1;}update(dets){const taken=new Set();const next=dets.map(d=>{let best=null,score=.25;for(const t of this.tracks){const s=t.label===d.label&&!taken.has(t.id)?iou(t,d):0;if(s>score){score=s;best=t;}}const id=best?.id??this.next++;taken.add(id);return {...d,id,misses:0};});this.tracks=[...next,...this.tracks.filter(t=>!taken.has(t.id)&&t.misses<4).map(t=>({...t,misses:t.misses+1}))];return next;}}
+function angle2d(a,b,c,w=1,h=1,min=.6){if(!a||!b||!c||[a,b,c].some(p=>(p.visibility??1)<min))return null;const ax=(a.x-b.x)*w,ay=(a.y-b.y)*h,cx=(c.x-b.x)*w,cy=(c.y-b.y)*h;const m=Math.hypot(ax,ay)*Math.hypot(cx,cy);if(m<1e-9)return null;return Math.acos(Math.max(-1,Math.min(1,(ax*cx+ay*cy)/m)))*180/Math.PI;}
+function decodeYOLO(data,dims,threshold,transform){const {scale,padX,padY,width,height}=transform;const out=[];const add=(x1,y1,x2,y2,score,cls)=>{if(score<threshold||!Number.isFinite(score)||!LABELS[cls])return;const x=Math.max(0,Math.min(width,(x1-padX)/scale)),y=Math.max(0,Math.min(height,(y1-padY)/scale)),right=Math.max(0,Math.min(width,(x2-padX)/scale)),bottom=Math.max(0,Math.min(height,(y2-padY)/scale));if(right>x&&bottom>y)out.push({x,y,w:right-x,h:bottom-y,score,label:LABELS[cls],cls});};if(dims.length===3&&dims[2]===6){for(let i=0;i<data.length;i+=6)add(...data.slice(i,i+5),Math.round(data[i+5]));return out;}
+if(dims.length===3&&dims[1]===84){const n=dims[2];for(let i=0;i<n;i++){let cls=0,score=0;for(let j=4;j<84;j++){const s=data[j*n+i];if(s>score){score=s;cls=j-4;}}const cx=data[i],cy=data[n+i],w=data[2*n+i],h=data[3*n+i];add(cx-w/2,cy-h/2,cx+w/2,cy+h/2,score,cls);}const kept=[];for(const d of out.sort((a,b)=>b.score-a.score)){if(!kept.some(p=>p.cls===d.cls&&iou(p,d)>.45))kept.push(d);}return kept;}throw new Error('Unsupported detector output: '+dims.join('×'));}
+function csv(rows){const fields=[...new Set(rows.flatMap(Object.keys))];const cell=v=>{let s=String(v??'');if(typeof v==='string'&&/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};return [fields.map(cell).join(','),...rows.map(r=>fields.map(f=>cell(r[f])).join(','))].join('\r\n');}
+function poseSummary(p,w,h){if(!p)return {visible:0,leftElbow:null,rightElbow:null,leftKnee:null,rightKnee:null};const indexes=[11,12,13,14,15,16,23,24,25,26,27,28];return {visible:indexes.filter(i=>(p[i]?.visibility??0)>=.6).length/12,leftElbow:angle2d(p[11],p[13],p[15],w,h),rightElbow:angle2d(p[12],p[14],p[16],w,h),leftKnee:angle2d(p[23],p[25],p[27],w,h),rightKnee:angle2d(p[24],p[26],p[28],w,h)};}
+
+
+const $ = id => document.getElementById(id);
+const STORAGE_KEY = 'ml2305-vlm-trials-v2';
+const fields = ['date', 'station', 'provider', 'model', 'task', 'prompt', 'image_condition', 'expected_text', 'notes'];
+const prompts = {
+  object: $('object-prompt').value,
+  pose: $('pose-prompt').value
+};
+let trials = [];
+let storageAvailable = true;
+
+try {
+  const stored = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '[]');
+  if (Array.isArray(stored)) {
+    trials = stored.filter(row => row && typeof row === 'object' && typeof row.date === 'string')
+      .map(row => Object.fromEntries(fields.map(field => [field, String(row[field] ?? '')])));
+  }
+} catch {
+  storageAvailable = false;
+}
+
+function updateCount() {
+  $('trial-count').textContent = `${trials.length} saved`;
+  $('export').disabled = trials.length === 0;
+  if (!storageAvailable) {
+    $('storage-note').textContent = 'Session storage is unavailable. Notes stay in memory only; export before reloading or closing.';
+  }
+}
+
+async function copyPrompt(task) {
+  const field = $(`${task}-prompt`);
+  const message = $(`${task}-copy-status`);
+  try {
+    if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+    await navigator.clipboard.writeText(field.value);
+    message.textContent = 'Copied. Paste it beside the approved image.';
+  } catch {
+    field.focus();
+    field.select();
+    field.setSelectionRange(0, field.value.length);
+    message.textContent = 'Prompt selected. Use your device’s Copy command.';
+  }
+}
+
+for (const button of document.querySelectorAll('[data-copy]')) {
+  button.addEventListener('click', () => copyPrompt(button.dataset.copy));
+}
+
+$('record-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const task = $('prompt-used').value;
+  const model = $('model').value.trim();
+  const imageCondition = $('condition').value.trim();
+  const expected = $('expected').value.trim();
+  const notes = $('notes').value.trim();
+  if (!model || !imageCondition || !expected || !notes) {
+    $('trial-toast').textContent = 'Add the model, image condition, expected result and observation.';
+    return;
+  }
+  trials.push({
+    date: new Date().toISOString(),
+    station: 'C - Vision-language comparison',
+    provider: $('provider').value,
+    model,
+    task: task === 'pose' ? 'Visible posture' : 'Objects and counts',
+    prompt: prompts[task],
+    image_condition: imageCondition,
+    expected_text: expected,
+    notes
+  });
+  try {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(trials));
+    storageAvailable = true;
+    $('storage-note').textContent = 'Notes stay in this tab’s session. No images are stored. Export before closing the tab.';
+  } catch {
+    storageAvailable = false;
+  }
+  updateCount();
+  $('trial-toast').textContent = `Trial ${trials.length} saved. Export your evidence before closing.`;
+  $('notes').value = '';
+});
+
+$('export').addEventListener('click', () => {
+  if (!trials.length) return;
+  // Keep text beginning with spreadsheet formula characters as literal text.
+  const safeRows = trials.map(row => Object.fromEntries(fields.map(field => {
+    const value = String(row[field] ?? '');
+    return [field, /^[=+\-@\t\r]/.test(value) ? `'${value}` : value];
+  })));
+  const blob = new Blob(['\uFEFF', csv(safeRows)], {type: 'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `ML2305_VLM_trials_${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  $('trial-toast').textContent = `${trials.length} trial${trials.length === 1 ? '' : 's'} exported.`;
+});
+
+updateCount();
+
+})();</script>
+</body>
+</html>

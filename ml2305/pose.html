@@ -1,0 +1,278 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#146f68"><title>ML2305 · Human pose</title><style>:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#182c36;background:#f3f6f7;font-synthesis:none;--accent:#146f68;--line:#d7e2e5;--muted:#5d707b}*{box-sizing:border-box}body{margin:0}a{color:var(--accent)}button,input,select,textarea{font:inherit}button,.file-button{border:1px solid var(--line);border-radius:9px;background:#fff;color:#182c36;padding:11px 17px;font-weight:650;cursor:pointer;touch-action:manipulation;min-height:44px}button:disabled{opacity:.45;cursor:default}.primary{background:var(--accent);border-color:var(--accent);color:white}button:hover:not(:disabled),.file-button:hover{filter:brightness(.96)}button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #80b5e7;outline-offset:3px}[hidden]{display:none!important}header{max-width:1180px;margin:auto;padding:23px 24px 16px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{color:#182c36;text-decoration:none;font-size:13px;font-weight:750;letter-spacing:.5px}header nav{display:flex;gap:17px;font-size:13px}header nav a{text-decoration:none;color:var(--muted)}header nav a[aria-current=page]{color:var(--accent);font-weight:750}main{max-width:1180px;margin:auto;padding:5px 24px 24px}h1{font-size:clamp(26px,4vw,36px);font-weight:680;letter-spacing:-1px;margin:8px 0}h2{font-size:18px;margin:0 0 12px}p{line-height:1.5}.subtitle{color:var(--muted);font-size:14px;margin:0 0 22px}.lab-grid{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(220px,1fr);gap:19px}.viewer,.readout,.record,.prompt-card{background:white;border:1px solid var(--line);border-radius:15px;overflow:hidden}.stage{width:100%;aspect-ratio:4/3;max-height:65vh;background:#132b34;position:relative;display:grid;place-items:center;overflow:hidden}.stage video,.stage img,.stage canvas{width:100%;height:100%;object-fit:contain;position:absolute;inset:0}.stage canvas{pointer-events:none;z-index:2}.stage .empty{max-width:80%;text-align:center;color:#c4d6da;font-size:16px;padding:35px;z-index:3}.empty strong{display:block;color:white;font-size:24px;margin-bottom:12px}.toolbar{display:flex;gap:8px;padding:14px 15px 8px;flex-wrap:wrap}.file-button{position:relative;display:inline-flex;align-items:center}.file-button input{position:absolute;width:1px;height:1px;opacity:0}.file-button:focus-within{outline:3px solid #80b5e7}.settings{display:flex;align-items:center;gap:18px;padding:7px 16px;flex-wrap:wrap}.settings label{font-size:12px;color:var(--muted)}.threshold{flex:1;min-width:160px;display:grid;grid-template-columns:1fr auto;gap:5px}.threshold input{grid-column:span 2;width:100%;accent-color:var(--accent)}select{border:1px solid var(--line);padding:8px;border-radius:7px;background:white;color:#182c36}.status{font-size:13px;line-height:1.4;padding:9px 16px 15px;margin:0;color:var(--muted);min-height:39px}.status.error{color:#a43035}.error-help{padding:0 16px 14px;color:#a43035;font-size:12px;overflow-wrap:anywhere}.readout{padding:22px;align-self:start}.metric{font-size:50px;letter-spacing:-2px;line-height:1;margin:8px 0}.metric small{font-size:12px;letter-spacing:0;display:block;color:var(--muted);margin-top:10px;line-height:1.4}.measure-note{font-size:11px;color:var(--muted);margin:10px 0 16px}.result-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #edf2f4;font-size:13px;gap:8px}.result-row small{color:var(--muted)}.results{max-height:235px;overflow:auto}.empty-result{font-size:13px;color:var(--muted);line-height:1.4}.angles{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}.angles strong{font-size:27px;font-weight:600}.angles span{display:block;font-size:11px;color:var(--muted);margin-top:3px}.encounter-list{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}.chip{font-size:11px;background:#eef5f0;border-radius:5px;padding:6px 8px}.controls-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.readout details{font-size:12px;margin-top:20px;border-top:1px solid var(--line);padding-top:13px}.readout details p{font-size:12px}.readout details button{padding:7px 11px;font-size:11px;min-height:36px}.below{display:grid;grid-template-columns:1fr 1fr;gap:19px;margin-top:19px}.record{padding:17px 20px}.record summary{font-weight:650;font-size:14px;cursor:pointer}.record-content{padding-top:16px}.record label{display:block;font-size:12px;color:var(--muted);margin-bottom:11px}.record input,.record textarea,.record select{width:100%;margin-top:5px;padding:9px;border:1px solid var(--line);border-radius:6px;box-sizing:border-box;font-size:13px;background:#fff}.row-fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}.record .caption{font-size:11px;color:var(--muted);margin:10px 0 0}.guide{font-size:13px;color:#405761;line-height:1.6}.guide ol{padding-left:19px;margin:10px 0}.guide li{margin:7px 0}.guide .quiet{font-size:11px;color:var(--muted)}footer{max-width:1180px;margin:auto;padding:0 24px 24px;color:var(--muted);font-size:11px;line-height:1.5}footer details{margin-top:10px;max-width:800px}footer summary{cursor:pointer}.home{padding-top:8vh;max-width:1000px}.station-links{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:30px 0}.station-links a{display:block;padding:28px;text-decoration:none;color:#182c36;background:white;border:1px solid var(--line);border-radius:15px;min-height:200px}.station-links b{font-size:13px;color:var(--accent)}.station-links h2{font-size:24px;margin:28px 0 10px}.station-links p{color:var(--muted);font-size:13px;margin:0}.vlm-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.prompt-card{padding:22px}.prompt-card p{font-size:13px;color:var(--muted)}.prompt-card textarea{width:100%;min-height:190px;resize:vertical;padding:13px;border:1px solid var(--line);border-radius:8px;font-size:13px;line-height:1.5}.prompt-card button{margin-top:10px}.provider-links{display:flex;gap:9px;flex-wrap:wrap;margin:20px 0}.provider-links a{background:white;border:1px solid var(--line);border-radius:8px;padding:10px 15px;text-decoration:none;font-size:13px}.short-status{font-size:12px;color:var(--muted);min-height:18px}.notice{font-size:12px;color:var(--muted);max-width:850px}#class-list{font-size:11px;line-height:1.6}.trial-toast{font-size:12px;color:var(--accent)}@media(max-width:800px){.lab-grid{grid-template-columns:1fr}.readout{display:block;padding:17px 20px}.results{max-height:160px}.metric{font-size:40px}.angles{grid-template-columns:repeat(4,1fr);margin-top:13px}.below,.vlm-grid{grid-template-columns:1fr}.station-links{gap:12px}.station-links a{padding:20px}.stage{max-height:60vh}.home{padding-top:3vh}}@media(max-width:540px){header{padding:18px 16px 10px}header nav{gap:12px;font-size:12px}main{padding:5px 16px 20px}h1{font-size:29px}.subtitle{font-size:13px;margin-bottom:16px}.toolbar{gap:6px;padding:11px 11px 7px}.toolbar button,.file-button{padding:10px 12px;font-size:13px}.settings{padding:7px 12px;gap:12px}.stage{aspect-ratio:3/4;max-height:57vh}.status{padding:9px 12px 12px}.below{gap:14px;margin-top:14px}.lab-grid{gap:14px}.station-links{grid-template-columns:1fr;margin-top:23px}.station-links a{min-height:125px}.station-links h2{margin:14px 0 7px}.angles strong{font-size:23px}.angles span{font-size:10px}footer{padding-left:16px;padding-right:16px}.prompt-card{padding:18px}.home{padding-top:3vh}}
+</style></head><body data-station="pose">
+<header><span class="brand">ML2305 · VISION LAB</span></header>
+<main><h1>Human pose</h1><p class="subtitle">One person. Comfortable movements. Check the visible joints.</p><div class="lab-grid"><section class="viewer" aria-label="Camera and image"><div id="stage" class="stage"><video id="video" autoplay muted playsinline hidden></video><img id="photo" alt="Selected lab scene" hidden><canvas id="still" hidden></canvas><canvas id="overlay"></canvas><div id="empty" class="empty"><strong>Your lab, live.</strong>Start the camera or choose a photo.</div></div><div class="toolbar"><button id="start" class="primary">Start camera</button><button id="stop" disabled>Stop</button><label class="file-button">Choose photo<input id="upload" type="file" accept="image/*" aria-label="Choose photo"></label><button id="retry" hidden>Try again</button></div><div class="settings"><label>Camera <select id="facing"><option value="environment" >Rear</option><option value="user" selected>Front</option></select></label></div><p id="status" class="status" role="status" aria-live="polite">Ready.</p><details id="error-help" class="error-help" hidden><summary>Technical details</summary><p id="error-detail"></p></details></section><aside class="readout"><h2>Result</h2><div id="metric" class="metric">—<small>of 12 body joints visible</small></div><p id="speed" class="measure-note"></p><div id="results" class="results"><p class="empty-result">No result yet.</p></div><p class="measure-note">2D angles depend on camera view. This is not an ergonomic risk assessment.</p></aside></div>
+<div class="below"><details class="record"><summary>Record a trial · <span id="trial-count">0 saved</span></summary><div class="record-content"><label>Condition<select id="condition"><option>Baseline</option><option>Distance</option><option>Lighting</option><option>Occlusion</option><option>Camera angle</option><option>Motion</option><option>Confidence</option><option>Other</option></select></label><div class="row-fields"><label>Expected count<input id="expected" type="number" min="0" placeholder="Manual count"></label><label>Missed / wrong<input id="mismatch" placeholder="What did it miss or mislabel?"></label></div><label>Observation<textarea id="notes" rows="2" placeholder="What changed? What would this mean in production logistics?"></textarea></label><div class="controls-row"><button id="save" class="primary" disabled>Save trial</button><button id="export" disabled>Export CSV</button></div><p id="trial-toast" class="trial-toast" role="status"></p><p class="caption">Only measurements and notes. No images. Export before closing the tab.</p></div></details><details class="record guide"><summary>20-minute task</summary><ol><li>Frame one consenting person. Compare the overlay with the actual posture.</li><li>Try a gentle reach or a comfortable, unloaded movement.</li><li>Change the view or partly hide a joint. Compare visibility and angles.</li><li>What task, load and duration data would a workplace assessment still need?</li><li>What could you learn without identifying or monitoring a worker?</li></ol><p class="quiet">If your station spans the break, stop at 10 minutes and resume here after the break.</p></details></div></main>
+<footer>Images stay on this device. Film only consenting participants.<details><summary>Model and limits</summary><p>MediaPipe Pose Landmarker Lite, one pose at most. Visibility uses 12 shoulder, elbow, wrist, hip, knee and ankle landmarks. Angles use image-plane coordinates. No identity recognition, health diagnosis or validated ergonomic score.</p></details></footer><script id="ml2305-license-notices" type="text/plain">SPDX-License-Identifier: AGPL-3.0-or-later
+Copyright (c) 2026 ML2305 Vision Lab contributors.
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version3 of the License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+License text: https://www.gnu.org/licenses/agpl-3.0.html
+
+
+Application source: this HTML contains the complete student application source.
+ONNX Runtime Web 1.20.1 (MIT): https://github.com/microsoft/onnxruntime/tree/v1.20.1
+MediaPipe Tasks Vision 0.10.21 (Apache-2.0 code): https://github.com/google-ai-edge/mediapipe/tree/v0.10.21
+YOLO26n (AGPL-3.0): https://github.com/ultralytics/ultralytics
+Pinned ONNX export: https://huggingface.co/prithivMLmods/YOLO26-ONNX/tree/1079a1c407c945f7af2c7cf8fa30e3bcfba518b5
+Pose model source and terms: https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker
+</script>
+<!-- ML2305_EMBEDDED_ASSETS -->
+<script>window.ML2305_STANDALONE=true;
+(()=>{
+'use strict';
+const LABELS = 'person,bicycle,car,motorcycle,airplane,bus,train,truck,boat,traffic light,fire hydrant,stop sign,parking meter,bench,bird,cat,dog,horse,sheep,cow,elephant,bear,zebra,giraffe,backpack,umbrella,handbag,tie,suitcase,frisbee,skis,snowboard,sports ball,kite,baseball bat,baseball glove,skateboard,surfboard,tennis racket,bottle,wine glass,cup,fork,knife,spoon,bowl,banana,apple,sandwich,orange,broccoli,carrot,hot dog,pizza,donut,cake,chair,couch,potted plant,bed,dining table,toilet,tv,laptop,mouse,remote,keyboard,cell phone,microwave,oven,toaster,sink,refrigerator,book,clock,vase,scissors,teddy bear,hair drier,toothbrush'.split(',');
+function iou(a,b){const w=Math.max(0,Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x)),h=Math.max(0,Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y));const union=a.w*a.h+b.w*b.h-w*h;return union>0?w*h/union:0;}
+class Tracker{constructor(){this.reset();}reset(){this.tracks=[];this.next=1;}update(dets){const taken=new Set();const next=dets.map(d=>{let best=null,score=.25;for(const t of this.tracks){const s=t.label===d.label&&!taken.has(t.id)?iou(t,d):0;if(s>score){score=s;best=t;}}const id=best?.id??this.next++;taken.add(id);return {...d,id,misses:0};});this.tracks=[...next,...this.tracks.filter(t=>!taken.has(t.id)&&t.misses<4).map(t=>({...t,misses:t.misses+1}))];return next;}}
+function angle2d(a,b,c,w=1,h=1,min=.6){if(!a||!b||!c||[a,b,c].some(p=>(p.visibility??1)<min))return null;const ax=(a.x-b.x)*w,ay=(a.y-b.y)*h,cx=(c.x-b.x)*w,cy=(c.y-b.y)*h;const m=Math.hypot(ax,ay)*Math.hypot(cx,cy);if(m<1e-9)return null;return Math.acos(Math.max(-1,Math.min(1,(ax*cx+ay*cy)/m)))*180/Math.PI;}
+function decodeYOLO(data,dims,threshold,transform){const {scale,padX,padY,width,height}=transform;const out=[];const add=(x1,y1,x2,y2,score,cls)=>{if(score<threshold||!Number.isFinite(score)||!LABELS[cls])return;const x=Math.max(0,Math.min(width,(x1-padX)/scale)),y=Math.max(0,Math.min(height,(y1-padY)/scale)),right=Math.max(0,Math.min(width,(x2-padX)/scale)),bottom=Math.max(0,Math.min(height,(y2-padY)/scale));if(right>x&&bottom>y)out.push({x,y,w:right-x,h:bottom-y,score,label:LABELS[cls],cls});};if(dims.length===3&&dims[2]===6){for(let i=0;i<data.length;i+=6)add(...data.slice(i,i+5),Math.round(data[i+5]));return out;}
+if(dims.length===3&&dims[1]===84){const n=dims[2];for(let i=0;i<n;i++){let cls=0,score=0;for(let j=4;j<84;j++){const s=data[j*n+i];if(s>score){score=s;cls=j-4;}}const cx=data[i],cy=data[n+i],w=data[2*n+i],h=data[3*n+i];add(cx-w/2,cy-h/2,cx+w/2,cy+h/2,score,cls);}const kept=[];for(const d of out.sort((a,b)=>b.score-a.score)){if(!kept.some(p=>p.cls===d.cls&&iou(p,d)>.45))kept.push(d);}return kept;}throw new Error('Unsupported detector output: '+dims.join('×'));}
+function csv(rows){const fields=[...new Set(rows.flatMap(Object.keys))];const cell=v=>{let s=String(v??'');if(typeof v==='string'&&/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};return [fields.map(cell).join(','),...rows.map(r=>fields.map(f=>cell(r[f])).join(','))].join('\r\n');}
+function poseSummary(p,w,h){if(!p)return {visible:0,leftElbow:null,rightElbow:null,leftKnee:null,rightKnee:null};const indexes=[11,12,13,14,15,16,23,24,25,26,27,28];return {visible:indexes.filter(i=>(p[i]?.visibility??0)>=.6).length/12,leftElbow:angle2d(p[11],p[13],p[15],w,h),rightElbow:angle2d(p[12],p[14],p[16],w,h),leftKnee:angle2d(p[23],p[25],p[27],w,h),rightKnee:angle2d(p[24],p[26],p[28],w,h)};}
+
+
+const assets = null;
+const standalone = Boolean(window.ML2305_STANDALONE);
+const embeddedNode = document.getElementById('ml2305-embedded-assets');
+let embeddedAssets;
+const embeddedBytes = new Map(), embeddedURLs = new Map();
+const onlineModels = {
+  'models/yolo26n.onnx':'https://huggingface.co/prithivMLmods/YOLO26-ONNX/resolve/1079a1c407c945f7af2c7cf8fa30e3bcfba518b5/yolo26n/yolo26n.onnx',
+  'models/pose_landmarker_lite.task':'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task'
+};
+function unpack(path) {
+  if(embeddedBytes.has(path))return embeddedBytes.get(path);
+  if(!embeddedAssets){embeddedAssets=JSON.parse(embeddedNode.textContent);embeddedNode.textContent='';}
+  const encoded=embeddedAssets[path];
+  if(typeof encoded!=='string')throw new ModelError('runtime',`Embedded file missing: ${path}. Download the complete HTML again.`);
+  const raw=atob(encoded),data=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++)data[i]=raw.charCodeAt(i);
+  embeddedBytes.set(path,data);delete embeddedAssets[path];return data;
+}
+function asset(path) {
+  if(embeddedNode){
+    if(path.endsWith('/'))return 'embedded:'+path;
+    if(!embeddedURLs.has(path)){
+      const type=path.endsWith('.wasm')?'application/wasm':/\.m?js$/.test(path)?'text/javascript':'application/octet-stream';
+      embeddedURLs.set(path,URL.createObjectURL(new Blob([unpack(path)],{type})));
+    }
+    return embeddedURLs.get(path);
+  }
+  if(!standalone)return new URL(path,assets).href;
+  if(onlineModels[path])return onlineModels[path];
+  if(path.startsWith('vendor/onnx/'))return 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/'+path.slice('vendor/onnx/'.length);
+  if(path.startsWith('vendor/mediapipe/'))return 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.21/'+path.slice('vendor/mediapipe/'.length);
+  throw new ModelError('runtime',`Unknown model resource: ${path}`);
+}
+class ModelError extends Error {
+  constructor(stage, detail, url='') { super(detail); this.name='ModelError'; this.stage=stage; this.url=url; }
+}
+async function bytes(path, label, progress) {
+  if(embeddedNode){progress(`Loading embedded ${label}…`);return unpack(path);}
+  const url=asset(path);
+  let response;
+  const timeout=new AbortController();
+  const timer=setTimeout(()=>timeout.abort(),120000);
+  try {
+    try { response=await fetch(url,{signal:timeout.signal,cache:'default',credentials:'omit'}); }
+    catch(e) { throw new ModelError('download',`${label}: ${e.name==='AbortError'?'download timed out':'network request failed'}.`,url); }
+    if(!response.ok) throw new ModelError('download',`${label}: HTTP ${response.status}. ${standalone?'Check your internet connection.':'The complete model/assets folder must be published.'}`,url);
+    if((response.headers.get('content-type')||'').includes('text/html')) throw new ModelError('download',`${label}: the server returned an HTML page instead of model data.`,url);
+    const total=Number(response.headers.get('content-length'))||0;
+    if(!response.body) return new Uint8Array(await response.arrayBuffer());
+    const reader=response.body.getReader(),chunks=[];let size=0,last=0;
+    while(true){const {done,value}=await reader.read();if(done)break;chunks.push(value);size+=value.length;
+      if(performance.now()-last>250){progress(`Loading ${label}… ${(size/1e6).toFixed(1)}${total?' / '+(total/1e6).toFixed(1):''} MB`);last=performance.now();}}
+    const joined=new Uint8Array(size);let offset=0;for(const chunk of chunks){joined.set(chunk,offset);offset+=chunk.length;}
+    return joined;
+  } catch(e) {
+    if(e instanceof ModelError)throw e;
+    throw new ModelError('download',`${label}: download did not complete. ${e.message}`,url);
+  } finally { clearTimeout(timer); }
+}
+function script(path) {
+  const url=asset(path);
+  return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=url;
+    const timer=setTimeout(()=>{s.remove();reject(new ModelError('runtime','Runtime download timed out.',url));},60000);
+    s.onload=()=>{clearTimeout(timer);resolve();};s.onerror=()=>{clearTimeout(timer);s.remove();reject(new ModelError('runtime',`Could not load the detector runtime. ${standalone?'Check your internet connection or download the offline edition.':'Check the published assets folder.'}`,url));};document.head.append(s);});
+}
+
+async function createEngine(station, progress=()=>{}) {
+  if(station==='objects'){
+    progress('Loading detector…');
+    if(!window.ort) await script('vendor/onnx/ort.wasm.min.js');
+    const ort=window.ort;
+    if(!ort) throw new ModelError('runtime','The detector runtime did not initialise.');
+    ort.env.wasm.numThreads=1;ort.env.wasm.proxy=false;
+    if(embeddedNode){
+      ort.env.wasm.wasmBinary=unpack('vendor/onnx/ort-wasm-simd-threaded.wasm');
+      ort.env.wasm.wasmPaths={mjs:asset('vendor/onnx/ort-wasm-simd-threaded.mjs')};
+    }else ort.env.wasm.wasmPaths=asset('vendor/onnx/');
+    const model=await bytes('models/yolo26n.onnx','object model',progress);
+    progress('Preparing detector…');
+    let session;
+    try{session=await ort.InferenceSession.create(model,{executionProviders:['wasm'],graphOptimizationLevel:'all'});}
+    catch(e){throw new ModelError('initialisation',`Detector/WASM initialisation failed: ${e.message}`,asset('vendor/onnx/'));}
+    const canvas=document.createElement('canvas');canvas.width=640;canvas.height=640;
+    const ctx=canvas.getContext('2d',{willReadFrequently:true});
+    return {name:'YOLO26n · COCO 80', async analyze(image,{threshold=.35}={}){
+      const w=image.width,h=image.height,scale=Math.min(640/w,640/h),nw=Math.round(w*scale),nh=Math.round(h*scale),padX=Math.floor((640-nw)/2),padY=Math.floor((640-nh)/2);
+      ctx.fillStyle='rgb(114,114,114)';ctx.fillRect(0,0,640,640);ctx.drawImage(image,padX,padY,nw,nh);
+      const rgba=ctx.getImageData(0,0,640,640).data,n=640*640,input=new Float32Array(n*3);
+      for(let i=0;i<n;i++){input[i]=rgba[4*i]/255;input[n+i]=rgba[4*i+1]/255;input[n*2+i]=rgba[4*i+2]/255;}
+      const tensor=new ort.Tensor('float32',input,[1,3,640,640]);let output;
+      try{output=await session.run({[session.inputNames[0]]:tensor});const raw=output[session.outputNames[0]];
+        return {detections:decodeYOLO(raw.data,raw.dims,threshold,{scale,padX,padY,width:w,height:h})};}
+      finally{tensor.dispose?.();if(output)Object.values(output).forEach(t=>t.dispose?.());}
+    }};
+  }
+  if(station!=='pose') throw new Error('Unknown station.');
+  progress('Loading pose tracker…');
+  let api,fileset,pose;
+  try{
+    api=await import(asset('vendor/mediapipe/vision_bundle.mjs'));
+    if(embeddedNode){
+      const stem=await api.FilesetResolver.isSimdSupported()?'vision_wasm_internal':'vision_wasm_nosimd_internal';
+      fileset={wasmLoaderPath:asset(`vendor/mediapipe/wasm/${stem}.js`),wasmBinaryPath:asset(`vendor/mediapipe/wasm/${stem}.wasm`)};
+    }else fileset=await api.FilesetResolver.forVisionTasks(asset('vendor/mediapipe/wasm'));
+  }
+  catch(e){throw new ModelError('runtime',`Could not load the pose runtime: ${e.message}`,asset('vendor/mediapipe/'));}
+  const model=await bytes('models/pose_landmarker_lite.task','pose model',progress);
+  progress('Preparing pose tracker…');
+  try{pose=await api.PoseLandmarker.createFromOptions(fileset,{baseOptions:{modelAssetBuffer:model,delegate:'CPU'},runningMode:'IMAGE',numPoses:1,minPoseDetectionConfidence:.5,minPosePresenceConfidence:.5,minTrackingConfidence:.5});}
+  catch(e){throw new ModelError('initialisation',`Pose/WASM initialisation failed: ${e.message}`,asset('vendor/mediapipe/wasm/'));}
+  let mode='IMAGE';
+  return {name:'MediaPipe Pose Lite · one person',async analyze(image,{video=false}={}){
+    const desired=video?'VIDEO':'IMAGE';if(desired!==mode){await pose.setOptions({runningMode:desired});mode=desired;}
+    const result=video?pose.detectForVideo(image,performance.now()):pose.detect(image);
+    const points=result.landmarks?.[0]||null;
+    return {points,metrics:poseSummary(points,image.width,image.height)};
+  }};
+}
+
+
+
+const $=id=>document.getElementById(id),station=document.body.dataset.station,isObject=station==='objects';
+const video=$('video'),photo=$('photo'),overlay=$('overlay'),pen=overlay.getContext('2d'),still=$('still');
+const sample=document.createElement('canvas'),samplePen=sample.getContext('2d',{willReadFrequently:true});
+const completed=document.createElement('canvas'),completedPen=completed.getContext('2d');
+let epoch=0,stream=null,running=false,busy=false,starting=false,source='none',engine=null,loading=null,timer=null,last=null,photoURL=null,pendingPhoto=false,inferencePaused=false,reloadRequired=false;
+const tracker=new Tracker(),encounters=new Map(),key='ML2305:'+station+':trials';
+let trials=[];try{const saved=JSON.parse(sessionStorage.getItem(key)||'[]');if(Array.isArray(saved))trials=saved.slice(-1000);}catch{}
+function status(message,error=false){$('status').textContent=message;$('status').classList.toggle('error',error);}
+function clearError(){reloadRequired=false;$('error-help').hidden=true;$('retry').hidden=true;$('retry').textContent='Try again';}
+function error(e,kind='model'){
+  let message;
+  if(kind==='camera'){
+    if(e.name==='CameraUnavailableError')message='This viewer cannot access the camera. Open the HTML in a full browser, or use the class website.';
+    else if(e.name==='NotAllowedError')message='Camera access was denied. Allow it in your browser, or choose a photo.';
+    else if(e.name==='NotFoundError')message='No camera found. Choose a photo instead.';
+    else if(e.name==='NotReadableError')message='Camera is busy. Close other camera apps and try again.';
+    else message='Camera could not start. Try again or choose a photo.';
+  }else if(e.stage==='initialisation'){
+    reloadRequired=true;message='The model could not initialise. Reload this page and try again.';
+  }else if(e.stage==='download'||e.stage==='runtime'){
+    message=document.getElementById('ml2305-embedded-assets')?'Embedded model data could not load. Download the complete HTML again.':'Model files could not load. Check your internet connection and try again.';
+  }else message='The model could not run on this device. Try a smaller photo or another browser.';
+  if(kind!=='camera'&&running)message='Camera works; analysis is paused. '+message;
+  $('retry').textContent=reloadRequired?'Reload page':'Try again';
+  status(message,true);$('error-detail').textContent=[e.message,e.url].filter(Boolean).join(' ');$('error-help').hidden=false;$('retry').hidden=false;
+}
+function text(tag,value,cls){const n=document.createElement(tag);n.textContent=value;if(cls)n.className=cls;return n;}
+function saveState(){try{sessionStorage.setItem(key,JSON.stringify(trials));}catch{}$('trial-count').textContent=trials.length+' saved';$('export').disabled=!trials.length;}
+function invalidateResult(){last=null;$('save').disabled=true;$('speed').textContent='';pen.clearRect(0,0,overlay.width,overlay.height);$('metric').replaceChildren(document.createTextNode('—'),text('small',isObject?'objects in this frame':'of 12 body joints visible'));$('results').replaceChildren(text('p','No result yet.','empty-result'));document.body.dataset.inference='pending';delete document.body.dataset.resultCount;}
+function stop({freeze=true,message=''}={}){
+  epoch++;running=false;starting=false;clearTimeout(timer);stream?.getTracks().forEach(t=>t.stop());stream=null;video.srcObject=null;video.hidden=true;
+  $('start').disabled=false;$('stop').disabled=true;
+  if(freeze&&last&&source==='camera'){
+    still.width=completed.width;still.height=completed.height;still.getContext('2d').drawImage(completed,0,0);still.hidden=false;photo.hidden=true;$('empty').hidden=true;
+  }else if(source==='camera'){still.hidden=true;$('empty').hidden=false;}
+  if(message)status(message);
+}
+async function getEngine(g){
+  if(engine)return engine;
+  if(!loading)loading=createEngine(station,msg=>{if(g===epoch)status(msg);}).then(value=>{engine=value;return value;}).catch(e=>{loading=null;throw e;});
+  return loading;
+}
+function capture(input){
+  const w=input.videoWidth||input.naturalWidth||input.width,h=input.videoHeight||input.naturalHeight||input.height;
+  if(!w||!h)throw new Error('Image dimensions are not available yet.');
+  const scale=Math.min(1,1280/Math.max(w,h));sample.width=Math.round(w*scale);sample.height=Math.round(h*scale);samplePen.drawImage(input,0,0,sample.width,sample.height);
+  return sample;
+}
+function drawBoxes(ds,w,h){
+  pen.clearRect(0,0,w,h);const size=Math.max(14,w/55);pen.font=`600 ${size}px system-ui`;pen.lineWidth=Math.max(2,w/350);
+  for(const d of ds){pen.strokeStyle='#c9f58d';pen.strokeRect(d.x,d.y,d.w,d.h);const label=`${d.label} ${Math.round(d.score*100)}%${d.id?' #'+d.id:''}`;const y=Math.max(size+8,d.y);pen.fillStyle='#c9f58d';pen.fillRect(d.x,y-size-7,pen.measureText(label).width+12,size+8);pen.fillStyle='#102721';pen.fillText(label,d.x+5,y-4);}
+}
+const connections=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28],[27,29],[29,31],[28,30],[30,32]];
+function drawPose(points,w,h){
+  pen.clearRect(0,0,w,h);if(!points)return;pen.lineWidth=Math.max(3,w/220);pen.strokeStyle='#c9f58d';
+  for(const [a,b] of connections){if((points[a]?.visibility||0)<.6||(points[b]?.visibility||0)<.6)continue;pen.beginPath();pen.moveTo(points[a].x*w,points[a].y*h);pen.lineTo(points[b].x*w,points[b].y*h);pen.stroke();}
+  for(const p of points.slice(11)){if((p.visibility||0)<.6)continue;pen.fillStyle='white';pen.beginPath();pen.arc(p.x*w,p.y*h,Math.max(4,w/160),0,Math.PI*2);pen.fill();}
+}
+function showObjects(ds){
+  $('metric').replaceChildren(document.createTextNode(String(ds.length)),text('small','objects in this frame'));$('results').replaceChildren();
+  const counts={};for(const d of ds){counts[d.label]=(counts[d.label]||0)+1;const row=text('div','','result-row');row.append(text('span',d.label+(d.id?' #'+d.id:'')),text('small',Math.round(d.score*100)+'%'));$('results').append(row);}
+  if(!ds.length)$('results').append(text('p','No detections above this confidence threshold.','empty-result'));
+  for(const [name,count] of Object.entries(counts))encounters.set(name,Math.max(count,encounters.get(name)||0));
+  $('encounters').replaceChildren();for(const [name,count] of [...encounters].sort())$('encounters').append(text('span',name+' · max '+count,'chip'));
+}
+function showPose(points,m){
+  $('metric').replaceChildren(document.createTextNode(`${Math.round(m.visible*12)}/12`),text('small','body joints visible (visibility ≥ 0.60)'));
+  $('results').replaceChildren();const grid=text('div','','angles');
+  for(const [title,k] of [['Left elbow','leftElbow'],['Right elbow','rightElbow'],['Left knee','leftKnee'],['Right knee','rightKnee']]){const box=document.createElement('div');box.append(text('strong',m[k]===null?'—':Math.round(m[k])+'°'),text('span',title));grid.append(box);}
+  $('results').append(grid);if(!points)$('results').append(text('p','No pose found. Try a clearer view of one person.','empty-result'));
+}
+async function analyze(input,live=false){
+  if(busy){if(!live)pendingPhoto=true;return;}busy=true;const g=epoch,threshold=Number($('confidence')?.value||.35);
+  try{
+    const active=await getEngine(g);if(g!==epoch)return;
+    const frame=capture(input),start=performance.now(),result=await active.analyze(frame,{video:live,threshold});
+    if(g!==epoch)return;
+    const elapsed=performance.now()-start,w=frame.width,h=frame.height;overlay.width=w;overlay.height=h;
+    completed.width=w;completed.height=h;completedPen.drawImage(frame,0,0);
+    if(isObject){const ds=live?tracker.update(result.detections):result.detections;drawBoxes(ds,w,h);showObjects(ds);
+      last={station:'Objects',model:'YOLO26n COCO80',source,confidence:threshold,detected:ds.length,labels:ds.map(d=>`${d.label}:${d.score.toFixed(3)}${d.id?' #'+d.id:''}`).join('; ')};
+    }else{drawPose(result.points,w,h);showPose(result.points,result.metrics);const m=result.metrics;
+      last={station:'Pose',model:'MediaPipe Pose Lite 0.10.21',source,detected:result.points?1:0,visible_of_12:Math.round(m.visible*12),left_elbow_2d:m.leftElbow??'',right_elbow_2d:m.rightElbow??'',left_knee_2d:m.leftKnee??'',right_knee_2d:m.rightKnee??''};}
+    Object.assign(last,{analysed_at:new Date().toISOString(),inference_ms:Math.round(elapsed),width:w,height:h});
+    $('speed').textContent=`${Math.round(elapsed)} ms per inference`;$('save').disabled=isObject&&threshold!==Number($('confidence').value);clearError();
+    document.body.dataset.inference='ready';document.body.dataset.resultCount=String(last.detected);
+    status(live?'Camera running.':'Photo analysed.');
+  }catch(e){if(g===epoch){inferencePaused=true;invalidateResult();error(e);document.body.dataset.inference='error';}}
+  finally{busy=false;if(pendingPhoto&&source==='photo'&&!running){pendingPhoto=false;analyze(photo);}}
+}
+async function camera(){
+  stop({freeze:false});invalidateResult();clearError();inferencePaused=false;source='camera';photo.hidden=true;still.hidden=true;tracker.reset();
+  const g=epoch;starting=true;$('start').disabled=true;$('stop').disabled=false;
+  try{
+    if(!navigator.mediaDevices?.getUserMedia){const e=new Error('This browser or file-preview app does not expose getUserMedia. Local HTML works only in a browser that permits camera access for file URLs.');e.name='CameraUnavailableError';throw e;}
+    status('Allow camera access…');
+    const acquired=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:$('facing').value},width:{ideal:960},height:{ideal:720}}});
+    if(g!==epoch||document.hidden){acquired.getTracks().forEach(t=>t.stop());return;}
+    stream=acquired;video.srcObject=acquired;await video.play();
+    if(g!==epoch||document.hidden){acquired.getTracks().forEach(t=>t.stop());return;}
+    video.hidden=false;$('empty').hidden=true;running=true;starting=false;status('Camera ready. Loading model…');
+    const loop=async()=>{if(g!==epoch||!running)return;if(!inferencePaused&&video.readyState>=2)await analyze(video,true);if(g===epoch&&running)timer=setTimeout(loop,120);};loop();
+  }catch(e){if(g===epoch){stop({freeze:false});error(e,'camera');}}
+}
+function choosePhoto(file){
+  if(!file)return;if(file.size>30*1024*1024){status('Choose a photo smaller than 30 MB.',true);return;}
+  stop({freeze:false});invalidateResult();clearError();inferencePaused=false;source='photo';pendingPhoto=false;tracker.reset();const g=epoch;
+  if(photoURL)URL.revokeObjectURL(photoURL);photoURL=URL.createObjectURL(file);
+  photo.onload=()=>{if(g!==epoch||source!=='photo')return;photo.hidden=false;still.hidden=true;video.hidden=true;$('empty').hidden=true;status('Photo ready. Loading model…');analyze(photo);};
+  photo.onerror=()=>{if(g===epoch)status('This image could not open. Try JPEG or PNG.',true);};photo.src=photoURL;
+}
+$('start').onclick=camera;$('stop').onclick=()=>stop({message:last?'Stopped. The last analysed frame is shown.':'Camera stopped.'});
+$('facing').onchange=()=>{if(running||starting)camera();};
+$('upload').onchange=e=>{choosePhoto(e.target.files[0]);e.target.value='';};
+$('retry').onclick=()=>{if(reloadRequired){stop({freeze:false});location.reload();return;}clearError();inferencePaused=false;if(source==='photo'&&photo.complete)analyze(photo);else if(running)status('Retrying analysis…');else camera();};
+if(isObject){$('class-list').textContent=LABELS.join(', ');$('reset-encounters').onclick=()=>{tracker.reset();encounters.clear();$('encounters').replaceChildren();};
+  let debounce;$('confidence').oninput=()=>{$('confidence-value').textContent=Number($('confidence').value).toFixed(2);$('save').disabled=true;clearTimeout(debounce);if(source==='photo'){const g=epoch;debounce=setTimeout(()=>{if(g===epoch&&source==='photo')analyze(photo);},180);}};}
+$('save').onclick=()=>{if(!last)return;trials.push({...last,recorded_at:new Date().toISOString(),condition:$('condition').value,manual_expected:$('expected').value,mismatch:$('mismatch').value,notes:$('notes').value});trials=trials.slice(-1000);saveState();$('trial-toast').textContent='Trial saved.';};
+$('export').onclick=()=>{const blob=new Blob(['\ufeff'+csv(trials)],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`ML2305_${station}_${new Date().toISOString().slice(0,10)}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&(source==='camera'||starting||running)){pendingPhoto=false;stop({message:'Paused. Press Start camera to resume.'});}});
+window.addEventListener('pagehide',()=>{pendingPhoto=false;stop();});saveState();
+if(window.ML2305_STANDALONE)status(document.getElementById('ml2305-embedded-assets')?'Ready. Models included.':'Ready. Internet is needed to load the model.');
+
+})();</script></body></html>
