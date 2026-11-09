@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#146f68">
+  <title>ML2305 · Vision-language comparison</title>
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <header>
+    <a class="brand" href="../">ML2305 · VISION LAB</a>
+    <nav aria-label="Stations"><a href="../objects/">Objects</a><a href="../pose/">Pose</a><a href="../vlm/" aria-current="page">VLM</a></nav>
+  </header>
+  <main>
+    <h1>Vision-language comparison</h1>
+    <p class="subtitle">Use the same lab images, then check each claim against what you can see.</p>
+    <div class="provider-links" aria-label="Open a vision-language service">
+      <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT ↗</a>
+      <a href="https://claude.ai/" target="_blank" rel="noopener noreferrer">Claude ↗</a>
+      <a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer">Gemini ↗</a>
+    </div>
+    <div class="vlm-grid">
+      <section class="prompt-card">
+        <h2>Objects and counts</h2>
+        <textarea id="object-prompt" aria-label="Object comparison prompt" readonly>This is an approved image from a production-logistics teaching lab. List only visibly supported objects and counts in a table: object, count, visible evidence, uncertainty. Mark occluded or unfamiliar items as uncertain. Do not invent hidden inventory or unique asset identities. Do not identify people or infer health. Do not generate my report or analysis.</textarea>
+        <button type="button" class="primary" data-copy="object">Copy prompt</button>
+        <p id="object-copy-status" class="short-status" role="status" aria-live="polite"></p>
+      </section>
+      <section class="prompt-card">
+        <h2>Visible posture</h2>
+        <textarea id="pose-prompt" aria-label="Pose comparison prompt" readonly>This is an approved, consented staged image from a production-logistics teaching lab. Describe only visible body posture and occluded joints. Separate observations from uncertain interpretations. State what a still image cannot establish about movement, load, force or duration. Do not identify the person, infer health, diagnose injury or assign an ergonomic risk score. Do not generate my report or analysis.</textarea>
+        <button type="button" class="primary" data-copy="pose">Copy prompt</button>
+        <p id="pose-copy-status" class="short-status" role="status" aria-live="polite"></p>
+      </section>
+    </div>
+    <div class="below">
+      <details class="record guide">
+        <summary>20-minute task</summary>
+        <ol>
+          <li><strong>0–4 min:</strong> Use the shared object and pose images. Record your own expected counts or visible posture first.</li>
+          <li><strong>4–10 min:</strong> Run both prompts. Compare the answers with your manual reference and the object/pose app results.</li>
+          <li><strong>10–16 min:</strong> Change one condition—viewpoint, lighting or occlusion. Keep the prompt fixed; check omissions and unsupported claims.</li>
+          <li><strong>16–20 min:</strong> Record one useful observation, one failure and the extra information a no-touch service would need.</li>
+        </ol>
+        <p class="quiet">VLM first? Save the answers and compare after the other stations. If this rotation spans the break, pause at 10 minutes and resume here.</p>
+        <p class="quiet">Use approved images with consent and no sensitive labels or screens. VLM responses are experimental evidence; write your own project analysis and disclose the tool use.</p>
+      </details>
+      <details class="record">
+        <summary>Record a trial · <span id="trial-count">0 saved</span></summary>
+        <form id="record-form" class="record-content">
+          <div class="row-fields">
+            <label>Provider<select id="provider"><option>ChatGPT</option><option>Claude</option><option>Gemini</option><option>Other</option></select></label>
+            <label>Displayed model<input id="model" required maxlength="160" placeholder="As shown in the service"></label>
+          </div>
+          <div class="row-fields">
+            <label>Prompt used<select id="prompt-used"><option value="object">Objects and counts</option><option value="pose">Visible posture</option></select></label>
+            <label>Image / condition<input id="condition" required maxlength="200" placeholder="Scene A · baseline / occluded"></label>
+          </div>
+          <label>Expected result<textarea id="expected" rows="2" required maxlength="3000" placeholder="Your manual count or visible posture"></textarea></label>
+          <label>Observation<textarea id="notes" rows="3" required maxlength="6000" placeholder="What matched, what was missed, and what was unsupported?"></textarea></label>
+          <div class="controls-row"><button type="submit" class="primary">Save trial</button><button id="export" type="button" disabled>Export CSV</button></div>
+          <p id="trial-toast" class="trial-toast" role="status" aria-live="polite"></p>
+          <p id="storage-note" class="caption">Notes stay in this tab’s session. No images are stored. Export before closing the tab.</p>
+        </form>
+      </details>
+    </div>
+  </main>
+  <footer>External services receive images you upload; use only approved, non-sensitive images with consent and follow the service’s privacy settings.</footer>
+  <script type="module" src="../js/vlm.js"></script>
+</body>
+</html>
