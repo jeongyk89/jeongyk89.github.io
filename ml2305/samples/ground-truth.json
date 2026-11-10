@@ -1,0 +1,30 @@
+{
+  "format": "Code 39, no check digit",
+  "labels": [
+    {
+      "id": "TOTE-A01",
+      "item": "M8 BOLTS",
+      "qty": 12,
+      "location": "KIT-A",
+      "state": "READY"
+    },
+    {
+      "id": "TOTE-B02",
+      "item": "BEARING 6204",
+      "qty": 4,
+      "location": "STORE-B",
+      "state": "HOLD"
+    },
+    {
+      "id": "TOTE-A01",
+      "item": "M8 BOLTS",
+      "qty": 12,
+      "location": "KIT-A",
+      "state": "READY"
+    }
+  ],
+  "notes": [
+    "Labels 1 and 3 deliberately share an ID. Two visible labels do not prove two unique assets.",
+    "The printed quantity is a claim; a camera does not verify the contents of a closed tote."
+  ]
+}

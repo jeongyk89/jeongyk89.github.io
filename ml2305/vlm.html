@@ -1,200 +1,102 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#146f68">
-  <title>ML2305 · Vision-language comparison</title>
-  <style>:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#182c36;background:#f3f6f7;font-synthesis:none;--accent:#146f68;--line:#d7e2e5;--muted:#5d707b}*{box-sizing:border-box}body{margin:0}a{color:var(--accent)}button,input,select,textarea{font:inherit}button,.file-button{border:1px solid var(--line);border-radius:9px;background:#fff;color:#182c36;padding:11px 17px;font-weight:650;cursor:pointer;touch-action:manipulation;min-height:44px}button:disabled{opacity:.45;cursor:default}.primary{background:var(--accent);border-color:var(--accent);color:white}button:hover:not(:disabled),.file-button:hover{filter:brightness(.96)}button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #80b5e7;outline-offset:3px}[hidden]{display:none!important}header{max-width:1180px;margin:auto;padding:23px 24px 16px;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{color:#182c36;text-decoration:none;font-size:13px;font-weight:750;letter-spacing:.5px}header nav{display:flex;gap:17px;font-size:13px}header nav a{text-decoration:none;color:var(--muted)}header nav a[aria-current=page]{color:var(--accent);font-weight:750}main{max-width:1180px;margin:auto;padding:5px 24px 24px}h1{font-size:clamp(26px,4vw,36px);font-weight:680;letter-spacing:-1px;margin:8px 0}h2{font-size:18px;margin:0 0 12px}p{line-height:1.5}.subtitle{color:var(--muted);font-size:14px;margin:0 0 22px}.lab-grid{display:grid;grid-template-columns:minmax(0,2.4fr) minmax(220px,1fr);gap:19px}.viewer,.readout,.record,.prompt-card{background:white;border:1px solid var(--line);border-radius:15px;overflow:hidden}.stage{width:100%;aspect-ratio:4/3;max-height:65vh;background:#132b34;position:relative;display:grid;place-items:center;overflow:hidden}.stage video,.stage img,.stage canvas{width:100%;height:100%;object-fit:contain;position:absolute;inset:0}.stage canvas{pointer-events:none;z-index:2}.stage .empty{max-width:80%;text-align:center;color:#c4d6da;font-size:16px;padding:35px;z-index:3}.empty strong{display:block;color:white;font-size:24px;margin-bottom:12px}.toolbar{display:flex;gap:8px;padding:14px 15px 8px;flex-wrap:wrap}.file-button{position:relative;display:inline-flex;align-items:center}.file-button input{position:absolute;width:1px;height:1px;opacity:0}.file-button:focus-within{outline:3px solid #80b5e7}.settings{display:flex;align-items:center;gap:18px;padding:7px 16px;flex-wrap:wrap}.settings label{font-size:12px;color:var(--muted)}.threshold{flex:1;min-width:160px;display:grid;grid-template-columns:1fr auto;gap:5px}.threshold input{grid-column:span 2;width:100%;accent-color:var(--accent)}select{border:1px solid var(--line);padding:8px;border-radius:7px;background:white;color:#182c36}.status{font-size:13px;line-height:1.4;padding:9px 16px 15px;margin:0;color:var(--muted);min-height:39px}.status.error{color:#a43035}.error-help{padding:0 16px 14px;color:#a43035;font-size:12px;overflow-wrap:anywhere}.readout{padding:22px;align-self:start}.metric{font-size:50px;letter-spacing:-2px;line-height:1;margin:8px 0}.metric small{font-size:12px;letter-spacing:0;display:block;color:var(--muted);margin-top:10px;line-height:1.4}.measure-note{font-size:11px;color:var(--muted);margin:10px 0 16px}.result-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #edf2f4;font-size:13px;gap:8px}.result-row small{color:var(--muted)}.results{max-height:235px;overflow:auto}.empty-result{font-size:13px;color:var(--muted);line-height:1.4}.angles{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}.angles strong{font-size:27px;font-weight:600}.angles span{display:block;font-size:11px;color:var(--muted);margin-top:3px}.encounter-list{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}.chip{font-size:11px;background:#eef5f0;border-radius:5px;padding:6px 8px}.controls-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.readout details{font-size:12px;margin-top:20px;border-top:1px solid var(--line);padding-top:13px}.readout details p{font-size:12px}.readout details button{padding:7px 11px;font-size:11px;min-height:36px}.below{display:grid;grid-template-columns:1fr 1fr;gap:19px;margin-top:19px}.record{padding:17px 20px}.record summary{font-weight:650;font-size:14px;cursor:pointer}.record-content{padding-top:16px}.record label{display:block;font-size:12px;color:var(--muted);margin-bottom:11px}.record input,.record textarea,.record select{width:100%;margin-top:5px;padding:9px;border:1px solid var(--line);border-radius:6px;box-sizing:border-box;font-size:13px;background:#fff}.row-fields{display:grid;grid-template-columns:1fr 1fr;gap:9px}.record .caption{font-size:11px;color:var(--muted);margin:10px 0 0}.guide{font-size:13px;color:#405761;line-height:1.6}.guide ol{padding-left:19px;margin:10px 0}.guide li{margin:7px 0}.guide .quiet{font-size:11px;color:var(--muted)}footer{max-width:1180px;margin:auto;padding:0 24px 24px;color:var(--muted);font-size:11px;line-height:1.5}footer details{margin-top:10px;max-width:800px}footer summary{cursor:pointer}.home{padding-top:8vh;max-width:1000px}.station-links{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:30px 0}.station-links a{display:block;padding:28px;text-decoration:none;color:#182c36;background:white;border:1px solid var(--line);border-radius:15px;min-height:200px}.station-links b{font-size:13px;color:var(--accent)}.station-links h2{font-size:24px;margin:28px 0 10px}.station-links p{color:var(--muted);font-size:13px;margin:0}.vlm-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.prompt-card{padding:22px}.prompt-card p{font-size:13px;color:var(--muted)}.prompt-card textarea{width:100%;min-height:190px;resize:vertical;padding:13px;border:1px solid var(--line);border-radius:8px;font-size:13px;line-height:1.5}.prompt-card button{margin-top:10px}.provider-links{display:flex;gap:9px;flex-wrap:wrap;margin:20px 0}.provider-links a{background:white;border:1px solid var(--line);border-radius:8px;padding:10px 15px;text-decoration:none;font-size:13px}.short-status{font-size:12px;color:var(--muted);min-height:18px}.notice{font-size:12px;color:var(--muted);max-width:850px}#class-list{font-size:11px;line-height:1.6}.trial-toast{font-size:12px;color:var(--accent)}@media(max-width:800px){.lab-grid{grid-template-columns:1fr}.readout{display:block;padding:17px 20px}.results{max-height:160px}.metric{font-size:40px}.angles{grid-template-columns:repeat(4,1fr);margin-top:13px}.below,.vlm-grid{grid-template-columns:1fr}.station-links{gap:12px}.station-links a{padding:20px}.stage{max-height:60vh}.home{padding-top:3vh}}@media(max-width:540px){header{padding:18px 16px 10px}header nav{gap:12px;font-size:12px}main{padding:5px 16px 20px}h1{font-size:29px}.subtitle{font-size:13px;margin-bottom:16px}.toolbar{gap:6px;padding:11px 11px 7px}.toolbar button,.file-button{padding:10px 12px;font-size:13px}.settings{padding:7px 12px;gap:12px}.stage{aspect-ratio:3/4;max-height:57vh}.status{padding:9px 12px 12px}.below{gap:14px;margin-top:14px}.lab-grid{gap:14px}.station-links{grid-template-columns:1fr;margin-top:23px}.station-links a{min-height:125px}.station-links h2{margin:14px 0 7px}.angles strong{font-size:23px}.angles span{font-size:10px}footer{padding-left:16px;padding-right:16px}.prompt-card{padding:18px}.home{padding-top:3vh}}
-</style>
-</head>
-<body>
-  <header><span class="brand">ML2305 · VISION LAB</span></header>
-  <main>
-    <h1>Vision-language comparison</h1>
-    <p class="subtitle">Use the same lab images, then check each claim against what you can see.</p>
-    <div class="provider-links" aria-label="Open a vision-language service">
-      <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT ↗</a>
-      <a href="https://claude.ai/" target="_blank" rel="noopener noreferrer">Claude ↗</a>
-      <a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer">Gemini ↗</a>
-    </div>
-    <div class="vlm-grid">
-      <section class="prompt-card">
-        <h2>Objects and counts</h2>
-        <textarea id="object-prompt" aria-label="Object comparison prompt" readonly>This is an approved image from a production-logistics teaching lab. List only visibly supported objects and counts in a table: object, count, visible evidence, uncertainty. Mark occluded or unfamiliar items as uncertain. Do not invent hidden inventory or unique asset identities. Do not identify people or infer health. Do not generate my report or analysis.</textarea>
-        <button type="button" class="primary" data-copy="object">Copy prompt</button>
-        <p id="object-copy-status" class="short-status" role="status" aria-live="polite"></p>
-      </section>
-      <section class="prompt-card">
-        <h2>Visible posture</h2>
-        <textarea id="pose-prompt" aria-label="Pose comparison prompt" readonly>This is an approved, consented staged image from a production-logistics teaching lab. Describe only visible body posture and occluded joints. Separate observations from uncertain interpretations. State what a still image cannot establish about movement, load, force or duration. Do not identify the person, infer health, diagnose injury or assign an ergonomic risk score. Do not generate my report or analysis.</textarea>
-        <button type="button" class="primary" data-copy="pose">Copy prompt</button>
-        <p id="pose-copy-status" class="short-status" role="status" aria-live="polite"></p>
-      </section>
-    </div>
-    <div class="below">
-      <details class="record guide">
-        <summary>20-minute task</summary>
-        <ol>
-          <li><strong>0–4 min:</strong> Use the shared object and pose images. Record your own expected counts or visible posture first.</li>
-          <li><strong>4–10 min:</strong> Run both prompts. Compare the answers with your manual reference and the object/pose app results.</li>
-          <li><strong>10–16 min:</strong> Change one condition—viewpoint, lighting or occlusion. Keep the prompt fixed; check omissions and unsupported claims.</li>
-          <li><strong>16–20 min:</strong> Record one useful observation, one failure and the extra information a no-touch service would need.</li>
-        </ol>
-        <p class="quiet">VLM first? Save the answers and compare after the other stations. If this rotation spans the break, pause at 10 minutes and resume here.</p>
-        <p class="quiet">Use approved images with consent and no sensitive labels or screens. VLM responses are experimental evidence; write your own project analysis and disclose the tool use.</p>
-      </details>
-      <details class="record">
-        <summary>Record a trial · <span id="trial-count">0 saved</span></summary>
-        <form id="record-form" class="record-content">
-          <div class="row-fields">
-            <label>Provider<select id="provider"><option>ChatGPT</option><option>Claude</option><option>Gemini</option><option>Other</option></select></label>
-            <label>Displayed model<input id="model" required maxlength="160" placeholder="As shown in the service"></label>
-          </div>
-          <div class="row-fields">
-            <label>Prompt used<select id="prompt-used"><option value="object">Objects and counts</option><option value="pose">Visible posture</option></select></label>
-            <label>Image / condition<input id="condition" required maxlength="200" placeholder="Scene A · baseline / occluded"></label>
-          </div>
-          <label>Expected result<textarea id="expected" rows="2" required maxlength="3000" placeholder="Your manual count or visible posture"></textarea></label>
-          <label>Observation<textarea id="notes" rows="3" required maxlength="6000" placeholder="What matched, what was missed, and what was unsupported?"></textarea></label>
-          <div class="controls-row"><button type="submit" class="primary">Save trial</button><button id="export" type="button" disabled>Export CSV</button></div>
-          <p id="trial-toast" class="trial-toast" role="status" aria-live="polite"></p>
-          <p id="storage-note" class="caption">Notes stay in this tab’s session. No images are stored. Export before closing the tab.</p>
-        </form>
-      </details>
-    </div>
-  </main>
-  <footer>External services receive images you upload; use only approved, non-sensitive images with consent and follow the service’s privacy settings.</footer>
-  <script id="ml2305-license-notices" type="text/plain">SPDX-License-Identifier: AGPL-3.0-or-later
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#146f68"><title>ML2305 · VLM experiments</title>
+<style>
+:root{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#182c36;background:#f3f6f7;--accent:#146f68;--line:#d7e2e5;--muted:#5d707b;--amber:#9c5b15}*{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}button,.file-button{border:1px solid var(--line);border-radius:9px;background:#fff;color:inherit;padding:10px 14px;font-weight:650;cursor:pointer;min-height:44px;touch-action:manipulation}button:disabled{opacity:.45;cursor:default}.primary{background:var(--accent);border-color:var(--accent);color:#fff}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,textarea:focus-visible{outline:3px solid #80b5e7;outline-offset:3px}[hidden]{display:none!important}a{color:var(--accent)}header,main,footer{max-width:1220px;margin:auto;padding:20px 24px}header{display:flex;justify-content:space-between;gap:10px;padding-bottom:4px}.brand{font-weight:750;font-size:12px;letter-spacing:.6px}.version{font-size:12px;color:var(--muted)}h1{font-size:clamp(28px,4vw,38px);letter-spacing:-1px;margin:2px 0 8px}h2{font-size:18px;margin:0}h3{font-size:14px;margin:0}.subtitle{font-size:14px;color:var(--muted);margin:0 0 22px}.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:20px}.card{background:#fff;border:1px solid var(--line);border-radius:15px;overflow:hidden;min-width:0}.stage{position:relative;aspect-ratio:4/3;max-height:52vh;display:grid;place-items:center;background:#132b34;overflow:hidden}.stage img,.stage video{width:100%;height:100%;object-fit:contain;position:absolute;inset:0}.empty{text-align:center;color:#c4d6da;padding:25px}.empty strong{display:block;color:#fff;font-size:24px;margin-bottom:9px}.toolbar,.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.toolbar{padding:13px 16px 8px}.file-button{position:relative;display:inline-flex;align-items:center}.file-button input{position:absolute;width:1px;height:1px;opacity:0}.file-button:focus-within{outline:3px solid #80b5e7}.body{padding:18px}.small,.hint{font-size:12px;color:var(--muted);line-height:1.5}.hint{margin:8px 0}.status{margin:0;padding:7px 16px 13px;font-size:12px;line-height:1.5;color:var(--muted)}.error{color:#a43035}.step-label{display:block;font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:1px;font-weight:750;margin-bottom:7px}label.field{font-size:12px;color:var(--muted);display:block}select,input:not([type=checkbox]):not([type=file]),textarea{width:100%;border:1px solid var(--line);padding:10px 11px;border-radius:8px;background:#fff;color:#182c36;margin-top:5px}input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent)}textarea{font-size:13px;line-height:1.5;resize:vertical;min-height:120px}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.task{margin-top:14px}.check{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px;margin:10px 0}details{margin-top:12px;border-top:1px solid #edf2f4;padding-top:12px}summary{font-size:13px;font-weight:650;cursor:pointer}details .small{margin-bottom:0}.details-body{padding-top:10px}.send-row{margin-top:15px;display:flex;gap:9px}.send-row .primary{flex:1}.send-note{margin:9px 0 0;font-size:11px;line-height:1.5;color:var(--muted)}.output{padding:20px;display:flex;flex-direction:column;min-height:420px}.output-header{display:flex;justify-content:space-between;gap:10px;align-items:center}.badge{font-size:11px;border:1px solid var(--line);border-radius:20px;padding:5px 10px;color:var(--muted)}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0}.metrics b{font-size:23px;font-weight:650;display:block}.metrics span{display:block;color:var(--muted);font-size:10px;margin-top:5px}.answer{white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.65 system-ui,sans-serif;margin:12px 0;max-height:68vh;overflow:auto}.answer.empty-answer{color:var(--muted)}.output-foot{margin-top:auto;border-top:1px solid #edf2f4;padding-top:10px}.history{margin-top:20px;padding:20px}.history-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.table-wrap{overflow-x:auto;margin-top:14px}table{border-collapse:collapse;width:100%;font-size:12px}th,td{text-align:left;border-bottom:1px solid #edf2f4;padding:10px 8px;white-space:nowrap}th{font-weight:600;color:var(--muted)}td button{min-height:32px;padding:5px 9px;font-size:11px}.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.compare article{padding:15px;background:#f5f8f8;border:1px solid var(--line);border-radius:10px;min-width:0}.compare pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.55 system-ui,sans-serif;max-height:420px;overflow:auto}.compare p{font-size:11px;color:var(--muted);line-height:1.5}.compare-note{font-size:12px;color:var(--amber);margin:14px 0 0}.links{display:flex;gap:15px;flex-wrap:wrap;font-size:12px}.experiment{font-size:13px;line-height:1.6;margin:12px 0 2px;padding-left:20px}footer{font-size:11px;color:var(--muted);line-height:1.6;padding-top:4px}.pill{font-size:11px;color:var(--accent)}@media(max-width:780px){.grid{grid-template-columns:1fr}.output{min-height:300px}.answer{max-height:50vh}.stage{max-height:55vh}.compare{grid-template-columns:1fr}}@media(max-width:480px){header,main,footer{padding-left:15px;padding-right:15px}.body,.output,.history{padding:15px}.two{gap:8px}.metrics{gap:5px}.metrics b{font-size:21px}.toolbar{padding-left:12px;padding-right:12px}.toolbar button,.file-button{font-size:12px;padding:9px 10px}.metrics span{font-size:10px}.subtitle{font-size:13px}.send-row{flex-wrap:wrap}}
+</style></head><body>
+<header><span class="brand">ML2305 · VISION LAB</span><span class="version">VLM · v2</span></header>
+<main><h1>Photo → evidence</h1><p class="subtitle">Keep the image and question fixed. Compare what two models actually say.</p>
+<div class="grid"><section class="card" aria-label="Image and question">
+<div class="stage"><img id="photo" alt="Photo selected for analysis" hidden><video id="video" autoplay playsinline muted hidden></video><div id="empty" class="empty"><strong>Start with your lab.</strong>Choose a photo or take a snapshot.</div></div>
+<div class="toolbar"><label class="file-button">Choose photo<input id="upload" type="file" accept="image/*" aria-label="Choose photo"></label><button id="camera">Camera</button><button id="snapshot" disabled>Take snapshot</button><button id="stop" hidden>Stop camera</button></div>
+<p id="image-status" class="status" role="status">No image selected. Nothing is sent automatically.</p>
+<div class="body"><span class="step-label">1 · Ask a question</span><label class="field">Experiment<select id="task"><option value="inventory">Inventory</option><option value="logistics">Logistics relevance</option><option value="posture">Posture and ergonomics</option><option value="event">No-touch event</option><option value="honesty">Honesty check</option></select></label>
+<label class="check"><input id="context-toggle" type="checkbox" checked> Add the KTH production-logistics context</label>
+<details id="prompt-details"><summary>Edit / copy the prompt</summary><div class="details-body"><label class="field">Question<textarea id="prompt" rows="5"></textarea></label><label class="field">Lab context<textarea id="context" rows="3"></textarea></label><div class="row"><button id="copy">Copy full prompt</button><button id="reset-prompt">Reset this question</button></div><p id="copy-status" class="hint" role="status"></p><div class="links"><a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">ChatGPT ↗</a><a href="https://claude.ai/" target="_blank" rel="noopener noreferrer">Claude ↗</a><a href="https://gemini.google.com/" target="_blank" rel="noopener noreferrer">Gemini ↗</a></div></div></details>
+<div class="task"><span class="step-label">2 · Choose a model</span><div class="two"><label class="field">Provider<select id="provider"><option value="openai">OpenAI</option><option value="gemini">Gemini</option></select></label><label class="field">Image size<select id="image-size"><option value="768">768 px · fast</option><option value="1280" selected>1280 px · balanced</option><option value="1920">1920 px · more detail</option></select></label></div></div>
+<details id="connection" open><summary>API connection <span id="key-state" class="pill">· add a key</span></summary><div class="details-body"><label class="field">Model ID<input id="model" maxlength="150" value="gpt-5.4-mini" spellcheck="false" autocomplete="off"></label><label class="field">API key · kept only in this tab<input id="api-key" type="password" placeholder="Paste a temporary key" autocomplete="off" spellcheck="false" autocapitalize="none" data-lpignore="true"></label><div class="row" style="margin-top:8px"><button id="clear-keys">Clear keys</button><label class="check" style="margin:0"><input id="show-key" type="checkbox"> Show</label></div><p class="hint">Use your own or an instructor-approved temporary key. API usage is billed to that key. A key entered here is accessible on this device.</p></div></details>
+<div class="send-row"><button id="send" class="primary" disabled>Analyse photo</button><button id="cancel" hidden>Cancel</button></div><p class="send-note">Clicking Analyse sends this photo and prompt to the selected provider. Use approved images and consent. One request per click; no automatic retry.</p><p id="request-status" class="hint" role="status" aria-live="polite">Add a photo and API key, or copy the prompt to another service.</p>
+</div></section>
+<section class="card output" aria-label="Model response"><div class="output-header"><h2>Response</h2><span id="result-state" class="badge">Ready</span></div><div class="metrics"><div><b id="latency">—</b><span>seconds · full response</span></div><div><b id="input-tokens">—</b><span>input tokens</span></div><div><b id="output-tokens">—</b><span>output tokens</span></div><div><b id="total-tokens">—</b><span>total tokens</span></div></div><p id="result-meta" class="small">Your result will appear here.</p><pre id="answer" class="answer empty-answer">Try Inventory first, then Honesty check. Verify the counts and label text yourself.</pre><div class="output-foot"><p id="usage-note" class="small">Token counts come from the provider. Missing counts stay blank.</p><p class="small">Posture estimates are experimental observations, not a validated RULA / REBA assessment. A photo cannot establish force, repetition or exposure time.</p></div></section></div>
+<section class="card history"><div class="history-head"><h2>Experiment log <span id="run-count" class="pill">0 runs</span></h2><div class="row"><button id="compare" disabled>Compare last two</button><button id="export-csv" disabled>CSV</button><button id="export-json" disabled>JSON</button><button id="clear-log" disabled>Clear log</button></div></div><p class="hint">Results stay in this tab until you close it. Exports contain prompts, answers and measurements; no keys or images.</p><p id="compare-note" class="compare-note" hidden></p><div id="comparison" class="compare" hidden></div><div id="history-wrap" class="table-wrap" hidden><table><thead><tr><th>Run</th><th>Provider / model</th><th>Image</th><th>Task</th><th>Seconds</th><th>Tokens</th><th></th></tr></thead><tbody id="history"></tbody></table></div>
+<details><summary>Try a 3-minute experiment</summary><ol class="experiment"><li>Count the objects yourself. Ask <strong>Inventory</strong> and check every claim.</li><li>Switch provider, enter its key, and run the same image and question. Compare last two.</li><li>Try <strong>Honesty check</strong>, then <strong>No-touch event</strong>. Which proposed booking still needs verification?</li></ol><p class="small">Change just one factor: provider, context, image size, lighting or occlusion. Different tokenizers and reasoning policies make token totals different; compare correctness and latency as well.</p></details></section>
+</main><footer>Camera preview and photo resizing stay on this device. Only an explicit Analyse action sends an image. Internet and an API account are required for analysis. Local file camera support depends on your browser; GitHub Pages supports HTTPS access on phones and laptops.<details><summary>API references and source</summary><p><a href="https://developers.openai.com/api/docs/guides/images-vision">OpenAI image inputs</a> · <a href="https://developers.openai.com/api/reference/resources/responses/methods/create">Responses API</a> · <a href="https://ai.google.dev/gemini-api/docs/image-understanding">Gemini image inputs</a> · <a href="https://ai.google.dev/api/generate-content">Gemini response usage</a>. Model IDs are editable because availability changes. This HTML contains the complete application source. AGPL-3.0-or-later.</p></details></footer>
+<script id="ml2305-license-notices" type="text/plain">SPDX-License-Identifier: AGPL-3.0-or-later
 Copyright (c) 2026 ML2305 Vision Lab contributors.
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version3 of the License, or (at your option) any later version.
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 License text: https://www.gnu.org/licenses/agpl-3.0.html
-
-
-Application source: this HTML contains the complete student application source.
-ONNX Runtime Web 1.20.1 (MIT): https://github.com/microsoft/onnxruntime/tree/v1.20.1
-MediaPipe Tasks Vision 0.10.21 (Apache-2.0 code): https://github.com/google-ai-edge/mediapipe/tree/v0.10.21
-YOLO26n (AGPL-3.0): https://github.com/ultralytics/ultralytics
-Pinned ONNX export: https://huggingface.co/prithivMLmods/YOLO26-ONNX/tree/1079a1c407c945f7af2c7cf8fa30e3bcfba518b5
-Pose model source and terms: https://developers.google.com/edge/mediapipe/solutions/vision/pose_landmarker
+Derived from ML2305-VLM.html. This standalone VLM page has no external JavaScript dependencies.
 </script>
-<!-- ML2305_EMBEDDED_ASSETS -->
-<script>window.ML2305_STANDALONE=true;
-(()=>{
-'use strict';
-const LABELS = 'person,bicycle,car,motorcycle,airplane,bus,train,truck,boat,traffic light,fire hydrant,stop sign,parking meter,bench,bird,cat,dog,horse,sheep,cow,elephant,bear,zebra,giraffe,backpack,umbrella,handbag,tie,suitcase,frisbee,skis,snowboard,sports ball,kite,baseball bat,baseball glove,skateboard,surfboard,tennis racket,bottle,wine glass,cup,fork,knife,spoon,bowl,banana,apple,sandwich,orange,broccoli,carrot,hot dog,pizza,donut,cake,chair,couch,potted plant,bed,dining table,toilet,tv,laptop,mouse,remote,keyboard,cell phone,microwave,oven,toaster,sink,refrigerator,book,clock,vase,scissors,teddy bear,hair drier,toothbrush'.split(',');
-function iou(a,b){const w=Math.max(0,Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x)),h=Math.max(0,Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y));const union=a.w*a.h+b.w*b.h-w*h;return union>0?w*h/union:0;}
-class Tracker{constructor(){this.reset();}reset(){this.tracks=[];this.next=1;}update(dets){const taken=new Set();const next=dets.map(d=>{let best=null,score=.25;for(const t of this.tracks){const s=t.label===d.label&&!taken.has(t.id)?iou(t,d):0;if(s>score){score=s;best=t;}}const id=best?.id??this.next++;taken.add(id);return {...d,id,misses:0};});this.tracks=[...next,...this.tracks.filter(t=>!taken.has(t.id)&&t.misses<4).map(t=>({...t,misses:t.misses+1}))];return next;}}
-function angle2d(a,b,c,w=1,h=1,min=.6){if(!a||!b||!c||[a,b,c].some(p=>(p.visibility??1)<min))return null;const ax=(a.x-b.x)*w,ay=(a.y-b.y)*h,cx=(c.x-b.x)*w,cy=(c.y-b.y)*h;const m=Math.hypot(ax,ay)*Math.hypot(cx,cy);if(m<1e-9)return null;return Math.acos(Math.max(-1,Math.min(1,(ax*cx+ay*cy)/m)))*180/Math.PI;}
-function decodeYOLO(data,dims,threshold,transform){const {scale,padX,padY,width,height}=transform;const out=[];const add=(x1,y1,x2,y2,score,cls)=>{if(score<threshold||!Number.isFinite(score)||!LABELS[cls])return;const x=Math.max(0,Math.min(width,(x1-padX)/scale)),y=Math.max(0,Math.min(height,(y1-padY)/scale)),right=Math.max(0,Math.min(width,(x2-padX)/scale)),bottom=Math.max(0,Math.min(height,(y2-padY)/scale));if(right>x&&bottom>y)out.push({x,y,w:right-x,h:bottom-y,score,label:LABELS[cls],cls});};if(dims.length===3&&dims[2]===6){for(let i=0;i<data.length;i+=6)add(...data.slice(i,i+5),Math.round(data[i+5]));return out;}
-if(dims.length===3&&dims[1]===84){const n=dims[2];for(let i=0;i<n;i++){let cls=0,score=0;for(let j=4;j<84;j++){const s=data[j*n+i];if(s>score){score=s;cls=j-4;}}const cx=data[i],cy=data[n+i],w=data[2*n+i],h=data[3*n+i];add(cx-w/2,cy-h/2,cx+w/2,cy+h/2,score,cls);}const kept=[];for(const d of out.sort((a,b)=>b.score-a.score)){if(!kept.some(p=>p.cls===d.cls&&iou(p,d)>.45))kept.push(d);}return kept;}throw new Error('Unsupported detector output: '+dims.join('×'));}
-function csv(rows){const fields=[...new Set(rows.flatMap(Object.keys))];const cell=v=>{let s=String(v??'');if(typeof v==='string'&&/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};return [fields.map(cell).join(','),...rows.map(r=>fields.map(f=>cell(r[f])).join(','))].join('\r\n');}
-function poseSummary(p,w,h){if(!p)return {visible:0,leftElbow:null,rightElbow:null,leftKnee:null,rightKnee:null};const indexes=[11,12,13,14,15,16,23,24,25,26,27,28];return {visible:indexes.filter(i=>(p[i]?.visibility??0)>=.6).length/12,leftElbow:angle2d(p[11],p[13],p[15],w,h),rightElbow:angle2d(p[12],p[14],p[16],w,h),leftKnee:angle2d(p[23],p[25],p[27],w,h),rightKnee:angle2d(p[24],p[26],p[28],w,h)};}
-
-
-const $ = id => document.getElementById(id);
-const STORAGE_KEY = 'ml2305-vlm-trials-v2';
-const fields = ['date', 'station', 'provider', 'model', 'task', 'prompt', 'image_condition', 'expected_text', 'notes'];
-const prompts = {
-  object: $('object-prompt').value,
-  pose: $('pose-prompt').value
+<script id="vlm-app">
+(()=>{'use strict';
+const CONTEXT='You are helping an engineering class in a production logistics lab at KTH. Treat this lab as a production logistics environment with goods receipt, storage, internal transport with mobile robots, kitting, assembly workstations and packaging. Answer in short structured lists. When you are not sure, say so.';
+const PRESETS={
+ inventory:'List every physical object you can identify in this photo. For each one give the name, how many, where it is in the image (left, centre, right, near, far) and your confidence (high, medium, low). Then list things you think are there but cannot identify.',
+ logistics:'Which of these objects matter for the material flow in this production logistics environment? For each one, say what logistics information it could give (location, quantity, status) and what you would need to know that the photo cannot tell you.',
+ posture:'Describe the posture of the person in this photo. Estimate trunk flexion, neck flexion, upper arm elevation and knee flexion in degrees. Is there an ergonomic risk for manual handling? Give a rough REBA style risk level, say which body part drives it, and state what you cannot judge from one photo.',
+ event:'Imagine a fixed camera with this view in a factory. Which manual scans, bookings or checks could it replace? Write the exact event message it should send to the ERP or WMS (what, where, when, quantity, state). What could make that message wrong?',
+ honesty:'How many pallets and forklifts are in this photo, and what do the barcodes or labels say?'
 };
-let trials = [];
-let storageAvailable = true;
-
-try {
-  const stored = JSON.parse(sessionStorage.getItem(STORAGE_KEY) || '[]');
-  if (Array.isArray(stored)) {
-    trials = stored.filter(row => row && typeof row === 'object' && typeof row.date === 'string')
-      .map(row => Object.fromEntries(fields.map(field => [field, String(row[field] ?? '')])));
-  }
-} catch {
-  storageAvailable = false;
+const DEFAULTS={openai:'gpt-5.4-mini',gemini:'gemini-3.5-flash-lite'};
+const MAX_OUTPUT=4096;
+function fullPrompt(question,context,enabled){return [enabled?context.trim():'',question.trim()].filter(Boolean).join('\n\n');}
+function requestFor(provider,model,key,prompt,dataURL){
+ if(!/^[a-zA-Z0-9._-]{1,150}$/.test(model))throw new Error('MODEL');
+ if(!/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(dataURL))throw new Error('IMAGE');
+ if(provider==='openai')return {url:'https://api.openai.com/v1/responses',options:{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model,store:false,input:[{role:'user',content:[{type:'input_text',text:prompt},{type:'input_image',image_url:dataURL,detail:'high'}]}],max_output_tokens:MAX_OUTPUT})}};
+ if(provider==='gemini'){const comma=dataURL.indexOf(',');return {url:'https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent',options:{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify({contents:[{role:'user',parts:[{text:prompt},{inlineData:{mimeType:dataURL.slice(5,dataURL.indexOf(';')),data:dataURL.slice(comma+1)}}]}],generationConfig:{maxOutputTokens:MAX_OUTPUT}})}};}
+ throw new Error('PROVIDER');
 }
-
-function updateCount() {
-  $('trial-count').textContent = `${trials.length} saved`;
-  $('export').disabled = trials.length === 0;
-  if (!storageAvailable) {
-    $('storage-note').textContent = 'Session storage is unavailable. Notes stay in memory only; export before reloading or closing.';
-  }
+const count=v=>typeof v==='number'&&Number.isFinite(v)&&v>=0?v:null;
+function parseResponse(provider,data){
+ if(provider==='openai'){
+  const parts=(data.output||[]).flatMap(x=>Array.isArray(x.content)?x.content:[]),u=data.usage||{};
+  return {text:parts.filter(x=>x.type==='output_text'&&typeof x.text==='string').map(x=>x.text).join('\n\n')||parts.filter(x=>x.type==='refusal').map(x=>x.refusal).join('\n'),input:count(u.input_tokens),output:count(u.output_tokens),total:count(u.total_tokens),reasoning:count(u.output_tokens_details?.reasoning_tokens),state:data.status||'unknown',finish:data.incomplete_details?.reason||data.status||'unknown',model:data.model||null,blocked:parts.some(x=>x.type==='refusal')};
+ }
+ const c=data.candidates?.[0],u=data.usageMetadata||{};
+ return {text:(c?.content?.parts||[]).filter(x=>typeof x.text==='string'&&!x.thought).map(x=>x.text).join('\n\n'),input:count(u.promptTokenCount),output:count(u.candidatesTokenCount),total:count(u.totalTokenCount),reasoning:count(u.thoughtsTokenCount),state:c?.finishReason==='STOP'?'completed':c?.finishReason==='MAX_TOKENS'?'incomplete':data.promptFeedback?.blockReason?'blocked':c?.finishReason||'unknown',finish:c?.finishReason||data.promptFeedback?.blockReason||'unknown',model:data.modelVersion||null,blocked:Boolean(data.promptFeedback?.blockReason)||['SAFETY','RECITATION','BLOCKLIST','PROHIBITED_CONTENT','SPII'].includes(c?.finishReason)};
 }
-
-async function copyPrompt(task) {
-  const field = $(`${task}-prompt`);
-  const message = $(`${task}-copy-status`);
-  try {
-    if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
-    await navigator.clipboard.writeText(field.value);
-    message.textContent = 'Copied. Paste it beside the approved image.';
-  } catch {
-    field.focus();
-    field.select();
-    field.setSelectionRange(0, field.value.length);
-    message.textContent = 'Prompt selected. Use your device’s Copy command.';
-  }
-}
-
-for (const button of document.querySelectorAll('[data-copy]')) {
-  button.addEventListener('click', () => copyPrompt(button.dataset.copy));
-}
-
-$('record-form').addEventListener('submit', event => {
-  event.preventDefault();
-  const task = $('prompt-used').value;
-  const model = $('model').value.trim();
-  const imageCondition = $('condition').value.trim();
-  const expected = $('expected').value.trim();
-  const notes = $('notes').value.trim();
-  if (!model || !imageCondition || !expected || !notes) {
-    $('trial-toast').textContent = 'Add the model, image condition, expected result and observation.';
-    return;
-  }
-  trials.push({
-    date: new Date().toISOString(),
-    station: 'C - Vision-language comparison',
-    provider: $('provider').value,
-    model,
-    task: task === 'pose' ? 'Visible posture' : 'Objects and counts',
-    prompt: prompts[task],
-    image_condition: imageCondition,
-    expected_text: expected,
-    notes
-  });
-  try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(trials));
-    storageAvailable = true;
-    $('storage-note').textContent = 'Notes stay in this tab’s session. No images are stored. Export before closing the tab.';
-  } catch {
-    storageAvailable = false;
-  }
-  updateCount();
-  $('trial-toast').textContent = `Trial ${trials.length} saved. Export your evidence before closing.`;
-  $('notes').value = '';
+function redact(value,secrets=[]){let s=String(value??'');for(const secret of secrets){if(secret&&secret.length>=6)s=s.split(secret).join('[redacted]');}return s.replace(/\bsk-[A-Za-z0-9_-]{12,}/g,'[redacted]').replace(/\bAIza[A-Za-z0-9_-]{20,}/g,'[redacted]').replace(/\bAQ\.[A-Za-z0-9_-]{20,}/g,'[redacted]');}
+const EXPORT_FIELDS=['run','date','provider','requested_model','returned_model','task','photo_id','width','height','jpeg_bytes','context_enabled','prompt','seconds','input_tokens','output_tokens','reasoning_tokens','total_tokens','state','finish','answer'];
+function exportRows(rows,secrets=[]){return rows.map(row=>Object.fromEntries(EXPORT_FIELDS.map(k=>[k,typeof row[k]==='string'?redact(row[k],secrets):row[k]??null])));}
+function csv(rows){const cell=v=>{let s=String(v??'');if(typeof v==='string'&&/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};return [EXPORT_FIELDS.map(cell).join(','),...rows.map(r=>EXPORT_FIELDS.map(f=>cell(r[f])).join(','))].join('\r\n');}
+function sameInputs(a,b){return a.photo_id===b.photo_id&&a.prompt===b.prompt;}
+function fittedSize(w,h,max){if(!(w>0&&h>0&&max>0))throw new Error('IMAGE');const scale=Math.min(1,max/Math.max(w,h));return {width:Math.max(1,Math.round(w*scale)),height:Math.max(1,Math.round(h*scale))};}
+function httpMessage(status){return ({400:'The provider rejected the request. Check the model ID and image support.',401:'The API key was rejected. Enter a valid key for this provider.',403:'This key does not have access. Check project permissions or API restrictions.',404:'Model not found or unavailable to this API account. Edit the model ID.',413:'The image is too large. Choose a smaller image size.',429:'Rate limit or quota reached. Check billing and limits before trying again.'})[status]||`Provider HTTP ${status}. No automatic retry was made.`;}
+if(new URLSearchParams(location.search).get('test')==='1')window.ML2305_TEST={PRESETS,CONTEXT,DEFAULTS,MAX_OUTPUT,fullPrompt,requestFor,parseResponse,redact,exportRows,csv,sameInputs,fittedSize,httpMessage};
+const $=id=>document.getElementById(id), keys={openai:'',gemini:''}, models={...DEFAULTS},questions={...PRESETS};
+let provider='openai',task='inventory',stream=null,source=null,imageData='',photoSerial=0,photoId='',imageMeta=null,busy=false,imageBusy=false,cameraPending=false,controller=null,runs=[],requestSerial=0,cameraSerial=0,imageJob=0;
+$('prompt').value=questions[task];$('context').value=CONTEXT;
+const format=n=>n===null||n===undefined?'—':Number(n).toLocaleString();
+function status(id,text,error=false){$(id).textContent=text;$(id).classList.toggle('error',error);}
+function secrets(){return Object.values(keys).concat($('api-key').value);}
+function sync(){keys[provider]=$('api-key').value.trim();models[provider]=$('model').value.trim();questions[task]=$('prompt').value;$('camera').disabled=busy||cameraPending;$('send').disabled=busy||imageBusy||cameraPending||Boolean(stream)||!imageData||!keys[provider]||!models[provider]||!$('prompt').value.trim();$('key-state').textContent=keys[provider]?'· key entered':'· add a key';$('cancel').hidden=!busy;}
+function busyState(v){busy=v;for(const id of ['provider','task','context-toggle','prompt','context','model','api-key','image-size','upload','camera','snapshot','reset-prompt','clear-keys'])$(id).disabled=v||(id==='snapshot'&&!stream);$('send').textContent=v?'Analysing…':'Analyse photo';sync();}
+function stopCamera(){cameraSerial++;cameraPending=false;if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;$('video').srcObject=null;$('video').hidden=true;$('snapshot').disabled=true;$('stop').hidden=true;$('photo').hidden=!imageData;$('empty').hidden=Boolean(imageData);sync();}
+function clearKeys(){keys.openai='';keys.gemini='';$('api-key').value='';$('show-key').checked=false;$('api-key').type='password';sync();status('request-status','Keys cleared from this tab.');}
+function resizeSource(){if(!source)return;const max=Number($('image-size').value),dims=fittedSize(source.width,source.height,max),canvas=document.createElement('canvas');canvas.width=dims.width;canvas.height=dims.height;canvas.getContext('2d').drawImage(source.element,0,0,canvas.width,canvas.height);imageData=canvas.toDataURL('image/jpeg',.88);imageMeta={...dims,jpeg_bytes:Math.ceil((imageData.length-imageData.indexOf(',')-1)*3/4)};photoId='photo-'+photoSerial+'-'+max;$('photo').src=imageData;$('photo').hidden=Boolean(stream);$('empty').hidden=true;status('image-status',photoId+' · '+dims.width+' × '+dims.height+' · '+Math.round(imageMeta.jpeg_bytes/1024)+' KB JPEG. Preview is exactly the image sent.');sync();}
+$('upload').addEventListener('change',async()=>{const file=$('upload').files?.[0];if(!file)return;if(file.size>30*1024*1024){status('image-status','Choose an image smaller than 30 MB.',true);$('upload').value='';return;}const job=++imageJob;imageBusy=true;sync();stopCamera();const url=URL.createObjectURL(file),img=new Image();try{await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url;});if(job!==imageJob)return;if(img.naturalWidth*img.naturalHeight>50e6)throw new Error('IMAGE');source={element:img,width:img.naturalWidth,height:img.naturalHeight};photoSerial++;resizeSource();}catch{if(job===imageJob)status('image-status','Could not open this image. Try JPEG, PNG or WebP.'+(imageData?' The previously selected photo is still active.':''),true);}finally{URL.revokeObjectURL(url);if(job===imageJob){$('upload').value='';imageBusy=false;sync();}}});
+$('image-size').addEventListener('change',()=>{try{resizeSource();}catch{status('image-status','Could not resize this image.',true);}});
+$('camera').addEventListener('click',async()=>{stopCamera();const job=++cameraSerial;imageJob++;imageBusy=false;cameraPending=true;$('stop').hidden=false;sync();status('image-status','Requesting camera permission…');try{if(!navigator.mediaDevices?.getUserMedia)throw new Error('UNAVAILABLE');const s=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:960}}});if(job!==cameraSerial){s.getTracks().forEach(t=>t.stop());return;}stream=s;$('video').srcObject=s;await $('video').play();if(job!==cameraSerial)return;$('video').hidden=false;$('photo').hidden=true;$('empty').hidden=true;$('snapshot').disabled=false;$('stop').hidden=false;sync();status('image-status','Camera is local. Take a snapshot to select the image for analysis.');}catch{if(job===cameraSerial){stopCamera();status('image-status','Camera unavailable. Allow camera permission in a browser, use HTTPS, or choose a photo.',true);}}finally{if(job===cameraSerial){cameraPending=false;sync();}}});
+$('snapshot').addEventListener('click',()=>{if(!stream||!$('video').videoWidth)return;const v=$('video'),dims=fittedSize(v.videoWidth,v.videoHeight,2560),c=document.createElement('canvas');c.width=dims.width;c.height=dims.height;c.getContext('2d').drawImage(v,0,0,c.width,c.height);source={element:c,width:c.width,height:c.height};photoSerial++;stopCamera();resizeSource();});$('stop').addEventListener('click',()=>{stopCamera();status('image-status',imageData?'Camera stopped. The selected snapshot is unchanged.':'Camera stopped. Choose a photo or start again.');});
+$('task').addEventListener('change',()=>{questions[task]=$('prompt').value;task=$('task').value;$('prompt').value=questions[task];sync();});$('provider').addEventListener('change',()=>{keys[provider]=$('api-key').value.trim();models[provider]=$('model').value.trim();provider=$('provider').value;$('api-key').value=keys[provider];$('model').value=models[provider];$('show-key').checked=false;$('api-key').type='password';$('connection').open=!keys[provider];sync();status('request-status','Same image and question retained. '+(keys[provider]?'Ready for '+provider+'.':'Enter this provider’s API key.'));});
+for(const id of ['api-key','model','prompt','context'])$(id).addEventListener('input',sync);
+$('context-toggle').addEventListener('change',()=>{status('copy-status','');sync();});$('reset-prompt').addEventListener('click',()=>{$('prompt').value=PRESETS[task];sync();});$('show-key').addEventListener('change',()=>{$('api-key').type=$('show-key').checked?'text':'password';});$('clear-keys').addEventListener('click',clearKeys);
+$('copy').addEventListener('click',async()=>{const prompt=fullPrompt($('prompt').value,$('context').value,$('context-toggle').checked);try{await navigator.clipboard.writeText(prompt);status('copy-status','Copied. Paste it with the same photo in your chosen service.');}catch{const area=document.createElement('textarea');area.value=prompt;area.setAttribute('aria-label','Full prompt to copy');area.style.cssText='width:100%;min-height:160px';$('copy-status').replaceChildren(document.createTextNode('Copy the complete prompt below: '),area);area.focus();area.select();}});
+function showResult(row){$('result-state').textContent=row.state;$('latency').textContent=Number(row.seconds).toFixed(2);$('input-tokens').textContent=format(row.input_tokens);$('output-tokens').textContent=format(row.output_tokens);$('total-tokens').textContent=format(row.total_tokens);$('result-meta').textContent=`Run ${row.run} · ${row.provider} · ${row.returned_model||row.requested_model} · ${row.photo_id} · ${row.task}`;$('answer').textContent=row.answer||'No visible text returned. Check the finish reason below.';$('answer').classList.remove('empty-answer');$('usage-note').textContent=`Finish: ${row.finish}. Reasoning tokens: ${format(row.reasoning_tokens)}. `+(row.provider==='gemini'?'Gemini output excludes thought tokens; total includes them.':'OpenAI output includes reasoning tokens.')+' Time includes upload, provider processing and response download; resizing is excluded.';}
+function renderLog(){$('run-count').textContent=runs.length+' run'+(runs.length===1?'':'s');for(const id of ['export-csv','export-json','clear-log'])$(id).disabled=!runs.length;$('compare').disabled=runs.length<2;$('history-wrap').hidden=!runs.length;$('history').replaceChildren();for(const row of [...runs].reverse()){const tr=document.createElement('tr');for(const value of [row.run,row.provider+' / '+(row.returned_model||row.requested_model),row.photo_id,row.task,row.seconds.toFixed(2),format(row.total_tokens)]){const td=document.createElement('td');td.textContent=value;tr.append(td);}const td=document.createElement('td'),b=document.createElement('button');b.textContent='View';b.addEventListener('click',()=>showResult(row));td.append(b);tr.append(td);$('history').append(tr);}}
+$('send').addEventListener('click',async()=>{
+ sync();if(busy||$('send').disabled)return;const prompt=fullPrompt($('prompt').value,$('context').value,$('context-toggle').checked),p=provider,model=models[p],key=keys[p],image=imageData,meta={...imageMeta},photo=photoId,selectedTask=task,contextEnabled=$('context-toggle').checked;
+ let request;try{request=requestFor(p,model,key,prompt,image);}catch{status('request-status','Check the model ID and choose a valid image.',true);return;}
+ const serial=++requestSerial;controller=new AbortController();let timedOut=false;const timer=setTimeout(()=>{timedOut=true;controller?.abort();},120000),started=performance.now();busyState(true);$('result-state').textContent='Waiting';for(const id of ['latency','input-tokens','output-tokens','total-tokens'])$(id).textContent='—';$('result-meta').textContent=p+' · '+model+' · '+photo+' · '+selectedTask;$('answer').textContent='Waiting for the provider…';$('answer').classList.add('empty-answer');$('usage-note').textContent='Usage is available only after a provider response.';status('request-status','Sending one request to '+p+'…');
+ try{const response=await fetch(request.url,{...request.options,signal:controller.signal});if(!response.ok)throw Object.assign(new Error('HTTP'),{http:response.status});const data=await response.json();const seconds=(performance.now()-started)/1000;if(serial!==requestSerial)return;const parsed=parseResponse(p,data),row={run:runs.length+1,date:new Date().toISOString(),provider:p,requested_model:model,returned_model:parsed.model,task:selectedTask,photo_id:photo,width:meta.width,height:meta.height,jpeg_bytes:meta.jpeg_bytes,context_enabled:contextEnabled,prompt:redact(prompt,secrets()),seconds:Number(seconds.toFixed(3)),input_tokens:parsed.input,output_tokens:parsed.output,reasoning_tokens:parsed.reasoning,total_tokens:parsed.total,state:parsed.state,finish:parsed.finish,answer:redact(parsed.text,secrets())};runs.push(row);showResult(row);renderLog();$('comparison').hidden=true;$('compare-note').hidden=true;status('request-status',parsed.blocked?'The provider blocked or refused this request. Usage is recorded.':parsed.state==='incomplete'?'The response reached its output limit. Partial text and usage are recorded.':'Result saved in this tab. Switch provider to compare the same input.',parsed.blocked);}
+ catch(e){$('answer').textContent='No new response saved. Previous completed runs remain in the experiment log.';$('result-state').textContent=timedOut?'Timed out':e.name==='AbortError'?'Cancelled':'Failed';status('request-status',timedOut?'No response within 120 seconds. The provider may still process and bill the request. Check before retrying.':e.name==='AbortError'?'Cancelled locally. The provider may already have processed or billed this request.':e.http?httpMessage(e.http):'Could not reach the API or read its response. Check internet and browser restrictions. Try the HTTPS page or copy the prompt to the service.',true);}
+ finally{clearTimeout(timer);controller=null;busyState(false);}
 });
-
-$('export').addEventListener('click', () => {
-  if (!trials.length) return;
-  // Keep text beginning with spreadsheet formula characters as literal text.
-  const safeRows = trials.map(row => Object.fromEntries(fields.map(field => {
-    const value = String(row[field] ?? '');
-    return [field, /^[=+\-@\t\r]/.test(value) ? `'${value}` : value];
-  })));
-  const blob = new Blob(['\uFEFF', csv(safeRows)], {type: 'text/csv;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `ML2305_VLM_trials_${new Date().toISOString().slice(0, 10)}.csv`;
-  document.body.append(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  $('trial-toast').textContent = `${trials.length} trial${trials.length === 1 ? '' : 's'} exported.`;
-});
-
-updateCount();
-
-})();</script>
-</body>
-</html>
+$('cancel').addEventListener('click',()=>controller?.abort());
+$('compare').addEventListener('click',()=>{const pair=runs.slice(-2);if(pair.length<2)return;$('comparison').replaceChildren();$('comparison').hidden=false;$('compare-note').hidden=false;$('compare-note').textContent=sameInputs(...pair)?'Same photo and exact prompt. Check correctness first, then latency and token use.':'Inputs differ: '+(pair[0].photo_id!==pair[1].photo_id?'photo / size ':'')+(pair[0].prompt!==pair[1].prompt?'prompt / context':'')+'. This is not a controlled provider comparison.';for(const row of pair){const article=document.createElement('article'),h=document.createElement('h3'),p=document.createElement('p'),pre=document.createElement('pre');h.textContent=`Run ${row.run} · ${row.provider}`;p.textContent=`${row.returned_model||row.requested_model} · ${row.seconds.toFixed(2)} s · ${format(row.total_tokens)} tokens · ${row.photo_id}`;pre.textContent=row.answer||'No visible text.';article.append(h,p,pre);$('comparison').append(article);}});
+function download(type){const rows=exportRows(runs,secrets()),data=type==='csv'?'\uFEFF'+csv(rows):JSON.stringify({schema:'ml2305-vlm-v2',exported_at:new Date().toISOString(),measure:'wall time from fetch start through JSON response; tokens as reported by provider',runs:rows},null,2),blob=new Blob([data],{type:type==='csv'?'text/csv;charset=utf-8':'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='ML2305-VLM-experiments-'+new Date().toISOString().slice(0,10)+'.'+type;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+$('export-csv').addEventListener('click',()=>download('csv'));$('export-json').addEventListener('click',()=>download('json'));$('clear-log').addEventListener('click',()=>{runs=[];renderLog();$('comparison').hidden=true;$('compare-note').hidden=true;status('request-status','Experiment log cleared.');});
+window.addEventListener('pagehide',()=>{controller?.abort();stopCamera();keys.openai='';keys.gemini='';$('api-key').value='';});document.addEventListener('visibilitychange',()=>{if(document.hidden&&stream)stopCamera();});sync();
+})();
+</script></body></html>
