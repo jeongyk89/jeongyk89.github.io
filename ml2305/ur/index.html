@@ -28,7 +28,30 @@ main{max-width:1260px;margin:0 auto;padding:14px;display:grid;grid-template-colu
 .overlay{position:absolute;left:10px;top:10px;display:flex;gap:6px;flex-wrap:wrap}
 .chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700;border:1px solid var(--line)}
 .chip.ok{background:#e5f3ea;border-color:#b9dfc8}.chip.bad{background:#fae6e4;border-color:#efc2bd}.chip.warn{background:#fbf2dc;border-color:#ecd9a4}
-.viewtag{position:absolute;right:10px;top:10px;font-size:12px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;padding:5px 10px;border-radius:8px}
+.viewtag{font-size:12px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;padding:5px 10px;border-radius:8px;display:inline-flex;align-items:center}
+.overlay{right:10px}
+button{touch-action:manipulation}
+.joy{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.dpad{display:grid;grid-template-columns:repeat(3,60px);grid-template-rows:repeat(3,54px);gap:6px}
+.dpad .hub{display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);font-weight:800;background:#f0f2f5;border-radius:12px}
+.zpad{display:grid;grid-template-rows:repeat(2,84px);gap:6px;width:76px}
+.joy .btn{padding:4px;font-size:22px;line-height:1.05;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.joy .btn small{font-size:11px;font-weight:700;opacity:.75}
+.zpad .btn{font-size:16px}
+.grips{margin-top:10px}
+@media(max-width:920px){
+  main{display:flex;flex-direction:column;padding:10px}
+  .col{display:contents}
+  #roleCard{order:1}
+  #view{order:2;height:46vh;min-height:250px;max-height:440px;margin-bottom:12px}
+  #padCard{order:3}
+  #taskCard{order:4;margin-top:0!important}
+  #logCard{order:5}
+  .what{font-size:13px;padding:8px 10px}
+  .roles button,.mode button{padding:8px}
+  .card{padding:12px}
+}
+@media(max-width:920px) and (max-height:700px){#view{height:40vh;min-height:230px}}
 #view.phys .viewtag{background:#fff;color:var(--ink)}#view.twin .viewtag{background:#2f8fd8;color:#fff}
 .legend{position:absolute;left:10px;bottom:10px;background:rgba(255,255,255,.92);border-radius:10px;padding:6px 10px;font-size:12px}
 .roles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -44,8 +67,6 @@ main{max-width:1260px;margin:0 auto;padding:14px;display:grid;grid-template-colu
 .btn.go{background:#1f9d5a}.btn.stop{background:#c4422b}.btn.or{background:#e07b39}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:330px}
-.pad .btn{padding:12px 6px}
 .what{background:var(--soft);border-radius:10px;padding:10px 12px;font-size:14px;margin:10px 0}
 .inbox{border:2px solid #e07b39;background:#fff4ec;border-radius:12px;padding:12px;margin-top:10px}
 .seg{display:inline-flex;border:1.5px solid var(--kth);border-radius:10px;overflow:hidden}
@@ -71,13 +92,12 @@ ol{margin:6px 0 0 18px;padding:0}
   </div>
 </header>
 <main>
-  <div>
+  <div class="col">
     <div id="view" class="phys">
-      <div class="overlay"><span class="chip" id="chipA">offline</span><span class="chip" id="chipB">–</span></div>
-      <span class="viewtag" id="viewTag">Physical robot</span>
+      <div class="overlay"><span class="viewtag" id="viewTag">Physical robot</span><span class="chip" id="chipA">offline</span><span class="chip" id="chipB">–</span></div>
       <div class="legend" id="legend"></div>
     </div>
-    <div class="card" style="margin-top:12px">
+    <div class="card" id="taskCard" style="margin-top:12px">
       <div class="eyebrow">Your tasks, in pairs</div>
       <ol class="small">
         <li><b>Shadow.</b> The physical side picks the blue box and puts it in the green square. The twin side only watches and calls out when the box is lifted and when it is placed. Then swap roles.</li>
@@ -86,8 +106,8 @@ ol{margin:6px 0 0 18px;padding:0}
       </ol>
     </div>
   </div>
-  <div>
-    <div class="card">
+  <div class="col">
+    <div class="card" id="roleCard">
       <div class="eyebrow">Who are you?</div>
       <div class="roles" id="roles" style="margin-top:8px">
         <button data-r="phys"><b>Physical robot</b><span>the real robot in its cell, you jog it</span></button>
@@ -103,16 +123,29 @@ ol{margin:6px 0 0 18px;padding:0}
         </div>
       </div>
     </div>
-    <div class="card">
+    <div class="card" id="padCard">
       <div class="eyebrow" id="padTitle">Jog the robot</div>
       <p class="small muted" id="padHelp"></p>
-      <div class="pad" id="pad">
-        <button class="btn soft" data-j="0,0.02,0">+Y</button><button class="btn soft" data-j="0,0,0.02">Up</button><button class="btn soft" data-j="-0.02,0,0">−X</button>
-        <button class="btn soft" data-j="0,-0.02,0">−Y</button><button class="btn soft" data-j="0,0,-0.02">Down</button><button class="btn soft" data-j="0.02,0,0">+X</button>
-        <button class="btn ghost" id="gClose">Close gripper</button><button class="btn ghost" id="gOpen">Open gripper</button><button class="btn ghost" id="bHome">Home</button>
+      <div class="inbox hide" id="inbox" style="margin:0 0 10px"></div>
+      <div id="pad">
+        <div class="joy">
+          <div class="dpad">
+            <span></span><button class="btn soft" data-j="0,0.02,0" aria-label="Move away, plus Y">↑<small>+Y</small></button><span></span>
+            <button class="btn soft" data-j="-0.02,0,0" aria-label="Move left, minus X">←<small>−X</small></button><span class="hub">XY</span><button class="btn soft" data-j="0.02,0,0" aria-label="Move right, plus X">→<small>+X</small></button>
+            <span></span><button class="btn soft" data-j="0,-0.02,0" aria-label="Move closer, minus Y">↓<small>−Y</small></button><span></span>
+          </div>
+          <div class="zpad">
+            <button class="btn soft" data-j="0,0,0.02" aria-label="Move up">Up<small>+Z</small></button>
+            <button class="btn soft" data-j="0,0,-0.02" aria-label="Move down">Down<small>−Z</small></button>
+          </div>
+        </div>
+        <div class="row grips">
+          <button class="btn or" id="bSend">Send move</button>
+          <button class="btn ghost" id="gClose">Close gripper</button><button class="btn ghost" id="gOpen">Open gripper</button><button class="btn ghost" id="bHome">Home</button>
+        </div>
       </div>
+      <p class="small" id="info" style="margin:8px 0 0"></p>
       <div class="row" style="margin-top:10px" id="twinSend">
-        <button class="btn or" id="bSend">Send move</button>
         <button class="btn ghost" id="bSync">Reset orange to robot</button>
         <button class="btn stop" id="bStop">Stop</button>
       </div>
@@ -121,10 +154,9 @@ ol{margin:6px 0 0 18px;padding:0}
         <span class="seg" id="consent"><button data-c="ask" class="on">Ask me each time</button><button data-c="reject">Reject all</button></span>
         <button class="btn ghost" id="bReset">Reset the box</button>
       </div>
-      <div class="inbox hide" id="inbox"></div>
-      <p class="small" id="info"></p>
+
     </div>
-    <div class="card">
+    <div class="card" id="logCard">
       <div class="eyebrow">What happened</div>
       <div class="log" id="log"></div>
     </div>
@@ -296,11 +328,11 @@ function setMode(m) {
   $('#modes [data-m=model]').classList.toggle('hide', role === 'real');
   $('#what').innerHTML = WHAT[role === 'real' ? 'real' : m];
   const twin = m === 'twin', shadow = m === 'shadow';
-  $('#twinSend').classList.toggle('hide', !twin);
+  $('#twinSend').classList.toggle('hide', !twin); $('#bSend').classList.toggle('hide', !twin);
   $$('#pad button').forEach(b => b.disabled = shadow);
   $('#gClose').classList.toggle('hide', role === 'real'); $('#gOpen').classList.toggle('hide', role === 'real');
   $('#padTitle').textContent = twin ? 'Plan with the orange robot' : 'Jog the robot';
-  $('#padHelp').textContent = shadow ? 'Shadow mode is watch only. Ask your partner what to do.' : twin ? 'The buttons move the orange robot. Nothing happens on the physical side until you send and your partner accepts.' : 'Each tap moves the tool 2 cm. The red, green and blue arrows at the base show X, Y and Z.';
+  $('#padHelp').textContent = shadow ? 'Shadow mode is watch only. Ask your partner what to do.' : twin ? 'The buttons move the orange robot. Nothing happens on the physical side until you send and your partner accepts.' : 'Each tap moves the tool 2 cm. The arrows match the start view. The red, green and blue lines at the base show X, Y and Z.';
   ghost.g.visible = twin; if (twin && remote) { ghostQ = remote.q.slice(); ghostGrip = !!remote.grip; }
   $('#legend').innerHTML = twin ? '<b style="color:#5b6b80">■</b> robot as the data says &nbsp; <b style="color:#e07b39">■</b> your planned move' : role === 'phys' && pending ? '<b style="color:#e07b39">■</b> move the twin asks for' : 'Pick the blue box, put it in the green square';
   info(''); sendPresence();
