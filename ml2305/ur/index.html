@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Robot twin · ML2305 Lab 3</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23004791'/%3E%3Cpath d='M9 26h10M14 26V19l6-7 5 3' stroke='%23fff' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script type="importmap">{"imports":{"three":"./three.module.min.js"}}</script>
+<style>
+:root{--ink:#16212e;--muted:#4a5563;--bg:#f4f3ee;--line:#d6dce3;--kth:#004791;--navy:#000061;--soft:#e6eef8;--sand:#ece7dc;--orange:#b04512;--teal:#0b7464;--purple:#6b3fa8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.45}
+button,input,select{font:inherit;color:inherit}
+header{background:var(--navy);color:#fff;padding:12px 16px}
+.top{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+h1{font-size:19px;margin:0}.sub{font-size:13px;color:#c9d7ea}
+.conn{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.conn input,.conn select{background:#fff;color:var(--ink);border:0;border-radius:8px;padding:6px 8px}
+.dot{width:11px;height:11px;border-radius:99px;background:#9aa6b2;display:inline-block}.dot.on{background:#2fbf71}.dot.err{background:#e5484d}
+main{max-width:1260px;margin:0 auto;padding:14px;display:grid;grid-template-columns:1.3fr 1fr;gap:14px}
+@media(max-width:920px){main{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+#view{position:relative;height:540px;border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+#view.phys{background:linear-gradient(#f3efe8,#e2dbd0)}
+#view.twin{background:linear-gradient(#0b1840,#132a63)}
+@media(max-width:920px){#view{height:360px}}
+#view canvas{display:block;width:100%;height:100%}
+.overlay{position:absolute;left:10px;top:10px;display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700;border:1px solid var(--line)}
+.chip.ok{background:#e5f3ea;border-color:#b9dfc8}.chip.bad{background:#fae6e4;border-color:#efc2bd}.chip.warn{background:#fbf2dc;border-color:#ecd9a4}
+.viewtag{position:absolute;right:10px;top:10px;font-size:12px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;padding:5px 10px;border-radius:8px}
+#view.phys .viewtag{background:#fff;color:var(--ink)}#view.twin .viewtag{background:#2f8fd8;color:#fff}
+.legend{position:absolute;left:10px;bottom:10px;background:rgba(255,255,255,.92);border-radius:10px;padding:6px 10px;font-size:12px}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.roles button,.mode button{border:2px solid var(--line);background:#fbfaf7;border-radius:12px;padding:10px;cursor:pointer;text-align:left}
+.roles button b,.mode button b{display:block;font-size:16px}.roles button span,.mode button span{font-size:12px;color:var(--muted)}
+.roles button.on,.mode button.on{border-color:var(--kth);background:var(--soft)}
+.mode{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:var(--kth)}
+.muted{color:var(--muted)}.small{font-size:13px}
+.btn{background:var(--kth);color:#fff;border:0;border-radius:10px;padding:9px 13px;font-weight:700;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--kth);border:1.5px solid var(--kth)}
+.btn.soft{background:var(--soft);color:var(--kth)}
+.btn.go{background:#1f9d5a}.btn.stop{background:#c4422b}.btn.or{background:#e07b39}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:330px}
+.pad .btn{padding:12px 6px}
+.what{background:var(--soft);border-radius:10px;padding:10px 12px;font-size:14px;margin:10px 0}
+.inbox{border:2px solid #e07b39;background:#fff4ec;border-radius:12px;padding:12px;margin-top:10px}
+.seg{display:inline-flex;border:1.5px solid var(--kth);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:#fff;color:var(--kth);padding:7px 11px;font-weight:700;cursor:pointer}
+.seg button.on{background:var(--kth);color:#fff}
+.log{font-size:12px;max-height:140px;overflow:auto;background:#f7f7f4;border-radius:10px;padding:6px 8px;font-family:ui-monospace,Menlo,monospace}
+ol{margin:6px 0 0 18px;padding:0}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div><h1>Robot twin</h1><div class="sub">ML2305 Lab 3 · one robot, a physical side and a digital side</div></div>
+    <div class="conn">
+      <span class="dot" id="dot"></span>
+      <input id="room" size="9" placeholder="pair code" title="Both partners use the same code">
+      <select id="broker"><option value="emqx">Server A (EMQX)</option><option value="hivemq">Server B (HiveMQ)</option><option value="mosq">Server C (Mosquitto)</option><option value="shiftr">Server D (shiftr, port 443)</option><option value="custom">Own server URL</option></select>
+      <input id="customUrl" class="hide" size="22" placeholder="ws://192.168.1.10:9001">
+      <input id="me" size="8" placeholder="your name">
+      <button class="btn" id="btnConn">Connect</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div>
+    <div id="view" class="phys">
+      <div class="overlay"><span class="chip" id="chipA">offline</span><span class="chip" id="chipB">–</span></div>
+      <span class="viewtag" id="viewTag">Physical robot</span>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="eyebrow">Your tasks, in pairs</div>
+      <ol class="small">
+        <li><b>Shadow.</b> The physical side picks the blue box and puts it in the green square. The twin side only watches and calls out when the box is lifted and when it is placed. Then swap roles.</li>
+        <li><b>Twin.</b> The twin side plans every move with the orange robot and sends it. The physical side accepts only moves it agrees with and does not touch its own jog buttons. Pick and place the box together.</li>
+        <li><b>Talk.</b> What could the twin side see or do that the physical side could not, and the other way round? Who should have the last word, and why?</li>
+      </ol>
+    </div>
+  </div>
+  <div>
+    <div class="card">
+      <div class="eyebrow">Who are you?</div>
+      <div class="roles" id="roles" style="margin-top:8px">
+        <button data-r="phys"><b>Physical robot</b><span>the real robot in its cell, you jog it</span></button>
+        <button data-r="twin"><b>Digital twin</b><span>you see and steer it from a distance</span></button>
+        <button data-r="real" class="hide"><b>Real UR robot</b><span>teacher only, through the lab bridge</span></button>
+      </div>
+      <div class="what" id="what"></div>
+      <div id="modeBox" class="hide">
+        <div class="mode" id="modes">
+          <button data-m="model"><b>Model</b><span>offline, only your screen</span></button>
+          <button data-m="shadow"><b>Shadow</b><span>watch the physical robot</span></button>
+          <button data-m="twin"><b>Twin</b><span>watch and send commands</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="eyebrow" id="padTitle">Jog the robot</div>
+      <p class="small muted" id="padHelp"></p>
+      <div class="pad" id="pad">
+        <button class="btn soft" data-j="0,0.02,0">+Y</button><button class="btn soft" data-j="0,0,0.02">Up</button><button class="btn soft" data-j="-0.02,0,0">−X</button>
+        <button class="btn soft" data-j="0,-0.02,0">−Y</button><button class="btn soft" data-j="0,0,-0.02">Down</button><button class="btn soft" data-j="0.02,0,0">+X</button>
+        <button class="btn ghost" id="gClose">Close gripper</button><button class="btn ghost" id="gOpen">Open gripper</button><button class="btn ghost" id="bHome">Home</button>
+      </div>
+      <div class="row" style="margin-top:10px" id="twinSend">
+        <button class="btn or" id="bSend">Send move</button>
+        <button class="btn ghost" id="bSync">Reset orange to robot</button>
+        <button class="btn stop" id="bStop">Stop</button>
+      </div>
+      <div class="row" style="margin-top:10px" id="physExtra">
+        <span class="small">Commands from the twin</span>
+        <span class="seg" id="consent"><button data-c="ask" class="on">Ask me each time</button><button data-c="reject">Reject all</button></span>
+        <button class="btn ghost" id="bReset">Reset the box</button>
+      </div>
+      <div class="inbox hide" id="inbox"></div>
+      <p class="small" id="info"></p>
+    </div>
+    <div class="card">
+      <div class="eyebrow">What happened</div>
+      <div class="log" id="log"></div>
+    </div>
+  </div>
+</main>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from './OrbitControls.js';
+
+/* ===== minimal MQTT 3.1.1 client over WebSocket ===== */
+class MiniMQTT {
+  constructor(url, o = {}) { this.url = url; this.o = o; this.buf = new Uint8Array(0); this.subs = []; this.pid = 1; this.enc = new TextEncoder(); this.dec = new TextDecoder(); }
+  _s(str) { const b = this.enc.encode(str); return [b.length >> 8, b.length & 255, ...b]; }
+  _len(n) { const o = []; do { let d = n % 128; n = Math.floor(n / 128); if (n > 0) d |= 128; o.push(d); } while (n > 0); return o; }
+  _send(h, body) { if (!this.ws || this.ws.readyState !== 1) return false; this.ws.send(new Uint8Array([h, ...this._len(body.length), ...body])); return true; }
+  connect() { return new Promise((res, rej) => { let done = false; const fail = e => { if (!done) { done = true; rej(e); } };
+    try { this.ws = new WebSocket(this.url, ['mqtt']); } catch (e) { return fail(e); }
+    this.ws.binaryType = 'arraybuffer'; const to = setTimeout(() => { fail(new Error('timeout')); try { this.ws.close(); } catch (e) {} }, 8000);
+    this.ws.onopen = () => { let f = 0x02; const pl = this._s('ml2305-' + Math.random().toString(36).slice(2, 10)); if (this.o.username) { f |= 0x80; pl.push(...this._s(this.o.username)); } if (this.o.password) { f |= 0x40; pl.push(...this._s(this.o.password)); } this._send(0x10, [...this._s('MQTT'), 4, f, 0, 30, ...pl]); this._ping = setInterval(() => this._send(0xC0, []), 20000); };
+    this.ws.onmessage = ev => { const d = new Uint8Array(ev.data), nb = new Uint8Array(this.buf.length + d.length); nb.set(this.buf); nb.set(d, this.buf.length); this.buf = nb;
+      for (;;) { if (this.buf.length < 2) break; let m = 1, len = 0, i = 1, b; do { if (i >= this.buf.length) return; b = this.buf[i++]; len += (b & 127) * m; m *= 128; } while (b & 128); if (this.buf.length < i + len) break;
+        const h = this.buf[0], body = this.buf.slice(i, i + len); this.buf = this.buf.slice(i + len); const t = h >> 4;
+        if (t === 2) { clearTimeout(to); if (body[1] === 0) { done = true; this.subs.forEach(s => this._sub(s)); res(); this.onstatus && this.onstatus('on'); } else fail(new Error('refused')); }
+        else if (t === 3) { const q = (h >> 1) & 3, tl = (body[0] << 8) | body[1], topic = this.dec.decode(body.slice(2, 2 + tl)); let p = 2 + tl; if (q > 0) { const id = [body[p], body[p + 1]]; p += 2; if (q === 1) this._send(0x40, id); } this.onmessage && this.onmessage(topic, this.dec.decode(body.slice(p))); } } };
+    this.ws.onerror = () => { fail(new Error('error')); this.onstatus && this.onstatus('err'); };
+    this.ws.onclose = () => { clearInterval(this._ping); this.onstatus && this.onstatus(done ? 'closed' : 'err'); fail(new Error('closed')); }; }); }
+  _sub(f) { const id = this.pid++ & 0xffff; this._send(0x82, [id >> 8, id & 255, ...this._s(f), 0]); }
+  subscribe(f) { if (!this.subs.includes(f)) this.subs.push(f); this._sub(f); }
+  publish(t, p) { return this._send(0x30, [...this._s(t), ...this.enc.encode(p)]); }
+  close() { try { this._send(0xE0, []); this.ws.close(); } catch (e) {} }
+}
+
+const $ = s => document.querySelector(s), $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const params = new URLSearchParams(location.search);
+function lsGet(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+/* ===== UR5e kinematics, tool pointing down ===== */
+const DH = [[0, .1625, Math.PI / 2], [-.425, 0, 0], [-.3922, 0, 0], [0, .1333, Math.PI / 2], [0, .0997, -Math.PI / 2], [0, .0996, 0]];
+const TOOL = .12, HOME = [0, -Math.PI / 2, Math.PI / 2, -Math.PI / 2, -Math.PI / 2, 0];
+const BOX = .06, BOX0 = [-.45, -.22, BOX / 2], ZONE = [-.45, .22];
+function fk(q) { let T = new THREE.Matrix4(); const out = [T.clone()]; for (let i = 0; i < 6; i++) { const [a, d, al] = DH[i], ct = Math.cos(q[i]), st = Math.sin(q[i]), ca = Math.cos(al), sa = Math.sin(al); const A = new THREE.Matrix4().set(ct, -st * ca, st * sa, a * ct, st, ct * ca, -ct * sa, a * st, 0, sa, ca, d, 0, 0, 0, 1); T = T.clone().multiply(A); out.push(T); } return out; }
+const wrist = (q1, q2, q3, q6) => [q1, q2, q3, -(q2 + q3) - Math.PI / 2, -Math.PI / 2, q6];
+function tcp(q) { const T = fk(q)[6]; const p = new THREE.Vector3().setFromMatrixPosition(T); const z = new THREE.Vector3(0, 0, 1).applyMatrix4(new THREE.Matrix4().extractRotation(T)); return p.addScaledVector(z, TOOL); }
+function ik(target, q0) {
+  const q = [q0[0], q0[1], q0[2]], f = qq => tcp(wrist(qq[0], qq[1], qq[2], q0[5]));
+  for (let it = 0; it < 80; it++) {
+    const p = f(q), e = [target[0] - p.x, target[1] - p.y, target[2] - p.z];
+    if (Math.hypot(...e) < 2e-4) return wrist(q[0], q[1], q[2], q0[5]);
+    const J = [[0, 0, 0], [0, 0, 0], [0, 0, 0]], h = 1e-5;
+    for (let j = 0; j < 3; j++) { const qq = q.slice(); qq[j] += h; const pp = f(qq); J[0][j] = (pp.x - p.x) / h; J[1][j] = (pp.y - p.y) / h; J[2][j] = (pp.z - p.z) / h; }
+    const A = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]; for (let i = 0; i < 3; i++) for (let k = 0; k < 3; k++) { let s = 0; for (let j = 0; j < 3; j++) s += J[i][j] * J[k][j]; A[i][k] = s + (i === k ? 1e-4 : 0); }
+    const det = A[0][0] * (A[1][1] * A[2][2] - A[1][2] * A[2][1]) - A[0][1] * (A[1][0] * A[2][2] - A[1][2] * A[2][0]) + A[0][2] * (A[1][0] * A[2][1] - A[1][1] * A[2][0]);
+    if (Math.abs(det) < 1e-12) return null;
+    const inv = [[(A[1][1] * A[2][2] - A[1][2] * A[2][1]) / det, -(A[0][1] * A[2][2] - A[0][2] * A[2][1]) / det, (A[0][1] * A[1][2] - A[0][2] * A[1][1]) / det], [-(A[1][0] * A[2][2] - A[1][2] * A[2][0]) / det, (A[0][0] * A[2][2] - A[0][2] * A[2][0]) / det, -(A[0][0] * A[1][2] - A[0][2] * A[1][0]) / det], [(A[1][0] * A[2][1] - A[1][1] * A[2][0]) / det, -(A[0][0] * A[2][1] - A[0][1] * A[2][0]) / det, (A[0][0] * A[1][1] - A[0][1] * A[1][0]) / det]];
+    const y = [0, 0, 0]; for (let i = 0; i < 3; i++) for (let k = 0; k < 3; k++) y[i] += inv[i][k] * e[k];
+    const dq = [0, 0, 0]; for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) dq[j] += J[i][j] * y[i];
+    const n = Math.hypot(...dq), sc = n > .3 ? .3 / n : 1; for (let j = 0; j < 3; j++) q[j] += dq[j] * sc;
+  }
+  return null;
+}
+function jogPose(q, d) {
+  const p = tcp(q), t = [p.x + d[0], p.y + d[1], p.z + d[2]];
+  if (t[2] < .02) return {err:'The tool would hit the table.'};
+  if (Math.hypot(t[0], t[1]) > .8 || Math.hypot(t[0], t[1]) < .18) return {err:'That is outside the reach of the robot.'};
+  const s = ik(t, q); return s ? {q:s} : {err:'The robot cannot reach that point.'};
+}
+
+/* ===== world: robot, gripper and box ===== */
+class World {
+  constructor() { this.reset(); this.q = HOME.slice(); this.target = HOME.slice(); this.grip = false; }
+  reset() { this.obj = BOX0.slice(); this.held = false; this.placed = false; }
+  step(dt) {
+    const sp = .9 * dt; let moving = false;
+    this.q = this.q.map((v, i) => { const d = this.target[i] - v; if (Math.abs(d) > 1e-4) moving = true; return v + Math.max(-sp, Math.min(sp, d)); });
+    this.moving = moving;
+    if (this.held) { const p = tcp(this.q); this.obj = [p.x, p.y, Math.max(BOX / 2, p.z - BOX / 2)]; }
+  }
+  setGrip(close) {
+    if (close && !this.grip) { const p = tcp(this.q), top = this.obj[2] + BOX / 2; if (Math.hypot(p.x - this.obj[0], p.y - this.obj[1]) < .04 && p.z > top - .015 && p.z < top + .045) { this.held = true; this.placed = false; } }
+    if (!close && this.grip && this.held) { this.held = false; this.obj[2] = BOX / 2; this.placed = Math.hypot(this.obj[0] - ZONE[0], this.obj[1] - ZONE[1]) < .06; }
+    this.grip = close;
+  }
+  state() { return {q:this.q.map(v => +v.toFixed(5)), grip:this.grip, obj:this.obj.map(v => +v.toFixed(4)), held:this.held, placed:this.placed, moving:!!this.moving}; }
+}
+
+/* ===== scene ===== */
+const view = $('#view');
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true}); renderer.setPixelRatio(Math.min(2, devicePixelRatio)); view.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, 1, .01, 50); camera.position.set(.55, .95, 1.25);
+const controls = new OrbitControls(camera, renderer.domElement); controls.target.set(-.3, .15, 0); controls.enableDamping = true;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.1)); const sun = new THREE.DirectionalLight(0xffffff, 1.2); sun.position.set(1, 3, 2); scene.add(sun);
+const root = new THREE.Group(); root.rotation.x = -Math.PI / 2; scene.add(root);
+const grid = new THREE.GridHelper(3, 30, 0x9aa6b2, 0xc9d1da); grid.position.y = -.001; scene.add(grid);
+const tableMat = new THREE.MeshStandardMaterial({color:0xc8a878, roughness:.8});
+const table = new THREE.Mesh(new THREE.BoxGeometry(1.15, .9, .03), tableMat); table.position.set(-.33, 0, -.016); root.add(table);
+const zoneMat = new THREE.MeshStandardMaterial({color:0x2fbf71, transparent:true, opacity:.75});
+const zone = new THREE.Mesh(new THREE.BoxGeometry(.14, .14, .003), zoneMat); zone.position.set(ZONE[0], ZONE[1], .0015); root.add(zone);
+const boxMat = new THREE.MeshStandardMaterial({color:0x2b5fb3});
+const boxMesh = new THREE.Mesh(new THREE.BoxGeometry(BOX, BOX, BOX), boxMat); root.add(boxMesh);
+const axes = new THREE.AxesHelper(.25); root.add(axes);
+function makeArm(ghost) {
+  const g = new THREE.Group(); root.add(g);
+  const mLink = ghost ? new THREE.MeshStandardMaterial({color:0xe07b39, transparent:true, opacity:.38, depthWrite:false}) : new THREE.MeshStandardMaterial({color:0xd5dae1, metalness:.2, roughness:.45});
+  const mJoint = ghost ? mLink : new THREE.MeshStandardMaterial({color:0x5b6b80, metalness:.3, roughness:.4});
+  const mCap = ghost ? mLink : new THREE.MeshStandardMaterial({color:0x2f8fd8, roughness:.5});
+  const links = [], joints = [], caps = [], lr = [.055, .045, .038, .033, .033, .03], jr = [.075, .068, .055, .045, .045, .042];
+  for (let i = 0; i < 6; i++) { links.push(new THREE.Mesh(new THREE.CylinderGeometry(lr[i], lr[i], 1, 24), mLink)); joints.push(new THREE.Mesh(new THREE.CylinderGeometry(jr[i], jr[i], jr[i] * 2.1, 28), mJoint)); caps.push(new THREE.Mesh(new THREE.CylinderGeometry(jr[i] * .82, jr[i] * .82, jr[i] * 2.16, 28), mCap)); }
+  links.concat(joints, caps).forEach(m => g.add(m));
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(.09, .1, .06, 32), mJoint); base.rotation.x = Math.PI / 2; base.position.z = .03; g.add(base);
+  const mFinger = ghost ? mLink : new THREE.MeshStandardMaterial({color:0x333a44});
+  const palm = new THREE.Mesh(new THREE.BoxGeometry(.08, .03, .03), mFinger), f1 = new THREE.Mesh(new THREE.BoxGeometry(.012, .02, .07), mFinger), f2 = f1.clone();
+  const hand = new THREE.Group(); hand.add(palm, f1, f2); g.add(hand);
+  const up = new THREE.Vector3(0, 1, 0);
+  function place(mesh, a, b) { const dir = new THREE.Vector3().subVectors(b, a); const L = dir.length(); mesh.visible = L > 1e-4; if (!mesh.visible) return; mesh.position.copy(a).addScaledVector(dir, .5); mesh.quaternion.setFromUnitVectors(up, dir.normalize()); mesh.scale.set(1, L, 1); }
+  function set(q, grip) {
+    const T = fk(q), O = T.map(t => new THREE.Vector3().setFromMatrixPosition(t));
+    for (let i = 0; i < 6; i++) { place(links[i], O[i], O[i + 1]); const z = new THREE.Vector3(0, 0, 1).applyMatrix4(new THREE.Matrix4().extractRotation(T[i])).normalize(); joints[i].position.copy(O[i]); joints[i].quaternion.setFromUnitVectors(up, z); caps[i].position.copy(O[i]); caps[i].quaternion.copy(joints[i].quaternion); caps[i].visible = !ghost; }
+    const z6 = new THREE.Vector3(0, 0, 1).applyMatrix4(new THREE.Matrix4().extractRotation(T[6])).normalize();
+    hand.position.copy(O[6]).addScaledVector(z6, .015); hand.quaternion.setFromRotationMatrix(new THREE.Matrix4().extractRotation(T[6]));
+    const w = grip ? .036 : .055; f1.position.set(-w, 0, .05); f2.position.set(w, 0, .05);
+  }
+  return {g, set};
+}
+const arm = makeArm(false), ghost = makeArm(true);
+function styleFor(r) {
+  const twinLook = r !== 'phys';
+  view.className = twinLook ? 'twin' : 'phys';
+  tableMat.color.set(twinLook ? 0x24427e : 0xc8a878); tableMat.transparent = twinLook; tableMat.opacity = twinLook ? .6 : 1;
+  grid.material.color && grid.material.color.set(twinLook ? 0x3d5fa8 : 0xc9d1da);
+}
+function resize() { const w = view.clientWidth, h = view.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+new ResizeObserver(resize).observe(view); resize();
+
+/* ===== app state ===== */
+let role = params.get('teacher') ? (lsGet('ur2_role', 'twin')) : (lsGet('ur2_role', 'phys') === 'real' ? 'phys' : lsGet('ur2_role', 'phys'));
+let mode = 'model', consent = 'ask', pending = null, client = null;
+const local = new World();          // the physical robot (phys role) or the offline model (twin role, model mode)
+let remote = null, remoteAt = 0, remoteLat = null, partner = null, ghostQ = HOME.slice(), ghostGrip = false;
+if (params.get('teacher')) $('#roles [data-r=real]').classList.remove('hide');
+const name = () => ($('#me').value.trim() || (role === 'phys' ? 'physical' : 'twin'));
+function log(t) { const d = document.createElement('div'); d.textContent = new Date().toLocaleTimeString() + '  ' + t; $('#log').prepend(d); while ($('#log').children.length > 60) $('#log').lastChild.remove(); }
+function info(t) { $('#info').textContent = t || ''; }
+
+const WHAT = {
+  phys:'<b>You are the physical robot.</b> This is the real robot in its cell. Jog it like a teach pendant. Your partner sees it through the digital twin, and in twin mode your partner can ask you to move it.',
+  model:'<b>Digital model.</b> Nothing is connected. You plan and test motions on your own screen. The physical robot does not know about it.',
+  shadow:'<b>Digital shadow.</b> Your screen follows the physical robot live, one way. You can watch, measure and warn, but you cannot move it.',
+  twin:'<b>Digital twin.</b> Data flows both ways. Move the orange robot to plan a motion, then send it. It only happens if your partner on the physical side accepts.',
+  real:'<b>Real UR robot.</b> Teacher only. The lab bridge connects this page to the real robot. Commands need the robot to be armed in the bridge terminal.'
+};
+$$('#roles button').forEach(b => b.onclick = () => setRole(b.dataset.r));
+$$('#modes button').forEach(b => b.onclick = () => setMode(b.dataset.m));
+function setRole(r) {
+  role = r; lsSet('ur2_role', r);
+  $$('#roles button').forEach(b => b.classList.toggle('on', b.dataset.r === r));
+  $('#modeBox').classList.toggle('hide', r === 'phys');
+  $('#physExtra').classList.toggle('hide', r !== 'phys');
+  $('#viewTag').textContent = r === 'phys' ? 'Physical robot' : r === 'real' ? 'Twin of the real UR' : 'Digital twin';
+  styleFor(r); if (r === 'phys') mode = 'phys'; else if (mode === 'phys') mode = r === 'real' ? 'shadow' : 'model';
+  setMode(mode);
+}
+function setMode(m) {
+  if (role === 'phys') m = 'phys';
+  if (role === 'real' && m === 'model') m = 'shadow';
+  mode = m; $$('#modes button').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  $('#modes [data-m=model]').classList.toggle('hide', role === 'real');
+  $('#what').innerHTML = WHAT[role === 'real' ? 'real' : m];
+  const twin = m === 'twin', shadow = m === 'shadow';
+  $('#twinSend').classList.toggle('hide', !twin);
+  $$('#pad button').forEach(b => b.disabled = shadow);
+  $('#gClose').classList.toggle('hide', role === 'real'); $('#gOpen').classList.toggle('hide', role === 'real');
+  $('#padTitle').textContent = twin ? 'Plan with the orange robot' : 'Jog the robot';
+  $('#padHelp').textContent = shadow ? 'Shadow mode is watch only. Ask your partner what to do.' : twin ? 'The buttons move the orange robot. Nothing happens on the physical side until you send and your partner accepts.' : 'Each tap moves the tool 2 cm. The red, green and blue arrows at the base show X, Y and Z.';
+  ghost.g.visible = twin; if (twin && remote) { ghostQ = remote.q.slice(); ghostGrip = !!remote.grip; }
+  $('#legend').innerHTML = twin ? '<b style="color:#5b6b80">■</b> robot as the data says &nbsp; <b style="color:#e07b39">■</b> your planned move' : role === 'phys' && pending ? '<b style="color:#e07b39">■</b> move the twin asks for' : 'Pick the blue box, put it in the green square';
+  info(''); sendPresence();
+}
+
+/* ===== jog and gripper ===== */
+$$('#pad [data-j]').forEach(b => b.onclick = () => {
+  const d = b.dataset.j.split(',').map(Number);
+  if (mode === 'twin') { const r = jogPose(ghostQ, d); if (r.err) return info(r.err); ghostQ = r.q; return; }
+  if (mode === 'shadow') return;
+  const r = jogPose(local.target, d); if (r.err) return info(r.err); local.target = r.q; info('');
+});
+$('#gClose').onclick = () => grip(true); $('#gOpen').onclick = () => grip(false);
+function grip(c) {
+  if (mode === 'twin') return sendCmd({type:'grip', close:c});
+  if (mode === 'shadow') return;
+  local.setGrip(c); log((c ? 'closed' : 'opened') + ' the gripper' + (local.held ? ', box lifted' : local.placed ? ', box placed in the square' : ''));
+}
+$('#bHome').onclick = () => { if (mode === 'twin') { ghostQ = HOME.slice(); return; } if (mode !== 'shadow') local.target = HOME.slice(); };
+$('#bReset').onclick = () => { local.reset(); log('box back on the table'); };
+$('#bSync').onclick = () => { if (remote) { ghostQ = remote.q.slice(); } };
+$('#bSend').onclick = () => sendCmd({type:'movej', q:ghostQ.map(v => +v.toFixed(4))});
+$('#bStop').onclick = () => sendCmd({type:'stop'});
+$$('#consent button').forEach(b => b.onclick = () => { consent = b.dataset.c; $$('#consent button').forEach(x => x.classList.toggle('on', x === b)); log(consent === 'ask' ? 'you will be asked for every command' : 'you reject all commands from the twin'); });
+
+/* ===== connection and messages ===== */
+const BROKERS = {emqx:{url:'wss://broker.emqx.io:8084/mqtt'}, hivemq:{url:'wss://broker.hivemq.com:8884/mqtt'}, mosq:{url:'wss://test.mosquitto.org:8081/'}, shiftr:{url:'wss://public.cloud.shiftr.io', username:'public', password:'public'}};
+$('#room').value = params.get('room') || lsGet('ur2_room', ''); $('#broker').value = params.get('b') || lsGet('ur2_broker', 'emqx'); $('#customUrl').value = params.get('url') || lsGet('ur2_url', ''); $('#me').value = lsGet('ur2_me', '');
+$('#broker').onchange = () => $('#customUrl').classList.toggle('hide', $('#broker').value !== 'custom'); $('#broker').onchange();
+const room = () => ($('#room').value.trim() || 'demo').replace(/[^\w-]/g, '').toLowerCase();
+const T = s => 'ml2305/' + room() + '/ur/' + s;
+$('#btnConn').onclick = async () => {
+  if (client) client.close(); client = null;
+  lsSet('ur2_room', $('#room').value); lsSet('ur2_broker', $('#broker').value); lsSet('ur2_url', $('#customUrl').value); lsSet('ur2_me', $('#me').value);
+  const b = $('#broker').value, p = b === 'custom' ? {url:$('#customUrl').value.trim()} : BROKERS[b];
+  $('#dot').className = 'dot'; $('#btnConn').textContent = 'Connecting…';
+  const c = new MiniMQTT(p.url, {username:p.username, password:p.password});
+  c.onmessage = onMsg; c.onstatus = s => { if (client === c && s !== 'on') { $('#dot').className = 'dot err'; $('#btnConn').textContent = 'Reconnect'; } };
+  try { await c.connect(); client = c; ['state', 'cmd', 'ack', 'twin'].forEach(t => c.subscribe(T(t))); $('#dot').className = 'dot on'; $('#btnConn').textContent = 'Connected'; log('connected to pair ' + room()); sendPresence(); }
+  catch (e) { $('#dot').className = 'dot err'; $('#btnConn').textContent = 'Connect'; log('could not reach the server, try another one'); }
+};
+function pub(t, o) { if (client) client.publish(T(t), JSON.stringify(o)); }
+function sendPresence() { if (client && role !== 'phys') pub('twin', {name:name(), mode, t:Date.now()}); }
+setInterval(sendPresence, 2000);
+function sendCmd(o) {
+  if (!client) return info('Connect first, top right.');
+  if (!remote || performance.now() - remoteAt > 3000) return info('No physical robot in this pair yet. Check the pair code.');
+  const cmd = Object.assign({id:Math.random().toString(36).slice(2, 8), by:name(), t:Date.now()}, o);
+  pub('cmd', cmd); info(o.type === 'stop' ? 'Stop sent.' : 'Sent. Waiting for the physical side…'); log('you asked for ' + describe(cmd));
+}
+function describe(c) { return c.type === 'grip' ? (c.close ? 'closing the gripper' : 'opening the gripper') : c.type === 'stop' ? 'a stop' : 'a move'; }
+function onMsg(topic, payload) {
+  let m; try { m = JSON.parse(payload); } catch (e) { return; }
+  const kind = topic.split('/').pop();
+  if (kind === 'state') {
+    if (role === 'phys') return;
+    if (!Array.isArray(m.q) || m.q.length !== 6) return;
+    remote = m; remoteAt = performance.now(); if (m.t) remoteLat = Date.now() - m.t;
+  } else if (kind === 'twin') {
+    if (role === 'phys') { if (!partner || partner.mode !== m.mode) log(`twin partner ${m.name} is in ${m.mode} mode`); partner = Object.assign(m, {at:performance.now()}); }
+  } else if (kind === 'cmd') {
+    if (role !== 'phys') return;
+    handleCmd(m);
+  } else if (kind === 'ack') {
+    if (role === 'phys') return;
+    const why = m.msg ? (m.msg.startsWith('by ') ? ' ' + m.msg : ', ' + m.msg) : '';
+    log(`${m.by === name() ? 'your request' : (m.by || 'someone') + '’s request'} was ${m.ok ? 'accepted' : 'rejected'}${why}`);
+    if (m.by === name()) info((m.ok ? 'Accepted' : 'Rejected') + why + '.');
+  }
+}
+/* the physical side decides */
+function ack(cmd, ok, msg) { pub('ack', {id:cmd.id, by:cmd.by, ok, msg}); }
+function handleCmd(cmd) {
+  if (cmd.type === 'stop') { local.target = local.q.slice(); ack(cmd, true, 'stopped'); log(`${cmd.by} stopped the robot`); return; }
+  if (cmd.type !== 'movej' && cmd.type !== 'grip') return ack(cmd, false, 'unknown command');
+  if (consent === 'reject') { log(`rejected ${describe(cmd)} from ${cmd.by}`); return ack(cmd, false, 'the physical side rejects all commands'); }
+  if (pending) return ack(cmd, false, 'another request is still waiting');
+  if (cmd.type === 'movej') { if (!Array.isArray(cmd.q) || cmd.q.length !== 6 || cmd.q.some(v => !isFinite(v))) return ack(cmd, false, 'bad move'); const p = tcp(cmd.q); if (p.z < .015) return ack(cmd, false, 'the tool would hit the table'); }
+  pending = Object.assign({}, cmd, {at:performance.now()}); beep(); showInbox();
+}
+function showInbox() {
+  const el = $('#inbox'); if (!pending) { el.classList.add('hide'); ghost.g.visible = false; $('#legend').innerHTML = 'Pick the blue box, put it in the green square'; return; }
+  el.classList.remove('hide');
+  el.innerHTML = `<b>${esc(pending.by)} asks for ${describe(pending)}.</b><div class="small muted">${pending.type === 'movej' ? 'The orange robot shows where it would go. Is it safe?' : 'Check the gripper position first.'}</div><div class="row" style="margin-top:8px"><button class="btn go" id="pAcc">Accept</button><button class="btn stop" id="pRej">Reject</button></div>`;
+  if (pending.type === 'movej') { ghost.g.visible = true; ghostQ = pending.q.slice(); $('#legend').innerHTML = '<b style="color:#e07b39">■</b> move the twin asks for'; }
+  $('#pAcc').onclick = () => decide(true); $('#pRej').onclick = () => decide(false);
+}
+function decide(ok) {
+  const c = pending; pending = null; if (!c) return;
+  if (ok) { if (c.type === 'movej') local.target = c.q.slice(); else local.setGrip(!!c.close); log(`accepted ${describe(c)} from ${c.by}${local.held ? ', box lifted' : ''}`); }
+  else log(`rejected ${describe(c)} from ${c.by}`);
+  ack(c, ok, 'by ' + name()); showInbox();
+}
+setInterval(() => { if (pending && performance.now() - pending.at > 25000) { log('a request timed out'); ack(pending, false, 'no answer in time'); pending = null; showInbox(); } }, 1000);
+function beep() { try { const c = new (window.AudioContext || window.webkitAudioContext)(); const o = c.createOscillator(), g = c.createGain(); o.connect(g); g.connect(c.destination); o.frequency.value = 880; g.gain.value = .12; o.start(); setTimeout(() => { o.stop(); c.close(); }, 200); } catch (e) {} }
+
+/* ===== loop ===== */
+let lastPub = 0, last = performance.now(), shown = HOME.slice(), lastPlaced = false;
+function chips() {
+  if (role === 'phys') {
+    $('#chipA').className = 'chip ' + (client ? 'ok' : 'bad'); $('#chipA').textContent = client ? 'robot online in pair ' + room() : 'not connected';
+    const p = partner && performance.now() - partner.at < 5000; $('#chipB').className = 'chip ' + (p ? 'ok' : ''); $('#chipB').textContent = p ? `twin ${partner.name} · ${partner.mode}` : 'no twin partner yet';
+  } else if (mode === 'model') { $('#chipA').className = 'chip'; $('#chipA').textContent = 'offline model'; $('#chipB').className = 'chip'; $('#chipB').textContent = 'nothing connected'; }
+  else {
+    const age = remote ? (performance.now() - remoteAt) / 1000 : Infinity, on = age < 2.5;
+    $('#chipA').className = 'chip ' + (on ? 'ok' : 'bad'); $('#chipA').textContent = on ? (remote.src === 'real' ? 'real robot online' : `physical ${remote.name || ''} online`) : (remote ? 'physical side silent' : 'no physical robot yet');
+    $('#chipB').className = 'chip ' + (remote && remote.armed ? 'warn' : ''); $('#chipB').textContent = on && remoteLat != null ? `delay ${Math.max(0, Math.round(remoteLat))} ms` + (remote.src === 'real' ? (remote.armed ? ' · armed' : ' · not armed') : '') : 'delay –';
+  }
+}
+function frame(t) {
+  const dt = Math.min(.1, (t - last) / 1000); last = t;
+  let q, gripOn, obj, real = false;
+  if (role === 'phys' || mode === 'model') { local.step(dt); q = local.q; gripOn = local.grip; obj = local.obj;
+    if (role === 'phys' && local.placed && !lastPlaced) log('box placed in the green square'); lastPlaced = local.placed;
+    if (role === 'phys' && client && t - lastPub > 100) { lastPub = t; pub('state', Object.assign(local.state(), {t:Date.now(), src:'student', name:name(), consent})); } }
+  else if (remote) { real = remote.src === 'real'; const step = 4 * dt; shown = shown.map((v, i) => v + Math.max(-step, Math.min(step, remote.q[i] - v))); q = shown; gripOn = !!remote.grip; obj = remote.obj; }
+  else { q = shown; gripOn = false; obj = BOX0; }
+  arm.set(q, gripOn);
+  boxMesh.visible = zone.visible = !real; if (obj) boxMesh.position.set(obj[0], obj[1], obj[2]);
+  if (ghost.g.visible) ghost.set(ghostQ, ghostGrip);
+  controls.update(); renderer.render(scene, camera); requestAnimationFrame(frame);
+}
+setInterval(chips, 500);
+setRole(params.get('teacher') && lsGet('ur2_role', '') === 'real' ? 'real' : role === 'real' && !params.get('teacher') ? 'phys' : role);
+requestAnimationFrame(frame);
+if (params.get('room')) $('#btnConn').click();
+</script>
+</body>
+</html>
