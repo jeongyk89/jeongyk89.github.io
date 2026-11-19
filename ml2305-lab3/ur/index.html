@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>UR robot twin · ML2305 Lab 3</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23004791'/%3E%3Cpath d='M9 26h10M14 26V19l6-7 5 3' stroke='%23fff' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script type="importmap">{"imports":{"three":"./three.module.min.js"}}</script>
+<style>
+:root{--ink:#16212e;--muted:#4a5563;--bg:#f4f3ee;--line:#d6dce3;--kth:#004791;--navy:#000061;--soft:#e6eef8;--sand:#ece7dc;--orange:#b04512;--teal:#0b7464;--purple:#6b3fa8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.45}
+button,input,select{font:inherit;color:inherit}
+header{background:var(--navy);color:#fff;padding:12px 16px}
+.top{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+h1{font-size:19px;margin:0}.sub{font-size:13px;color:#c9d7ea}
+.conn{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.conn input,.conn select{background:#fff;color:var(--ink);border:0;border-radius:8px;padding:6px 8px}
+.dot{width:11px;height:11px;border-radius:99px;background:#9aa6b2;display:inline-block}.dot.on{background:#2fbf71}.dot.err{background:#e5484d}
+main{max-width:1240px;margin:0 auto;padding:14px;display:grid;grid-template-columns:1.35fr 1fr;gap:14px}
+@media(max-width:900px){main{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
+#view{position:relative;height:560px;border-radius:14px;overflow:hidden;background:linear-gradient(#eef2f7,#dfe5ec);border:1px solid var(--line)}
+@media(max-width:900px){#view{height:380px}}
+#view canvas{display:block;width:100%;height:100%}
+.overlay{position:absolute;left:10px;top:10px;display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700;border:1px solid var(--line)}
+.chip.ok{background:#e5f3ea;border-color:#b9dfc8}.chip.bad{background:#fae6e4;border-color:#efc2bd}.chip.warn{background:#fbf2dc;border-color:#ecd9a4}
+.legend{position:absolute;right:10px;bottom:10px;background:rgba(255,255,255,.9);border-radius:10px;padding:6px 10px;font-size:12px}
+.mode{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.mode button{border:2px solid var(--line);background:#fbfaf7;border-radius:12px;padding:8px;cursor:pointer;text-align:left}
+.mode button b{display:block;font-size:16px}.mode button span{font-size:12px;color:var(--muted)}
+.mode button.on{border-color:var(--kth);background:var(--soft)}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:var(--kth)}
+.muted{color:var(--muted)}.small{font-size:13px}
+.j{display:grid;grid-template-columns:70px 1fr 64px;gap:8px;align-items:center;margin:5px 0}
+.j input[type=range]{width:100%}
+.j b{font-variant-numeric:tabular-nums;text-align:right}
+.btn{background:var(--kth);color:#fff;border:0;border-radius:10px;padding:9px 13px;font-weight:700;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--kth);border:1.5px solid var(--kth)}
+.btn.soft{background:var(--soft);color:var(--kth)}
+.btn.stop{background:#c4422b}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.log{font-size:12px;max-height:150px;overflow:auto;background:#f7f7f4;border-radius:10px;padding:6px 8px;font-family:ui-monospace,Menlo,monospace}
+.what{background:var(--soft);border-radius:10px;padding:10px 12px;font-size:14px;margin:10px 0}
+.full{grid-column:1/-1}
+ol{margin:6px 0 0 18px;padding:0}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div><h1>UR robot twin</h1><div class="sub">ML2305 Lab 3 · model, shadow and twin of one robot</div></div>
+    <div class="conn">
+      <span class="dot" id="dot"></span>
+      <input id="room" size="9" placeholder="room code">
+      <select id="broker"><option value="emqx">Server A (EMQX)</option><option value="hivemq">Server B (HiveMQ)</option><option value="mosq">Server C (Mosquitto)</option><option value="shiftr">Server D (shiftr, port 443)</option><option value="custom">Own server URL</option></select>
+      <input id="customUrl" class="hide" size="22" placeholder="ws://192.168.1.10:9001">
+      <input id="me" size="8" placeholder="your name">
+      <button class="btn" id="btnConn">Connect</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div>
+    <div id="view">
+      <div class="overlay"><span class="chip" id="chipRobot">robot offline</span><span class="chip" id="chipArm">not armed</span><span class="chip" id="chipLat">delay –</span></div>
+      <div class="legend"><b style="color:#5b6b80">■</b> twin, what the data says &nbsp; <b style="color:#e07b39">■</b> your command</div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="eyebrow">Why a twin of one robot?</div>
+      <ol class="small">
+        <li><b>Monitoring.</b> See where the robot is and what it does from anywhere, together with other machines.</li>
+        <li><b>Integration.</b> The MiR brings a box, the UR picks it. One twin can coordinate both.</li>
+        <li><b>People.</b> An operator works next to the robot. What should the twin know about the person?</li>
+      </ol>
+      <p class="small muted">One robot alone rarely needs a twin. Think about which service would make a twin worth its cost in our lab.</p>
+    </div>
+  </div>
+  <div>
+    <div class="card">
+      <div class="eyebrow">Choose the level</div>
+      <div class="mode" id="modes" style="margin-top:8px">
+        <button data-m="model" class="on"><b>Model</b><span>offline, nothing is connected</span></button>
+        <button data-m="shadow"><b>Shadow</b><span>data flows in from the robot</span></button>
+        <button data-m="twin"><b>Twin</b><span>data in, commands out</span></button>
+      </div>
+      <div class="what" id="what"></div>
+      <div id="joints"></div>
+      <div class="row" style="margin-top:8px" id="presets"></div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="btnSend">Send to robot</button>
+        <button class="btn stop" id="btnStop">Stop robot</button>
+        <button class="btn ghost" id="btnCopy">Copy pose from twin</button>
+      </div>
+      <p class="small muted" id="sendInfo"></p>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="eyebrow">What happened</div>
+      <div class="log" id="log"></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="eyebrow">Try and discuss</div>
+      <ol class="small">
+        <li>In <b>Model</b>, plan a motion. What can you test here without any robot?</li>
+        <li>In <b>Shadow</b>, the teacher moves the real robot. How old is the picture you see, and does that matter?</li>
+        <li>In <b>Twin</b>, send a pose. Count the steps your command takes to reach the robot and come back.</li>
+        <li>Two of you send different poses at the same time. Who should be in control, and how would the twin decide?</li>
+        <li>What would it cost to build each level for our lab, and what would each level be good for?</li>
+      </ol>
+    </div>
+  </div>
+</main>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from './OrbitControls.js';
+
+/* ===== minimal MQTT client (same as in the connect app) ===== */
+class MiniMQTT {
+  constructor(url, o = {}) { this.url = url; this.o = o; this.buf = new Uint8Array(0); this.subs = []; this.pid = 1; this.enc = new TextEncoder(); this.dec = new TextDecoder(); }
+  _s(str) { const b = this.enc.encode(str); return [b.length >> 8, b.length & 255, ...b]; }
+  _len(n) { const o = []; do { let d = n % 128; n = Math.floor(n / 128); if (n > 0) d |= 128; o.push(d); } while (n > 0); return o; }
+  _send(h, body) { if (!this.ws || this.ws.readyState !== 1) return false; this.ws.send(new Uint8Array([h, ...this._len(body.length), ...body])); return true; }
+  connect() { return new Promise((res, rej) => { let done = false; const fail = e => { if (!done) { done = true; rej(e); } };
+    try { this.ws = new WebSocket(this.url, ['mqtt']); } catch (e) { return fail(e); }
+    this.ws.binaryType = 'arraybuffer'; const to = setTimeout(() => { fail(new Error('timeout')); try { this.ws.close(); } catch (e) {} }, 8000);
+    this.ws.onopen = () => { let f = 0x02; const pl = this._s(this.o.clientId || ('ml2305-' + Math.random().toString(36).slice(2, 10))); if (this.o.username) { f |= 0x80; pl.push(...this._s(this.o.username)); } if (this.o.password) { f |= 0x40; pl.push(...this._s(this.o.password)); } this._send(0x10, [...this._s('MQTT'), 4, f, 0, 30, ...pl]); this._ping = setInterval(() => this._send(0xC0, []), 20000); };
+    this.ws.onmessage = ev => { const d = new Uint8Array(ev.data), nb = new Uint8Array(this.buf.length + d.length); nb.set(this.buf); nb.set(d, this.buf.length); this.buf = nb;
+      for (;;) { if (this.buf.length < 2) break; let m = 1, len = 0, i = 1, b; do { if (i >= this.buf.length) return; b = this.buf[i++]; len += (b & 127) * m; m *= 128; } while (b & 128); if (this.buf.length < i + len) break;
+        const h = this.buf[0], body = this.buf.slice(i, i + len); this.buf = this.buf.slice(i + len); const t = h >> 4;
+        if (t === 2) { clearTimeout(to); if (body[1] === 0) { done = true; this.subs.forEach(s => this._sub(s)); res(); this.onstatus && this.onstatus('on'); } else fail(new Error('refused')); }
+        else if (t === 3) { const q = (h >> 1) & 3, tl = (body[0] << 8) | body[1], topic = this.dec.decode(body.slice(2, 2 + tl)); let p = 2 + tl; if (q > 0) { const id = [body[p], body[p + 1]]; p += 2; if (q === 1) this._send(0x40, id); } this.onmessage && this.onmessage(topic, this.dec.decode(body.slice(p))); } } };
+    this.ws.onerror = () => { fail(new Error('error')); this.onstatus && this.onstatus('err'); };
+    this.ws.onclose = () => { clearInterval(this._ping); this.onstatus && this.onstatus(done ? 'closed' : 'err'); fail(new Error('closed')); }; }); }
+  _sub(f) { const id = this.pid++ & 0xffff; this._send(0x82, [id >> 8, id & 255, ...this._s(f), 0]); }
+  subscribe(f) { if (!this.subs.includes(f)) this.subs.push(f); this._sub(f); }
+  publish(t, p) { return this._send(0x30, [...this._s(t), ...this.enc.encode(p)]); }
+  close() { try { this._send(0xE0, []); this.ws.close(); } catch (e) {} }
+}
+
+const $ = s => document.querySelector(s), $$ = s => Array.from(document.querySelectorAll(s));
+const D2R = Math.PI / 180, R2D = 180 / Math.PI;
+const params = new URLSearchParams(location.search);
+function lsGet(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+/* ===== UR5e kinematics ===== */
+const DH = [[0, .1625, Math.PI / 2], [-.425, 0, 0], [-.3922, 0, 0], [0, .1333, Math.PI / 2], [0, .0997, -Math.PI / 2], [0, .0996, 0]];
+function fk(q) { let T = new THREE.Matrix4(); const out = [T.clone()]; for (let i = 0; i < 6; i++) { const [a, d, al] = DH[i], ct = Math.cos(q[i]), st = Math.sin(q[i]), ca = Math.cos(al), sa = Math.sin(al); const A = new THREE.Matrix4().set(ct, -st * ca, st * sa, a * ct, st, ct * ca, -ct * sa, a * st, 0, sa, ca, d, 0, 0, 0, 1); T = T.clone().multiply(A); out.push(T); } return out; }
+
+/* ===== scene ===== */
+const view = $('#view');
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true}); renderer.setPixelRatio(Math.min(2, devicePixelRatio)); view.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, 1, .01, 50); camera.position.set(1.15, .85, 1.25);
+const controls = new OrbitControls(camera, renderer.domElement); controls.target.set(0, .35, 0); controls.enableDamping = true;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.1)); const sun = new THREE.DirectionalLight(0xffffff, 1.2); sun.position.set(2, 3, 1.5); scene.add(sun);
+const grid = new THREE.GridHelper(3, 30, 0x9aa6b2, 0xc9d1da); scene.add(grid);
+const table = new THREE.Mesh(new THREE.BoxGeometry(1.2, .04, .8), new THREE.MeshStandardMaterial({color:0xc8a878, roughness:.8})); table.position.set(.25, -.02, 0); scene.add(table);
+const box = new THREE.Mesh(new THREE.BoxGeometry(.15, .1, .1), new THREE.MeshStandardMaterial({color:0x2b5fb3})); box.position.set(.45, .05, -.25); scene.add(box);
+function makeArm(ghost) {
+  const root = new THREE.Group(); root.rotation.x = -Math.PI / 2; scene.add(root);
+  const mLink = ghost ? new THREE.MeshStandardMaterial({color:0xe07b39, transparent:true, opacity:.35, depthWrite:false}) : new THREE.MeshStandardMaterial({color:0xd5dae1, metalness:.2, roughness:.45});
+  const mJoint = ghost ? mLink : new THREE.MeshStandardMaterial({color:0x5b6b80, metalness:.3, roughness:.4});
+  const mCap = ghost ? mLink : new THREE.MeshStandardMaterial({color:0x2f8fd8, roughness:.5});
+  const links = [], joints = [], caps = [];
+  const lr = [.055, .045, .038, .033, .033, .03];
+  for (let i = 0; i < 6; i++) { links.push(new THREE.Mesh(new THREE.CylinderGeometry(lr[i], lr[i], 1, 24), mLink)); const jr = [.075, .068, .055, .045, .045, .042][i]; joints.push(new THREE.Mesh(new THREE.CylinderGeometry(jr, jr, jr * 2.1, 28), mJoint)); caps.push(new THREE.Mesh(new THREE.CylinderGeometry(jr * .82, jr * .82, jr * 2.16, 28), mCap)); }
+  links.concat(joints).forEach(m => root.add(m)); caps.forEach(c => root.add(c));
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(.09, .1, .06, 32), mJoint); base.rotation.x = Math.PI / 2; base.position.z = .03; root.add(base);
+  const tool = new THREE.Mesh(new THREE.BoxGeometry(.06, .025, .06), ghost ? mLink : new THREE.MeshStandardMaterial({color:0x333a44})); root.add(tool);
+  const up = new THREE.Vector3(0, 1, 0);
+  function place(mesh, a, b) { const dir = new THREE.Vector3().subVectors(b, a); const L = dir.length(); mesh.visible = L > 1e-4; if (!mesh.visible) return; mesh.position.copy(a).addScaledVector(dir, .5); mesh.quaternion.setFromUnitVectors(up, dir.normalize()); mesh.scale.set(1, L, 1); }
+  function set(q) {
+    const T = fk(q), O = T.map(t => new THREE.Vector3().setFromMatrixPosition(t));
+    for (let i = 0; i < 6; i++) {
+      place(links[i], O[i], O[i + 1]);
+      const z = new THREE.Vector3(0, 0, 1).applyMatrix4(new THREE.Matrix4().extractRotation(T[i])).normalize();
+      joints[i].position.copy(O[i]); joints[i].quaternion.setFromUnitVectors(up, z);
+      caps[i].position.copy(O[i]); caps[i].quaternion.copy(joints[i].quaternion); caps[i].visible = !ghost;
+    }
+    links[0].visible = true;
+    tool.position.copy(O[6]); const z6 = new THREE.Vector3(0, 0, 1).applyMatrix4(new THREE.Matrix4().extractRotation(T[6])); tool.quaternion.setFromUnitVectors(up, z6.normalize()); tool.position.addScaledVector(z6, .012);
+  }
+  return {root, set};
+}
+const arm = makeArm(false), ghostArm = makeArm(true);
+function resize() { const w = view.clientWidth, h = view.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+new ResizeObserver(resize).observe(view); resize();
+
+/* ===== state ===== */
+const HOME = [0, -90, 90, -90, -90, 0].map(v => v * D2R);
+let mode = 'model', target = HOME.slice(), shown = HOME.slice(), actual = null, actualAt = 0, armed = false, src = '', boxLim = null, lastLat = null;
+const NAMES = ['Base', 'Shoulder', 'Elbow', 'Wrist 1', 'Wrist 2', 'Wrist 3'];
+$('#joints').innerHTML = NAMES.map((n, i) => `<div class="j"><span class="small">${n}</span><input type="range" min="-180" max="180" step="1" data-i="${i}"><b id="jv${i}">0°</b></div>`).join('');
+const PRESETS = {Home:[0, -90, 90, -90, -90, 0], 'Turn left':[40, -90, 90, -90, -90, 0], 'Turn right':[-40, -90, 90, -90, -90, 0], Reach:[0, -65, 70, -95, -90, 0], Lift:[0, -110, 100, -80, -90, 0], 'Twist wrist':[0, -90, 90, -90, -90, 60]};
+$('#presets').innerHTML = Object.keys(PRESETS).map(k => `<button class="btn soft" data-p="${k}">${k}</button>`).join('');
+$$('#presets button').forEach(b => b.onclick = () => { target = PRESETS[b.dataset.p].map(v => v * D2R); clampTarget(); syncSliders(); });
+$$('#joints input').forEach(s => s.oninput = () => { target[+s.dataset.i] = +s.value * D2R; clampTarget(); syncSliders(); });
+function clampTarget() { if (mode === 'twin' && boxLim) target = target.map((v, i) => Math.min(boxLim[i][1], Math.max(boxLim[i][0], v))); }
+function syncSliders() { $$('#joints input').forEach((s, i) => { const v = (mode === 'shadow' && actual ? actual[i] : target[i]) * R2D; s.value = Math.round(v); $('#jv' + i).textContent = Math.round(v) + '°'; s.disabled = mode === 'shadow'; if (mode === 'twin' && boxLim) { s.min = Math.round(boxLim[i][0] * R2D); s.max = Math.round(boxLim[i][1] * R2D); } else { s.min = -180; s.max = 180; } }); }
+const WHAT = {
+  model:'<b>Digital model.</b> The robot on screen follows your sliders. Nothing is connected, so you can try any motion safely. Data from the real robot would have to be typed in by hand.',
+  shadow:'<b>Digital shadow.</b> The robot on screen follows the real robot, live. Data flows one way. You can watch but not command. Ask the teacher to move the real robot.',
+  twin:'<b>Digital twin.</b> Data flows both ways. Set a pose, press send, and watch your orange command travel to the real robot and the grey twin follow when the robot has moved. The teacher must arm the robot first.'
+};
+$$('#modes button').forEach(b => b.onclick = () => setMode(b.dataset.m));
+function setMode(m) { mode = m; $$('#modes button').forEach(b => b.classList.toggle('on', b.dataset.m === m)); $('#what').innerHTML = WHAT[m]; $('#btnSend').classList.toggle('hide', m !== 'twin'); $('#btnStop').classList.toggle('hide', m !== 'twin'); $('#btnCopy').classList.toggle('hide', m === 'shadow'); ghostArm.root.visible = m === 'twin'; if (m === 'twin' && actual) target = actual.slice(); clampTarget(); syncSliders(); log('mode ' + m); }
+$('#btnCopy').onclick = () => { if (actual) { target = actual.slice(); clampTarget(); syncSliders(); } else log('no data from the robot yet'); };
+function log(t) { const d = document.createElement('div'); d.textContent = new Date().toLocaleTimeString() + '  ' + t; $('#log').prepend(d); while ($('#log').children.length > 60) $('#log').lastChild.remove(); }
+
+/* ===== connection ===== */
+const BROKERS = {emqx:{url:'wss://broker.emqx.io:8084/mqtt'}, hivemq:{url:'wss://broker.hivemq.com:8884/mqtt'}, mosq:{url:'wss://test.mosquitto.org:8081/'}, shiftr:{url:'wss://public.cloud.shiftr.io', username:'public', password:'public'}};
+let client = null;
+$('#room').value = params.get('room') || lsGet('ur_room', ''); $('#broker').value = params.get('b') || lsGet('ur_broker', 'emqx'); $('#customUrl').value = params.get('url') || lsGet('ur_url', ''); $('#me').value = lsGet('ur_me', '');
+$('#broker').onchange = () => $('#customUrl').classList.toggle('hide', $('#broker').value !== 'custom'); $('#broker').onchange();
+const room = () => ($('#room').value.trim() || 'demo').replace(/[^\w-]/g, '').toLowerCase();
+const T = s => 'ml2305/' + room() + '/ur/' + s;
+$('#btnConn').onclick = async () => {
+  if (client) client.close(); lsSet('ur_room', $('#room').value); lsSet('ur_broker', $('#broker').value); lsSet('ur_url', $('#customUrl').value); lsSet('ur_me', $('#me').value);
+  const b = $('#broker').value, p = b === 'custom' ? {url:$('#customUrl').value.trim()} : BROKERS[b];
+  $('#dot').className = 'dot'; $('#btnConn').textContent = 'Connecting…';
+  const c = new MiniMQTT(p.url, {username:p.username, password:p.password});
+  c.onmessage = onMsg; c.onstatus = s => { if (client === c) { $('#dot').className = 'dot ' + (s === 'on' ? 'on' : 'err'); if (s !== 'on') $('#btnConn').textContent = 'Reconnect'; } };
+  try { await c.connect(); client = c; c.subscribe(T('state')); c.subscribe(T('ack')); c.subscribe(T('cmd')); $('#dot').className = 'dot on'; $('#btnConn').textContent = 'Connected'; log('connected, room ' + room()); }
+  catch (e) { $('#dot').className = 'dot err'; $('#btnConn').textContent = 'Connect'; log('could not reach the server, try another one'); }
+};
+let rates = [];
+function onMsg(topic, payload) {
+  let m; try { m = JSON.parse(payload); } catch (e) { return; }
+  if (topic.endsWith('/state')) {
+    if (!Array.isArray(m.q) || m.q.length !== 6) return;
+    actual = m.q.map(Number); actualAt = performance.now(); armed = !!m.armed; src = m.src || ''; if (m.box) boxLim = m.box;
+    if (m.t) lastLat = Date.now() - m.t; rates.push(performance.now()); rates = rates.filter(t => performance.now() - t < 2000);
+    if (mode === 'shadow') syncSliders();
+  } else if (topic.endsWith('/ack')) { log(`${m.by || 'someone'}: ${m.ok ? 'accepted' : 'rejected'}${m.msg ? ', ' + m.msg : ''}`); if (m.by === ($('#me').value || 'student')) $('#sendInfo').textContent = m.ok ? 'Robot accepted your command.' : 'Rejected. ' + (m.msg || ''); }
+  else if (topic.endsWith('/cmd')) { if (m.by !== ($('#me').value || 'student')) log(`${m.by || 'someone'} sent ${m.type}`); }
+}
+$('#btnSend').onclick = () => {
+  if (!client) return log('connect first');
+  if (!actual) return log('no robot data, is the bridge running?');
+  const cmd = {id:Math.random().toString(36).slice(2, 8), by:$('#me').value || 'student', type:'movej', q:target.map(v => +v.toFixed(4)), t:Date.now()};
+  client.publish(T('cmd'), JSON.stringify(cmd)); $('#sendInfo').textContent = 'Command sent, waiting for the robot…'; log('you sent movej');
+};
+$('#btnStop').onclick = () => { if (client) { client.publish(T('cmd'), JSON.stringify({id:'stop', by:$('#me').value || 'student', type:'stop', t:Date.now()})); log('you sent stop'); } };
+
+/* ===== loop ===== */
+function chips() {
+  const age = actual ? (performance.now() - actualAt) / 1000 : Infinity;
+  const on = age < 2.5; $('#chipRobot').className = 'chip ' + (on ? 'ok' : 'bad'); $('#chipRobot').textContent = on ? (src === 'sim' ? 'simulated robot online' : 'real robot online') + ` · ${rates.length / 2} Hz` : (actual ? 'robot silent' : 'robot offline');
+  $('#chipArm').className = 'chip ' + (armed ? 'warn' : ''); $('#chipArm').textContent = armed ? 'armed, robot can move' : 'not armed';
+  $('#chipLat').className = 'chip'; $('#chipLat').textContent = lastLat != null && on ? `delay ${Math.max(0, Math.round(lastLat))} ms` : 'delay –';
+}
+let last = performance.now();
+function frame(t) {
+  const dt = Math.min(.1, (t - last) / 1000); last = t;
+  const goal = mode === 'model' ? target : (actual || shown);
+  const maxStep = (mode === 'model' ? 70 : 240) * D2R * dt;
+  shown = shown.map((v, i) => v + Math.max(-maxStep, Math.min(maxStep, goal[i] - v)));
+  arm.set(shown); if (mode === 'twin') ghostArm.set(target);
+  controls.update(); renderer.render(scene, camera); requestAnimationFrame(frame);
+}
+setInterval(chips, 500);
+setMode('model'); syncSliders(); requestAnimationFrame(frame);
+if (params.get('room')) $('#btnConn').click();
+</script>
+</body>
+</html>

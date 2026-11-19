@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Supermarket lab · ML2305 Lab 3</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23004791'/%3E%3Cpath d='M7 23V9h4v14zm7 0V13h4v10zm7 0V6h4v17z' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+:root{--ink:#16212e;--muted:#4a5563;--bg:#f4f3ee;--card:#fff;--line:#d6dce3;--kth:#004791;--navy:#000061;--soft:#e6eef8;--sand:#ece7dc;
+--orange:#b04512;--teal:#0b7464;--purple:#6b3fa8;--ok:#e5f3ea;--bad:#fae6e4;--warn:#fbf2dc;--r:14px}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+header{background:var(--navy);color:#fff;padding:14px 18px 0}
+header .top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header h1{font-size:19px;margin:0;font-weight:700;letter-spacing:.2px}
+header .sub{font-size:13px;color:#c9d7ea}
+header .team{margin-left:auto;font-size:13px;color:#c9d7ea}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;margin-top:12px;scrollbar-width:none}
+nav.tabs button{background:none;border:0;color:#c9d7ea;padding:10px 12px;border-radius:10px 10px 0 0;cursor:pointer;white-space:nowrap;font-weight:600;font-size:14px}
+nav.tabs button.on{background:var(--bg);color:var(--navy)}
+main{max-width:1100px;margin:0 auto;padding:18px 16px 90px}
+section.tab{display:none}section.tab.on{display:block}
+h2{font-size:22px;margin:4px 0 6px}
+h3{font-size:16px;margin:0 0 8px}
+p{margin:6px 0}
+.muted{color:var(--muted)}.small{font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin:12px 0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{background:var(--kth);color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--kth);border:1.5px solid var(--kth)}
+.btn.soft{background:var(--soft);color:var(--kth)}
+.btn.warn{background:var(--orange)}
+.btn.big{font-size:20px;padding:16px 22px;border-radius:14px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--sand);border-radius:999px;padding:3px 10px;font-size:13px;font-weight:600}
+.chip.blue{background:var(--soft);color:var(--kth)}
+.chip.or{background:#f6e4da;color:var(--orange)}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:var(--kth)}
+.eyebrow.or{color:var(--orange)}
+input[type=text],input[type=number],textarea,select{border:1.5px solid var(--line);border-radius:10px;padding:9px 10px;background:#fff;width:100%}
+textarea{min-height:90px}
+label.f{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:8px 0 4px}
+.stepper{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.stepper button{border:0;background:var(--soft);color:var(--kth);width:36px;height:38px;font-size:20px;font-weight:700;cursor:pointer}
+.stepper input{border:0;width:64px;text-align:center;padding:6px;border-radius:0}
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.role{border-radius:12px;padding:12px;color:#fff}
+.role b{display:block;font-size:12px;letter-spacing:.8px;text-transform:uppercase;opacity:.85}
+.role .who{font-size:20px;font-weight:800;margin:2px 0}
+.role.planner{background:var(--kth)}.role.picker{background:var(--teal)}.role.recorder{background:var(--purple)}
+.role .what{font-size:13px;opacity:.95}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+/* supermarket */
+.racks{display:grid;grid-template-columns:1fr 70px 1fr;gap:8px;align-items:stretch}
+.rack{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+.rack h4{margin:0 0 6px;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.rackgrid{display:grid;gap:5px}
+.slot{border:1.5px solid var(--line);border-radius:8px;min-height:52px;padding:4px 5px;font-size:12px;cursor:pointer;background:#fbfaf7;position:relative;overflow:hidden}
+.slot .code{font-weight:800;font-size:11px;color:var(--kth)}
+.slot .nm{display:block;font-size:12px;line-height:1.15;word-break:break-word}
+.slot.empty{background:repeating-linear-gradient(45deg,#f4f3ee,#f4f3ee 6px,#ece9e1 6px,#ece9e1 12px);color:#8b95a1}
+.slot.inorder{border-color:var(--orange);background:#fff4ec}
+.slot.seq{border-color:var(--kth);background:var(--soft)}
+.slot .seqn{position:absolute;right:4px;top:3px;background:var(--kth);color:#fff;border-radius:999px;min-width:20px;height:20px;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 5px}
+.slot .heat{position:absolute;inset:auto 0 0 0;height:5px;background:var(--orange)}
+.slot.moving{outline:3px dashed var(--orange)}
+.aisle{background:repeating-linear-gradient(180deg,#fff 0 14px,#f0efe9 14px 28px);border-radius:10px;border:1px dashed #b9c1ca;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;font-size:11px;color:var(--muted);text-align:center;padding:6px 2px}
+.aisle .start{background:var(--orange);color:#fff;border-radius:8px;padding:4px 6px;font-weight:800}
+.lvl{font-size:10px;color:var(--muted);text-align:right;padding-right:2px;align-self:center}
+/* cards */
+.flip{perspective:1200px;max-width:520px}
+.flip .inner{position:relative;transition:transform .6s;transform-style:preserve-3d;min-height:250px}
+.flip.open .inner{transform:rotateY(180deg);min-height:0}
+.flip.open .face.front{position:relative}
+.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:18px;padding:20px;display:flex;flex-direction:column}
+.face.back{background:linear-gradient(135deg,var(--navy),var(--kth));color:#fff;align-items:center;justify-content:center;cursor:pointer;text-align:center}
+.face.back .big{font-size:42px;font-weight:800}
+.face.front{background:#fff;border:2px solid var(--kth);transform:rotateY(180deg);overflow:auto}
+.face.front.event{border-color:var(--orange)}
+.face.front h3{font-size:22px;margin:4px 0 8px}
+.face.front ul{margin:6px 0 0 18px;padding:0}
+.seqbar{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.seqbar .s{background:var(--soft);color:var(--kth);border-radius:8px;padding:4px 8px;font-weight:700;font-size:13px}
+.seqbar .s i{font-style:normal;color:var(--muted);font-weight:600;margin-right:4px}
+.kpi{display:flex;gap:14px;flex-wrap:wrap}
+.kpi div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;min-width:120px}
+.kpi b{display:block;font-size:24px}
+.kpi span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:700}
+.note{background:var(--warn);border-radius:10px;padding:10px 12px;font-size:14px}
+.ok{background:var(--ok)}.bad{background:var(--bad)}
+.steps{counter-reset:st}
+.step{border-left:3px solid var(--line);padding:2px 0 12px 16px;margin-left:12px;position:relative}
+.step:before{counter-increment:st;content:counter(st);position:absolute;left:-14px;top:0;width:26px;height:26px;border-radius:999px;background:var(--kth);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+.step.done:before{background:var(--teal);content:"✓"}
+.step h3{margin-top:2px}
+/* overlay */
+#overlay{position:fixed;inset:0;background:rgba(10,16,40,.72);display:none;align-items:center;justify-content:center;z-index:50;padding:14px}
+#overlay.on{display:flex}
+#sheet{background:#fff;border-radius:18px;max-width:640px;width:100%;max-height:92vh;overflow:auto;padding:18px}
+/* run mode */
+#run{position:fixed;inset:0;background:var(--navy);color:#fff;z-index:40;display:none;flex-direction:column;padding:14px;padding-bottom:max(14px,env(safe-area-inset-bottom))}
+#run.on{display:flex}
+#run .hdr{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:#c9d7ea;gap:8px;flex-wrap:wrap}
+#run .clock{font-size:64px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;margin:6px 0}
+#run .cur{background:#fff;color:var(--ink);border-radius:18px;padding:16px;text-align:center}
+#run .cur .loc{font-size:46px;font-weight:800;color:var(--kth);line-height:1.05}
+#run .cur .nm{font-size:22px;font-weight:700}
+#run .cur .hint{font-size:14px;color:var(--muted)}
+#run .next{margin:10px 0;font-size:14px;color:#c9d7ea;min-height:22px}
+#run .acts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:auto}
+#run .acts .btn{padding:14px 8px}
+#run .pick{grid-column:1/-1;font-size:28px;padding:22px;background:#2fbf71}
+#run .search.on{background:#e8a317;color:#16212e}
+#run .log{font-size:12px;color:#9fb0c8;max-height:70px;overflow:auto;margin-top:6px}
+.bars{width:100%;height:auto}
+.hide{display:none!important}
+.tag{font-size:11px;font-weight:800;border-radius:6px;padding:2px 6px;background:var(--sand)}
+footer{font-size:12px;color:var(--muted);text-align:center;margin-top:30px}
+@media(max-width:640px){.roles{grid-template-columns:1fr}.racks{grid-template-columns:1fr;}.aisle{flex-direction:row;justify-content:space-between;gap:10px;min-height:34px;padding:6px 10px}#run .clock{font-size:52px}#run .cur .loc{font-size:40px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div>
+      <h1>Supermarket lab</h1>
+      <div class="sub">ML2305 Lab 3 · Who should decide the picking plan?</div>
+    </div>
+    <div class="team" id="hdrTeam"></div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-t="team" class="on">1 Team</button>
+    <button data-t="market">2 Supermarket</button>
+    <button data-t="round">3 Round</button>
+    <button data-t="model">4 Model</button>
+    <button data-t="ai">5 AI</button>
+    <button data-t="results">6 Results</button>
+  </nav>
+</header>
+<main>
+
+<!-- TEAM -->
+<section class="tab on" id="tab-team">
+  <h2>Your team and your roles</h2>
+  <p class="muted">Work in teams of three. Every round has a planner, a picker and a recorder, and the roles rotate so everyone does each job once.</p>
+  <div class="card">
+    <div class="grid2">
+      <div>
+        <label class="f">Team name</label>
+        <input type="text" id="teamName" placeholder="e.g. Team 3">
+      </div>
+      <div>
+        <label class="f">Names of the three members</label>
+        <div class="row" style="flex-wrap:nowrap">
+          <input type="text" id="m0" placeholder="Name 1">
+          <input type="text" id="m1" placeholder="Name 2">
+          <input type="text" id="m2" placeholder="Name 3">
+        </div>
+      </div>
+    </div>
+  </div>
+  <h3>Roles in this round</h3>
+  <div class="roles" id="rolesNow"></div>
+  <div class="card">
+    <h3>Rotation</h3>
+    <table id="rotTable"></table>
+  </div>
+  <div class="grid3">
+    <div class="card"><div class="eyebrow">Planner</div><h3>Sets up the experiment</h3><p class="small">Keeps the supermarket model up to date, draws the round card, gets the order, makes the plan and writes down a prediction before the run. Talks to the AI when the card says so.</p></div>
+    <div class="card"><div class="eyebrow" style="color:var(--teal)">Picker</div><h3>Executes the plan</h3><p class="small">Takes the cart and picks every line in the real supermarket in the planned sequence, says "picked" out loud for each line and returns to the start. Does not look at predictions.</p></div>
+    <div class="card"><div class="eyebrow" style="color:var(--purple)">Recorder</div><h3>Collects the data</h3><p class="small">Runs the stopwatch in run mode, reads the next location aloud, taps every pick, marks searching and problems, triggers the surprise card and writes one sentence about what happened.</p></div>
+  </div>
+  <div class="card">
+    <h3>How a round works</h3>
+    <ol class="small" style="margin:0 0 0 18px;padding:0">
+      <li>The planner draws the round card and gets the order in tab 3.</li>
+      <li>The planner makes the plan the card asks for and writes a prediction.</li>
+      <li>The recorder opens run mode, the picker picks, the recorder taps each line.</li>
+      <li>You compare prediction and reality, then rotate roles for the next round.</li>
+    </ol>
+    <p class="small muted">Waiting for your turn in the supermarket? Use the time for the Model tab or the AI tab.</p>
+  </div>
+</section>
+
+<!-- SUPERMARKET -->
+<section class="tab" id="tab-market">
+  <h2>Build the digital supermarket</h2>
+  <p class="muted">Make the app match the real supermarket in the lab. Count the sections and levels, measure one section, then tap a slot to name what is in that bin.</p>
+  <div class="card">
+    <div class="row" style="gap:18px">
+      <div><label class="f">Sections per rack</label><span class="stepper" data-k="sections"><button>−</button><input type="number" min="1" max="8"><button>+</button></span></div>
+      <div><label class="f">Levels per section</label><span class="stepper" data-k="levels"><button>−</button><input type="number" min="1" max="6"><button>+</button></span></div>
+      <div><label class="f">Section width (m)</label><span class="stepper" data-k="width" data-step="0.1"><button>−</button><input type="number" step="0.1" min="0.3" max="3"><button>+</button></span></div>
+      <div><label class="f">Start to first section (m)</label><span class="stepper" data-k="offset" data-step="0.5"><button>−</button><input type="number" step="0.5" min="0" max="10"><button>+</button></span></div>
+    </div>
+    <p class="small muted" style="margin-top:10px">Location codes read rack, section, level. <b>R2-3</b> is the right rack, section 2 counted from the start, level 3 counted from the floor.</p>
+  </div>
+  <div class="card">
+    <div class="racks" id="racks"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn ghost" id="btnMove">Move an item</button>
+      <button class="btn ghost" id="btnDefaults">Reset to example</button>
+      <span class="small muted" id="moveHint"></span>
+    </div>
+  </div>
+  <div class="note small">Tip for the planner. If you change the real supermarket during the lab, for example to move fast movers closer to the start, change it here too, or the model will be wrong.</div>
+</section>
+
+<!-- ROUND -->
+<section class="tab" id="tab-round">
+  <div class="row" style="justify-content:space-between">
+    <h2 id="roundTitle">Round 1</h2>
+    <div class="row"><button class="btn ghost" id="btnPrevRound">◀</button><button class="btn ghost" id="btnNextRound">Next round ▶</button></div>
+  </div>
+  <div class="roles" id="rolesRound"></div>
+  <div class="steps" style="margin-top:16px">
+    <div class="step" id="st1">
+      <h3>Draw the round card <span class="chip blue">Planner</span></h3>
+      <div class="flip" id="roundCard"><div class="inner"><div class="face back" id="cardBack"><div class="small">ROUND</div><div class="big" id="cardBackN">1</div><div class="small">Tap to draw</div></div><div class="face front" id="cardFront"></div></div></div>
+    </div>
+    <div class="step" id="st2">
+      <h3>Get the order <span class="chip blue">Planner</span></h3>
+      <div class="row"><button class="btn" id="btnOrder">New order</button><span class="small muted" id="orderInfo"></span></div>
+      <div class="seqbar" id="orderBar"></div>
+    </div>
+    <div class="step" id="st3">
+      <h3>Make the plan <span class="chip blue">Planner</span></h3>
+      <div class="row" id="planBtns"></div>
+      <div id="tapWrap" class="hide card" style="padding:10px">
+        <p class="small">Tap the order lines in the sequence you want to pick them. Tap again to undo the last one.</p>
+        <div class="racks" id="tapRacks"></div>
+      </div>
+      <div class="seqbar" id="planBar"></div>
+      <div class="small muted" id="planInfo"></div>
+    </div>
+    <div class="step" id="st4">
+      <h3>Predict before you run <span class="chip blue">Planner</span></h3>
+      <div class="grid3">
+        <div><label class="f">Your guess (seconds)</label><span class="stepper" id="guessStep"><button>−</button><input type="number" id="guess" step="5" min="0"><button>+</button></span></div>
+        <div><label class="f">Model prediction</label><div class="row"><b id="simPredTxt">not run</b><button class="btn soft" id="btnQuickSim">Run model</button></div></div>
+        <div><label class="f">AI estimate (seconds)</label><input type="number" id="aiEst" placeholder="only if the AI planned"></div>
+      </div>
+    </div>
+    <div class="step" id="st5">
+      <h3>Surprise card <span class="chip" style="background:#efe7fb;color:var(--purple)">Recorder only</span></h3>
+      <p class="small muted" id="eventHelp">This round has no surprise.</p>
+      <div class="row"><button class="btn ghost hide" id="btnPeek">Recorder, peek at the surprise</button><span id="eventState" class="small"></span></div>
+    </div>
+    <div class="step" id="st6">
+      <h3>Run in the real supermarket <span class="chip" style="background:#efe7fb;color:var(--purple)">Recorder</span> <span class="chip" style="background:#dff1ec;color:var(--teal)">Picker</span></h3>
+      <p class="small muted">The recorder holds the phone, reads each location aloud and taps when the picker has the item. Finish when the picker is back at the start.</p>
+      <button class="btn big" id="btnStart">Start run mode</button>
+    </div>
+    <div class="step" id="st7">
+      <h3>Compare and write one sentence <span class="chip">Everyone</span></h3>
+      <div id="roundResult" class="muted small">No run recorded yet.</div>
+    </div>
+  </div>
+</section>
+
+<!-- MODEL -->
+<section class="tab" id="tab-model">
+  <h2>Simulation model</h2>
+  <p class="muted">The model walks a virtual picker through your supermarket. It learns walking speed and pick times from your recorded runs, then lets you test plans before anyone walks.</p>
+  <div class="grid2">
+    <div class="card">
+      <div class="eyebrow">What the model knows</div>
+      <div class="kpi" id="calKpi" style="margin-top:8px"></div>
+      <div id="calLevels" style="margin-top:10px"></div>
+      <p class="small muted" id="calNote"></p>
+    </div>
+    <div class="card">
+      <div class="eyebrow">What a model needs</div>
+      <ul class="small" style="margin:6px 0 0 18px;padding:0">
+        <li><b>Layout</b>. Where every item is, how far apart the sections are.</li>
+        <li><b>Process times</b>. How fast people walk, how long a pick takes at each level.</li>
+        <li><b>Variation</b>. How much those times change from pick to pick and person to person.</li>
+        <li><b>Rules and events</b>. The plan, the cart size, rush orders and blocked aisles.</li>
+      </ul>
+      <p class="small muted">Every number above comes from your own runs, so the model gets better each round.</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="eyebrow">Set up your experiment</div>
+    <div class="grid3" style="margin-top:8px">
+      <div>
+        <label class="f">Plans to compare</label>
+        <div id="simPlans" class="small"></div>
+      </div>
+      <div>
+        <label class="f">Pickers</label>
+        <select id="simPickers"><option value="1">One picker</option><option value="2side">Two pickers, one per rack</option><option value="2alt">Two pickers, alternate lines</option></select>
+        <label class="f">Location information</label>
+        <select id="simUnknown"><option value="0">Location codes on the list</option><option value="1">Item names only, pickers search</option></select>
+        <label class="f">Cart capacity</label>
+        <select id="simCap"><option value="0">No limit</option><option value="4">4 items</option><option value="5">5 items</option><option value="6">6 items</option></select>
+      </div>
+      <div>
+        <label class="f">Event during the run</label>
+        <select id="simEvent"><option value="none">None</option><option value="rush">Rush order arrives</option><option value="block">Section blocked for a while</option><option value="oos">One item out of stock</option></select>
+        <div id="simEventOpts" class="small" style="margin-top:6px"></div>
+        <label class="f">Replications</label>
+        <select id="simReps"><option>50</option><option selected>200</option><option>1000</option></select>
+      </div>
+    </div>
+    <div class="row" style="margin-top:12px"><button class="btn" id="btnSim">Run experiment</button><span class="small muted" id="simInfo"></span></div>
+  </div>
+  <div class="card" id="simOut"><p class="muted small">Results appear here.</p></div>
+</section>
+
+<!-- AI -->
+<section class="tab" id="tab-ai">
+  <h2>Ask an AI</h2>
+  <p class="muted">Use any assistant you have. Take a photo of the supermarket, copy a prompt below, paste it together with the photo and bring the answer back here.</p>
+  <div class="grid2" id="aiCards"></div>
+  <div class="card">
+    <div class="eyebrow">Bring the answer back</div>
+    <label class="f">Paste the AI answer</label>
+    <textarea id="aiAnswer" placeholder="Paste the whole answer. The app reads location codes like R2-3 in the order they appear."></textarea>
+    <div class="row" style="margin-top:8px">
+      <button class="btn" id="btnAiPlan">Use as AI plan</button>
+      <button class="btn ghost" id="btnAiLayout">Import AI layout JSON</button>
+      <span class="small muted" id="aiInfo"></span>
+    </div>
+    <div class="seqbar" id="aiBar"></div>
+  </div>
+  <div class="card">
+    <div class="eyebrow">Context the app adds to every prompt</div>
+    <pre id="aiContext" class="small" style="white-space:pre-wrap;background:#f7f7f4;border-radius:10px;padding:10px;max-height:260px;overflow:auto"></pre>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="tab" id="tab-results">
+  <h2>Results and learning</h2>
+  <div class="card"><div id="resChart"></div></div>
+  <div class="card" style="overflow-x:auto"><table id="resTable"></table></div>
+  <div class="grid2">
+    <div class="card"><div class="eyebrow">People differ</div><div id="resPeople" class="small"></div></div>
+    <div class="card"><div class="eyebrow">Which items were picked most</div><p class="small muted">Use this for the improvement round. Fast movers belong close to the start at waist height.</p><div class="racks" id="heatRacks"></div></div>
+  </div>
+  <div class="card">
+    <div class="eyebrow">Discuss in your team</div>
+    <ol class="small" style="margin:6px 0 0 18px;padding:0">
+      <li>How much faster was the planned round than the round without a plan, and why?</li>
+      <li>What did the model need before its predictions became useful?</li>
+      <li>Why did the same plan take a different time for different pickers?</li>
+      <li>When the surprise came, who reacted best, the person, the model or the AI?</li>
+      <li>What would you change in the supermarket tomorrow, and how would you prove it helps?</li>
+    </ol>
+  </div>
+  <div class="row">
+    <button class="btn" id="btnCopySum">Copy summary for the report</button>
+    <button class="btn ghost" id="btnCsv">Download data (CSV)</button>
+    <button class="btn ghost" id="btnReset">Clear all data</button>
+  </div>
+</section>
+<footer>ML2305 Lab 3 · KTH Department of Production Engineering · data stays in this browser</footer>
+</main>
+
+<div id="overlay"><div id="sheet"></div></div>
+
+<div id="run">
+  <div class="hdr"><span id="runHdr"></span><button class="btn ghost" id="runAbort" style="padding:6px 10px;color:#fff;border-color:#fff;background:none">Cancel</button></div>
+  <div class="clock" id="runClock">0.0</div>
+  <div class="cur" id="runCur"></div>
+  <div class="next" id="runNext"></div>
+  <div class="acts">
+    <button class="btn pick" id="runPick">Start</button>
+    <button class="btn soft search" id="runSearch">Searching</button>
+    <button class="btn soft" id="runProblem">Problem</button>
+    <button class="btn soft" id="runUndo">Undo</button>
+  </div>
+  <div class="log" id="runLog"></div>
+</div>
+
+<script>
+'use strict';
+/* ---------- helpers ---------- */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = (s, d = 0) => (s == null || isNaN(s)) ? '–' : Number(s).toFixed(d);
+const fmtT = s => (s == null || isNaN(s)) ? '–' : (s >= 60 ? Math.floor(s / 60) + ':' + String(Math.round(s % 60)).padStart(2, '0') : Math.round(s) + ' s');
+function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function load(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
+function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function gauss(r) { let u = 0, v = 0; while (u === 0) u = r(); while (v === 0) v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+function lognorm(r, m, cv) { if (m <= 0) return 0; const s2 = Math.log(1 + cv * cv); return Math.exp(Math.log(m) - s2 / 2 + Math.sqrt(s2) * gauss(r)); }
+function quant(a, q) { const b = a.slice().sort((x, y) => x - y); const i = (b.length - 1) * q; const lo = Math.floor(i), hi = Math.ceil(i); return b[lo] + (b[hi] - b[lo]) * (i - lo); }
+function copyText(t) { if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(t); const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch (e) {} ta.remove(); return Promise.resolve(); }
+function beep() { try { const c = new (window.AudioContext || window.webkitAudioContext)(); const o = c.createOscillator(); const g = c.createGain(); o.connect(g); g.connect(c.destination); o.frequency.value = 880; g.gain.value = .15; o.start(); setTimeout(() => { o.frequency.value = 660; }, 180); setTimeout(() => { o.stop(); c.close(); }, 420); } catch (e) {} if (navigator.vibrate) navigator.vibrate([200, 80, 200]); }
+
+/* ---------- content ---------- */
+const ITEM_NAMES = ['Screws M6','Nuts M6','Washers','Bolts M8','Cable ties','Clips','Brackets','Hinges','Springs','Rivets','Fuses','Connectors','Gaskets','O-rings','Spacers','Labels','Caps','Pins','Tape','Gloves','Sensors','Cables','Bearings','Magnets'];
+const ROUND_CARDS = [
+  {id:'R1', title:'Just pick', plan:'listed', lines:8, event:null,
+   goal:'Your baseline. How long does it take without any plan?',
+   rules:['Pick the lines in the order they appear on the list.','No sorting, no planning, no model.','Planner, guess the time before the run.'],
+   learn:'Remember this time. Every later round is compared with it.'},
+  {id:'R2', title:'Plan by a rule', plan:'rule', lines:8, event:null,
+   goal:'Does a simple plan beat no plan?',
+   rules:['Choose a rule, nearest next or one pass, or tap your own sequence.','Do not use the model yet.','Planner, guess the time before the run.'],
+   learn:'Compare with round 1. Is the gain what you expected?'},
+  {id:'R3', title:'Model first', plan:'model', lines:8, event:null,
+   goal:'Test plans in the model before anyone walks.',
+   rules:['Open the Model tab. Compare at least three plans, for example two pickers or another sequence.','Use the best plan and write down the model prediction.','The picker this round is a different person. Watch what changes.'],
+   learn:'How close was the model? What did it get wrong, and why?'},
+  {id:'R4', title:'Surprise', plan:'model', lines:8, event:'random',
+   goal:'Something will go wrong during the run. Only the recorder knows what.',
+   rules:['Plan with the model as in round 3 and write down the prediction.','Recorder, peek at the surprise card in step 5 but keep it secret.','When the surprise appears, the team decides on the spot how to react.'],
+   learn:'How far did reality move away from the plan? Could the model have warned you?'},
+  {id:'R5', title:'AI on the spot', plan:'ai', lines:8, event:'rush',
+   goal:'Let an AI plan, and let it react when a rush order arrives.',
+   rules:['Photograph the supermarket and use the AI tab. Ask the AI for a plan and a time estimate.','Paste the answer back and use it as the plan.','A rush order will arrive during the run. Ask the AI again, fast, for the new sequence.'],
+   learn:'Was the AI plan valid? Was it faster to re-plan with the AI, the model or your head?'},
+  {id:'R6', title:'Improve for tomorrow', plan:'model', lines:8, event:null,
+   goal:'Use all your data to make tomorrow better.',
+   rules:['Look at Results. Which items are picked most, and where are they?','Change one thing, for example move fast movers to levels 2 and 3 near the start, or change the rule.','Prove the gain in the model first, then in the real supermarket if there is time.'],
+   learn:'This is data based decision making. Collect, model, decide, act, collect again.'}
+];
+const EVENT_CARDS = {
+  rush:  {title:'Rush order', text:'A new order with two lines arrives during the run. It must leave with this tour.', timed:true},
+  cap:   {title:'Small cart', text:'The cart holds only 5 items today. After every 5 picks the picker returns to the start to unload.', timed:false},
+  block: {title:'Blocked section', text:'An AMR parks in one section for 25 seconds. Nobody can pick there while it is there.', timed:true},
+  oos:   {title:'Empty bin', text:'One bin on the list is empty. The spare is on the cart at the start.', timed:false},
+  blind: {title:'New colleague', text:'The pick list shows item names only, no location codes. The picker has to find the items.', timed:false},
+  second:{title:'Help arrives', text:'Halfway through, a second picker joins. Split the remaining lines between the two.', timed:true}
+};
+const STRAT = {
+  listed: 'As listed', nearest: 'Nearest next', onepass: 'One pass', loop: 'Out left, back right', mine: 'Your own', model: 'From the model', ai: 'From the AI'
+};
+
+/* ---------- state ---------- */
+const DEF_MARKET = () => {
+  const m = {rows:['L','R'], rowNames:{L:'Left rack', R:'Right rack'}, sections:3, levels:4, width:1.0, offset:1.5, items:{}};
+  const r = mulberry(7); let k = 0;
+  for (const row of m.rows) for (let s = 1; s <= m.sections; s++) for (let l = 1; l <= m.levels; l++) {
+    const code = row + s + '-' + l;
+    if ((row === 'L' && s === 3 && l === 4) || (row === 'R' && s === 1 && l === 1) || (row === 'L' && s === 1 && l === 4) || (row === 'R' && s === 3 && l === 2)) continue;
+    const u = r(); m.items[code] = {name: ITEM_NAMES[k++ % ITEM_NAMES.length], w: u < .2 ? 6 : u < .5 ? 2 : 1};
+  }
+  return m;
+};
+let S = load('mkt3', null);
+if (!S || !S.market) S = {team:{name:'', members:['','','']}, market:DEF_MARKET(), rounds:[], cur:null};
+function save() { store('mkt3', S); }
+function newCur(n) { return {n, cardId:ROUND_CARDS[Math.min(n, ROUND_CARDS.length) - 1].id, drawn:false, order:[], plan:[], strategy:'listed', guess:null, simPred:null, aiEst:null, aiPlan:[], eventId:null, eventSeen:false, result:null}; }
+if (!S.cur) S.cur = newCur(1);
+
+/* ---------- geometry and roles ---------- */
+const M = () => S.market;
+function parse(code) { const m = /^([A-Z])(\d+)-(\d+)$/.exec(code); return m ? {row:m[1], s:+m[2], l:+m[3]} : null; }
+function pos(code) { if (code === 'START') return {x:0, side:0}; const p = parse(code); return {x:M().offset + (p.s - .5) * M().width, side:p.row === M().rows[0] ? -1 : 1}; }
+function dist(a, b) { const A = pos(a), B = pos(b); return Math.abs(A.x - B.x) + (A.side !== B.side && A.side && B.side ? .6 : 0); }
+function routeDist(seq) { let d = 0, p = 'START'; for (const c of seq) { d += dist(p, c); p = c; } return d + dist(p, 'START'); }
+function itemName(code) { return (M().items[code] || {}).name || code; }
+function names() { return S.team.members.map((n, i) => n.trim() || ['Member A','Member B','Member C'][i]); }
+function rolesFor(n) { const nm = names(); const i = (n - 1) % 3; return {planner:nm[i], picker:nm[(i + 1) % 3], recorder:nm[(i + 2) % 3]}; }
+function card() { return ROUND_CARDS.find(c => c.id === S.cur.cardId) || ROUND_CARDS[0]; }
+
+/* ---------- plans ---------- */
+function planNearest(list, from = 'START') { const rest = list.slice(), out = []; let p = from; while (rest.length) { let bi = 0, bd = Infinity; rest.forEach((c, i) => { const d = dist(p, c); if (d < bd - 1e-9) { bd = d; bi = i; } }); p = rest.splice(bi, 1)[0]; out.push(p); } return out; }
+function planOnePass(list) { return list.slice().sort((a, b) => { const A = parse(a), B = parse(b); return A.s - B.s || (A.row < B.row ? -1 : A.row > B.row ? 1 : 0) || A.l - B.l; }); }
+function planLoop(list) { const r0 = M().rows[0]; const L = list.filter(c => parse(c).row === r0).sort((a, b) => parse(a).s - parse(b).s); const R = list.filter(c => parse(c).row !== r0).sort((a, b) => parse(b).s - parse(a).s); return L.concat(R); }
+function makePlan(kind, list) { if (kind === 'nearest') return planNearest(list); if (kind === 'onepass') return planOnePass(list); if (kind === 'loop') return planLoop(list); return list.slice(); }
+
+/* ---------- calibration from recorded runs ---------- */
+const PRIOR = l => { const L = M().levels; if (l === 1) return 8; if (l === L && L > 2) return 7; return 5; };
+function calibrate() {
+  const L = M().levels, rows = [], ys = [], perPicker = {};
+  let searchSum = 0, searchN = 0, nLines = 0;
+  for (const r of S.rounds) {
+    if (!r.lines || !r.lines.length || r.events.some(e => e.type === 'second')) continue;
+    let prevT = 0, prev = 'START';
+    for (const ln of r.lines) {
+      if (ln.kind === 'unload') { prevT = ln.t; prev = 'START'; continue; }
+      const dt = ln.t - prevT - (ln.search || 0) - (ln.wait || 0);
+      if (ln.search) { searchSum += ln.search; searchN++; }
+      const x = new Array(L + 1).fill(0); x[0] = dist(prev, ln.code); x[parse(ln.code).l] = 1;
+      if (dt > 0 && dt < 120) { rows.push(x); ys.push(dt); nLines++; }
+      prevT = ln.t; prev = ln.code;
+    }
+    if (r.endT) { const x = new Array(L + 1).fill(0); x[0] = dist(prev, 'START'); const dt = r.endT - prevT; if (x[0] > .3 && dt > 0 && dt < 120) { rows.push(x); ys.push(dt); } }
+  }
+  // ridge regression towards prior: theta = [1/v, p1..pL]
+  const P = [1 / 1.0].concat(Array.from({length:L}, (_, i) => PRIOR(i + 1)));
+  const lam = [8].concat(new Array(L).fill(1.5));
+  const n = L + 1, A = Array.from({length:n}, () => new Array(n).fill(0)), b = new Array(n).fill(0);
+  rows.forEach((x, k) => { for (let i = 0; i < n; i++) { b[i] += x[i] * ys[k]; for (let j = 0; j < n; j++) A[i][j] += x[i] * x[j]; } });
+  for (let i = 0; i < n; i++) { A[i][i] += lam[i]; b[i] += lam[i] * P[i]; }
+  const th = solve(A, b) || P;
+  let inv = Math.min(Math.max(th[0], 1 / 2.0), 1 / .35);
+  const p = th.slice(1).map(v => Math.min(Math.max(v, 1), 60));
+  // variation
+  let se = 0, sm = 0; rows.forEach((x, k) => { let pr = 0; for (let i = 0; i < n; i++) pr += x[i] * (i === 0 ? inv : p[i - 1]); se += (ys[k] - pr) ** 2; sm += pr; });
+  const cv = rows.length > 4 ? Math.min(.8, Math.max(.12, Math.sqrt(se / rows.length) / (sm / rows.length))) : .3;
+  return {v:1 / inv, p, cv, search:searchN ? searchSum / searchN : 9, n:nLines, runs:S.rounds.filter(r => r.lines && r.lines.length).length};
+}
+function solve(A, b) { const n = b.length, M2 = A.map((r, i) => r.concat([b[i]])); for (let c = 0; c < n; c++) { let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(M2[r][c]) > Math.abs(M2[p][c])) p = r; if (Math.abs(M2[p][c]) < 1e-12) return null; [M2[c], M2[p]] = [M2[p], M2[c]]; for (let r = 0; r < n; r++) if (r !== c) { const f = M2[r][c] / M2[c][c]; for (let k = c; k <= n; k++) M2[r][k] -= f * M2[c][k]; } } return M2.map((r, i) => r[n] / r[i]); }
+
+/* ---------- simulation ---------- */
+function simOnce(plan, o, C, rnd) {
+  const v = Math.max(.35, C.v * (1 + .1 * gauss(rnd)));
+  const pick = code => lognorm(rnd, C.p[parse(code).l - 1] || 5, C.cv) + (o.unknown ? lognorm(rnd, C.search, .5) : 0);
+  const walk = (a, b) => dist(a, b) / v;
+  if (o.pickers && o.pickers !== '1') {
+    const r0 = M().rows[0];
+    const A = o.pickers === '2side' ? plan.filter(c => parse(c).row === r0) : plan.filter((_, i) => i % 2 === 0);
+    const B = o.pickers === '2side' ? plan.filter(c => parse(c).row !== r0) : plan.filter((_, i) => i % 2 === 1);
+    const P = [{q:A.slice(), t:0, at:'START', busy:null, d:0, w:0}, {q:B.slice(), t:0, at:'START', busy:null, d:0, w:0}];
+    let guard = 0;
+    while ((P[0].q.length || P[1].q.length) && guard++ < 500) {
+      const k = !P[0].q.length ? 1 : !P[1].q.length ? 0 : (P[0].t <= P[1].t ? 0 : 1); const me = P[k], ot = P[1 - k];
+      const c = me.q.shift(); let arr = me.t + walk(me.at, c); me.d += dist(me.at, c);
+      if (ot.busy && parse(ot.busy.code).s === parse(c).s && ot.busy.until > arr && ot.busy.from <= arr + .01) { me.w += ot.busy.until - arr; arr = ot.busy.until; }
+      const pt = pick(c); me.busy = {code:c, from:arr, until:arr + pt}; me.t = arr + pt; me.at = c;
+    }
+    P.forEach(p => { p.t += walk(p.at, 'START'); p.d += dist(p.at, 'START'); });
+    return {t:Math.max(P[0].t, P[1].t), d:P[0].d + P[1].d, w:P[0].w + P[1].w};
+  }
+  let t = 0, at = 'START', d = 0, w = 0, carried = 0, rushDone = false; const q = plan.slice();
+  const ev = o.event || {};
+  const doRush = () => {
+    rushDone = true;
+    if (ev.policy === 'second') { const q2 = planNearest(ev.codes); let t2 = ev.t, a2 = 'START'; for (const c of q2) { t2 += walk(a2, c) + pick(c); d += dist(a2, c); a2 = c; } t2 += walk(a2, 'START'); d += dist(a2, 'START'); return t2; }
+    if (ev.policy === 'nearest') { const all = planNearest(q.concat(ev.codes), at); q.length = 0; q.push(...all); } else q.push(...ev.codes);
+    return 0;
+  };
+  let t2 = 0;
+  while (q.length) {
+    if (ev.type === 'rush' && !rushDone && t >= ev.t) t2 = doRush();
+    if (!q.length) break;
+    if (o.cap && carried >= o.cap) { t += walk(at, 'START') + 8; d += dist(at, 'START'); at = 'START'; carried = 0; }
+    const c = q.shift(); let arr = t + walk(at, c); d += dist(at, c);
+    if (ev.type === 'block' && parse(c).s === ev.section && parse(c).row === ev.row && arr >= ev.t && arr < ev.t + ev.dur) { w += ev.t + ev.dur - arr; arr = ev.t + ev.dur; }
+    t = arr;
+    if (ev.type === 'oos' && c === ev.code) { t += 2 * walk(c, 'START') + 6; d += 2 * dist(c, 'START'); }
+    t += pick(c); at = c; carried++;
+  }
+  t += walk(at, 'START'); d += dist(at, 'START');
+  if (ev.type === 'rush' && !rushDone) { t = Math.max(t, ev.t); at = 'START'; q.push(...planNearest(ev.codes)); rushDone = true; while (q.length) { const c = q.shift(); t += walk(at, c) + pick(c); d += dist(at, c); at = c; } t += walk(at, 'START'); d += dist(at, 'START'); }
+  return {t:Math.max(t, t2), d, w};
+}
+function simMany(plan, o, reps, seed = 11) { const C = calibrate(), rnd = mulberry(seed), ts = [], ds = [], ws = []; for (let i = 0; i < reps; i++) { const r = simOnce(plan, o, C, rnd); ts.push(r.t); ds.push(r.d); ws.push(r.w); } const mean = a => a.reduce((x, y) => x + y, 0) / a.length; return {mean:mean(ts), p10:quant(ts, .1), p90:quant(ts, .9), d:mean(ds), w:mean(ws)}; }
+
+/* ---------- order ---------- */
+function newOrder(n) {
+  const codes = Object.keys(M().items).filter(c => M().items[c] && M().items[c].name);
+  const pool = codes.map(c => ({c, w:(M().items[c].w || 1)})); const out = [];
+  n = Math.min(n, pool.length);
+  while (out.length < n) { const tot = pool.reduce((s, p) => s + p.w, 0); let r = Math.random() * tot; let i = 0; for (; i < pool.length; i++) { r -= pool[i].w; if (r <= 0) break; } out.push(pool.splice(Math.min(i, pool.length - 1), 1)[0].c); }
+  return out;
+}
+
+/* ---------- tabs ---------- */
+$$('#tabs button').forEach(b => b.onclick = () => showTab(b.dataset.t));
+function showTab(t) { $$('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === t)); $$('section.tab').forEach(s => s.classList.toggle('on', s.id === 'tab-' + t)); renderAll(); window.scrollTo(0, 0); }
+
+/* ---------- team ---------- */
+['teamName', 'm0', 'm1', 'm2'].forEach((id, i) => { const el = $('#' + id); el.value = i === 0 ? S.team.name : S.team.members[i - 1]; el.oninput = () => { if (i === 0) S.team.name = el.value; else S.team.members[i - 1] = el.value; save(); renderTeam(); renderHdr(); }; });
+function roleBoxes(n) { const r = rolesFor(n); return `<div class="role planner"><b>Planner</b><div class="who">${esc(r.planner)}</div><div class="what">sets up and plans</div></div><div class="role picker"><b>Picker</b><div class="who">${esc(r.picker)}</div><div class="what">executes in the supermarket</div></div><div class="role recorder"><b>Recorder</b><div class="who">${esc(r.recorder)}</div><div class="what">times and records</div></div>`; }
+function renderTeam() {
+  $('#rolesNow').innerHTML = roleBoxes(S.cur.n);
+  let h = '<tr><th>Round</th><th>Card</th><th>Planner</th><th>Picker</th><th>Recorder</th></tr>';
+  ROUND_CARDS.forEach((c, i) => { const r = rolesFor(i + 1); h += `<tr${i + 1 === S.cur.n ? ' style="background:var(--soft)"' : ''}><td>${i + 1}</td><td>${esc(c.title)}</td><td>${esc(r.planner)}</td><td>${esc(r.picker)}</td><td>${esc(r.recorder)}</td></tr>`; });
+  $('#rotTable').innerHTML = h;
+}
+function renderHdr() { $('#hdrTeam').textContent = (S.team.name || 'Your team') + ' · round ' + S.cur.n; }
+
+/* ---------- supermarket ---------- */
+$$('.stepper[data-k]').forEach(sp => {
+  const k = sp.dataset.k, step = +(sp.dataset.step || 1), inp = $('input', sp), [dn, , up] = sp.children;
+  const set = v => { const mn = +inp.min, mx = +inp.max; v = Math.round(Math.min(mx, Math.max(mn, v)) * 10) / 10; M()[k] = v; if (k === 'sections' || k === 'levels') pruneItems(); save(); renderMarket(); };
+  dn.onclick = () => set(+M()[k] - step); up.onclick = () => set(+M()[k] + step); inp.onchange = () => set(+inp.value);
+});
+function pruneItems() { for (const c of Object.keys(M().items)) { const p = parse(c); if (!p || p.s > M().sections || p.l > M().levels) delete M().items[c]; } }
+let moving = null, moveMode = false;
+$('#btnMove').onclick = () => { moveMode = !moveMode; moving = null; $('#btnMove').textContent = moveMode ? 'Stop moving' : 'Move an item'; $('#moveHint').textContent = moveMode ? 'Tap an item, then tap the slot it should go to.' : ''; renderMarket(); };
+$('#btnDefaults').onclick = () => { if (confirm('Replace your supermarket with the example?')) { S.market = DEF_MARKET(); save(); renderMarket(); } };
+function rackHTML(opts) {
+  const m = M(), {onSlot, cls, extra} = opts; let h = '';
+  m.rows.forEach((row, ri) => {
+    let g = `<div class="rack"><h4>${esc(m.rowNames[row] || row)}</h4><div class="rackgrid" style="grid-template-columns:22px repeat(${m.sections},1fr)">`;
+    for (let l = m.levels; l >= 1; l--) {
+      g += `<div class="lvl">L${l}</div>`;
+      for (let s = 1; s <= m.sections; s++) { const code = row + s + '-' + l, it = m.items[code]; const c = cls ? cls(code, it) : ''; g += `<div class="slot ${it ? '' : 'empty'} ${c}" data-code="${code}"><span class="code">${code}</span><span class="nm">${it ? esc(it.name) : 'empty'}</span>${extra ? extra(code, it) : ''}</div>`; }
+    }
+    g += `</div><div class="small muted" style="display:flex;justify-content:space-between;margin-top:4px;padding-left:22px"><span>section 1, near start</span><span>section ${m.sections}</span></div></div>`;
+    h += g; if (ri === 0) h += `<div class="aisle"><span>aisle</span><span>${fmt(m.offset + m.sections * m.width, 1)} m</span><span class="start">START</span></div>`;
+  });
+  return h;
+}
+function renderMarket() {
+  $$('.stepper[data-k]').forEach(sp => { $('input', sp).value = M()[sp.dataset.k]; });
+  const el = $('#racks'); el.innerHTML = rackHTML({cls:code => moving === code ? 'moving' : ''});
+  $$('.slot', el).forEach(s => s.onclick = () => slotClick(s.dataset.code));
+}
+function slotClick(code) {
+  const it = M().items[code];
+  if (moveMode) {
+    if (!moving) { if (it) { moving = code; renderMarket(); } return; }
+    const a = M().items[moving], b = M().items[code]; if (b) M().items[moving] = b; else delete M().items[moving]; M().items[code] = a; moving = null; save(); renderMarket(); return;
+  }
+  sheet(`<div class="eyebrow">Slot ${code}</div><h3>What is in this bin?</h3><input type="text" id="slotName" value="${it ? esc(it.name) : ''}" placeholder="Item name, leave empty if the bin is empty"><div class="row" style="margin-top:12px"><button class="btn" id="slotOk">Save</button><button class="btn ghost" id="slotEmpty">Mark empty</button><button class="btn ghost" id="slotX">Cancel</button></div>`);
+  const inp = $('#slotName'); setTimeout(() => inp.focus(), 50);
+  $('#slotOk').onclick = () => { const v = inp.value.trim(); if (v) M().items[code] = {name:v, w:(it && it.w) || (Math.random() < .25 ? 6 : Math.random() < .4 ? 2 : 1)}; else delete M().items[code]; save(); closeSheet(); renderMarket(); };
+  $('#slotEmpty').onclick = () => { delete M().items[code]; save(); closeSheet(); renderMarket(); };
+  $('#slotX').onclick = closeSheet;
+  inp.onkeydown = e => { if (e.key === 'Enter') $('#slotOk').click(); };
+}
+function sheet(html) { $('#sheet').innerHTML = html; $('#overlay').classList.add('on'); }
+function closeSheet() { $('#overlay').classList.remove('on'); }
+$('#overlay').onclick = e => { if (e.target.id === 'overlay') closeSheet(); };
+
+/* ---------- round ---------- */
+$('#btnNextRound').onclick = () => { if (!S.cur.result && S.cur.order.length && !confirm('This round has no recorded run yet. Go to the next round anyway?')) return; S.cur = newCur(S.cur.n + 1); save(); renderAll(); window.scrollTo(0, 0); };
+$('#btnPrevRound').onclick = () => { if (S.cur.n <= 1) return; const prev = S.rounds.filter(r => r.n === S.cur.n - 1).pop(); S.cur = newCur(S.cur.n - 1); if (prev) S.cur.result = prev; save(); renderAll(); };
+$('#roundCard').onclick = () => { if (!S.cur.drawn) { S.cur.drawn = true; if (card().event === 'random') { const ks = ['rush', 'cap', 'block', 'oos', 'blind', 'second']; S.cur.eventId = ks[Math.floor(Math.random() * ks.length)]; } else if (card().event) S.cur.eventId = card().event; save(); renderRound(); } };
+$('#btnOrder').onclick = () => { if (S.cur.order.length && !confirm('Replace the current order?')) return; S.cur.order = newOrder(card().lines); S.cur.plan = card().plan === 'listed' ? S.cur.order.slice() : []; S.cur.strategy = card().plan === 'listed' ? 'listed' : null; S.cur.simPred = null; save(); renderRound(); };
+$('#btnPeek').onclick = () => { const e = EVENT_CARDS[S.cur.eventId]; S.cur.eventSeen = true; save(); sheet(`<div class="eyebrow or">Surprise for round ${S.cur.n}</div><h3>${esc(e.title)}</h3><p>${esc(e.text)}</p><p class="small muted">${e.timed ? 'The app shows this card to everyone at a random moment during the run.' : 'The app applies this when the run starts. Tell the picker only then.'}</p><button class="btn" onclick="closeSheet()">Got it, I keep it secret</button>`); renderRound(); };
+$('#guess').oninput = () => { S.cur.guess = +$('#guess').value || null; save(); };
+{ const sp = $('#guessStep'), [dn, , up] = sp.children; dn.onclick = () => { $('#guess').value = Math.max(0, (+$('#guess').value || 0) - 5); $('#guess').oninput(); }; up.onclick = () => { $('#guess').value = (+$('#guess').value || 0) + 5; $('#guess').oninput(); }; }
+$('#aiEst').oninput = () => { S.cur.aiEst = +$('#aiEst').value || null; save(); };
+$('#btnQuickSim').onclick = () => { if (!S.cur.plan.length) return alertBox('Make a plan first.'); const o = runOptsFromCard(); S.cur.simPred = simMany(S.cur.plan, o, 300); save(); renderRound(); };
+function runOptsFromCard() { const e = S.cur.eventId; return {pickers:'1', unknown:e === 'blind', cap:e === 'cap' ? 5 : 0}; }
+function alertBox(t) { sheet(`<p>${esc(t)}</p><button class="btn" onclick="closeSheet()">OK</button>`); }
+function setPlan(kind) {
+  if (!S.cur.order.length) return alertBox('Get the order first.');
+  S.cur.strategy = kind; $('#tapWrap').classList.toggle('hide', kind !== 'mine');
+  if (kind === 'mine') { S.cur.plan = []; }
+  else if (kind === 'ai') { if (!S.cur.aiPlan.length) { S.cur.plan = []; alertBox('No AI plan yet. Use the AI tab, paste the answer and press "Use as AI plan".'); } else S.cur.plan = S.cur.aiPlan.filter(c => S.cur.order.includes(c)).concat(S.cur.order.filter(c => !S.cur.aiPlan.includes(c))); }
+  else if (kind === 'model') { showTab('model'); return; }
+  else S.cur.plan = makePlan(kind, S.cur.order);
+  S.cur.simPred = null; save(); renderRound();
+}
+function seqHTML(seq, showLoc = true) { return seq.map((c, i) => `<span class="s"><i>${i + 1}</i>${showLoc ? c + ' ' : ''}${esc(itemName(c))}</span>`).join(''); }
+function renderRound() {
+  const c = card(), cur = S.cur, r = rolesFor(cur.n);
+  $('#roundTitle').textContent = 'Round ' + cur.n + (cur.n > ROUND_CARDS.length ? ' (extra)' : '');
+  $('#rolesRound').innerHTML = roleBoxes(cur.n);
+  $('#cardBackN').textContent = cur.n;
+  $('#roundCard').classList.toggle('open', cur.drawn);
+  $('#cardFront').innerHTML = `<div class="eyebrow">Round ${cur.n} card</div><h3>${esc(c.title)}</h3><p><b>${esc(c.goal)}</b></p><ul>${c.rules.map(x => `<li>${esc(x)}</li>`).join('')}</ul><p class="small muted" style="margin-top:auto">${esc(c.learn)}</p>`;
+  $('#st1').classList.toggle('done', cur.drawn);
+  $('#btnOrder').disabled = !cur.drawn;
+  $('#orderInfo').textContent = cur.order.length ? cur.order.length + ' lines in arrival order' : (cur.drawn ? '' : 'Draw the card first');
+  $('#orderBar').innerHTML = seqHTML(cur.order); $('#st2').classList.toggle('done', !!cur.order.length);
+  // plan buttons by card
+  const allowed = c.plan === 'listed' ? ['listed'] : c.plan === 'rule' ? ['nearest', 'onepass', 'loop', 'mine'] : c.plan === 'ai' ? ['ai', 'model', 'mine'] : ['model', 'nearest', 'onepass', 'loop', 'mine', 'ai'];
+  $('#planBtns').innerHTML = allowed.map(k => `<button class="btn ${cur.strategy === k ? '' : 'ghost'}" data-k="${k}">${STRAT[k]}</button>`).join('');
+  $$('#planBtns button').forEach(b => b.onclick = () => setPlan(b.dataset.k));
+  $('#tapWrap').classList.toggle('hide', cur.strategy !== 'mine');
+  if (cur.strategy === 'mine') {
+    $('#tapRacks').innerHTML = rackHTML({cls:code => cur.plan.includes(code) ? 'seq' : cur.order.includes(code) ? 'inorder' : '', extra:code => cur.plan.includes(code) ? `<span class="seqn">${cur.plan.indexOf(code) + 1}</span>` : ''});
+    $$('#tapRacks .slot').forEach(s => s.onclick = () => { const code = s.dataset.code; if (!cur.order.includes(code)) return; if (cur.plan.includes(code)) { if (cur.plan[cur.plan.length - 1] === code) cur.plan.pop(); } else cur.plan.push(code); cur.simPred = null; save(); renderRound(); });
+  }
+  $('#planBar').innerHTML = seqHTML(cur.plan);
+  const full = cur.plan.length && cur.plan.length === cur.order.length;
+  $('#planInfo').textContent = cur.plan.length ? `${STRAT[cur.strategy] || ''} · route ${fmt(routeDist(cur.plan), 1)} m${full ? '' : ' · ' + (cur.order.length - cur.plan.length) + ' lines not planned yet'}` : (cur.order.length ? 'Choose how to plan.' : '');
+  $('#st3').classList.toggle('done', !!full);
+  $('#guess').value = cur.guess || ''; $('#aiEst').value = cur.aiEst || '';
+  $('#simPredTxt').textContent = cur.simPred ? `${fmtT(cur.simPred.mean)} (${fmtT(cur.simPred.p10)} to ${fmtT(cur.simPred.p90)})` : 'not run';
+  $('#st4').classList.toggle('done', !!cur.guess);
+  const ev = cur.eventId && EVENT_CARDS[cur.eventId];
+  $('#eventHelp').textContent = !cur.drawn ? 'Draw the card first.' : ev ? 'This round has a surprise. Only the recorder looks at it.' : 'This round has no surprise.';
+  $('#btnPeek').classList.toggle('hide', !ev); $('#eventState').textContent = ev && cur.eventSeen ? 'Recorder has seen it.' : '';
+  $('#st5').classList.toggle('done', cur.drawn && (!ev || cur.eventSeen));
+  $('#btnStart').disabled = !full;
+  renderRoundResult();
+}
+function renderRoundResult() {
+  const res = S.cur.result; const el = $('#roundResult');
+  if (!res) { el.innerHTML = '<span class="muted small">No run recorded yet.</span>'; $('#st7').classList.remove('done'); return; }
+  $('#st7').classList.add('done');
+  const rows = [['Actual', res.actual], ['Your guess', res.guess], ['Model', res.simPred && res.simPred.mean], ['AI estimate', res.aiEst]].filter(x => x[1]);
+  el.innerHTML = `<div class="kpi">${rows.map(([k, v]) => `<div><span>${k}</span><b>${fmtT(v)}</b>${k !== 'Actual' ? `<small class="muted">${v > res.actual ? 'over' : 'under'} by ${fmtT(Math.abs(v - res.actual))}</small>` : `<small class="muted">${fmt(res.distance, 1)} m walked</small>`}</div>`).join('')}</div>
+  ${res.events.length ? `<p class="small"><b>Events.</b> ${res.events.map(e => esc(e.label)).join('. ')}.</p>` : ''}
+  <label class="f">What happened, in one sentence (recorder)</label><input type="text" id="resNote" value="${esc(res.note || '')}" placeholder="e.g. searching for O-rings cost 15 s, the AI plan skipped one line">`;
+  $('#resNote').oninput = e => { res.note = e.target.value; save(); };
+}
+
+/* ---------- run mode ---------- */
+let R = null, tick = null;
+$('#btnStart').onclick = startRun;
+function startRun() {
+  const cur = S.cur; const ev = cur.eventId; const roles = rolesFor(cur.n);
+  R = {seq:cur.plan.slice(), i:0, t0:null, lines:[], searchOn:null, searchAcc:0, problems:[], events:[], blind:ev === 'blind', cap:ev === 'cap' ? 5 : 0, carried:0, needUnload:false, evTime:null, evFired:false, oos:null, finished:false, wait:0};
+  if (ev === 'oos') R.oos = cur.plan[Math.floor(cur.plan.length / 2)];
+  if (EVENT_CARDS[ev] && EVENT_CARDS[ev].timed) { const base = cur.simPred ? cur.simPred.mean : 60; R.evTime = Math.max(15, base * (.3 + Math.random() * .25)); }
+  $('#runHdr').textContent = `Round ${cur.n} · picker ${roles.picker} · recorder ${roles.recorder}`;
+  $('#run').classList.add('on'); drawRun(); document.body.style.overflow = 'hidden';
+  if (R.cap) runNote('Small cart. Unload at the start after every 5 picks.');
+  if (R.blind) runNote('New colleague. Read only the item names to the picker.');
+}
+function now() { return R.t0 == null ? 0 : (performance.now() - R.t0) / 1000; }
+function runNote(t) { const d = document.createElement('div'); d.textContent = fmt(now(), 1) + ' s · ' + t; $('#runLog').prepend(d); }
+function drawRun() {
+  const done = R.i >= R.seq.length;
+  if (R.t0 == null) { $('#runPick').textContent = 'Start'; $('#runCur').innerHTML = `<div class="hint">First location</div><div class="loc">${R.blind ? esc(itemName(R.seq[0])) : R.seq[0]}</div><div class="nm">${R.blind ? '' : esc(itemName(R.seq[0]))}</div><div class="hint">Tap start when the picker leaves the start point</div>`; $('#runNext').textContent = R.seq.length + ' lines in the plan'; return; }
+  if (R.needUnload) { $('#runPick').textContent = 'Unloaded at start'; $('#runCur').innerHTML = `<div class="loc" style="color:var(--orange)">Cart full</div><div class="nm">Back to the start and unload</div>`; $('#runNext').textContent = ''; return; }
+  if (done) { $('#runPick').textContent = 'Back at start, stop'; $('#runCur').innerHTML = `<div class="loc">Return</div><div class="nm">Picker walks back to the start</div><div class="hint">Stop when the cart is at the start</div>`; $('#runNext').textContent = ''; return; }
+  const c = R.seq[R.i], p = parse(c);
+  $('#runPick').textContent = 'Picked ' + (R.i + 1) + ' of ' + R.seq.length;
+  $('#runCur').innerHTML = R.blind ? `<div class="hint">Line ${R.i + 1}</div><div class="loc" style="font-size:36px">${esc(itemName(c))}</div><div class="hint">location not shown today</div>` : `<div class="hint">Line ${R.i + 1}</div><div class="loc">${c}</div><div class="nm">${esc(itemName(c))}</div><div class="hint">${esc(M().rowNames[p.row] || p.row)}, section ${p.s}, level ${p.l} of ${M().levels}</div>`;
+  $('#runNext').textContent = R.seq.slice(R.i + 1, R.i + 4).map(x => R.blind ? itemName(x) : x).join(' → ') + (R.seq.length > R.i + 4 ? ' …' : '');
+}
+function runTick() {
+  const t = now(); $('#runClock').textContent = t < 60 ? t.toFixed(1) : Math.floor(t / 60) + ':' + (t % 60).toFixed(1).padStart(4, '0');
+  if (R.evTime && !R.evFired && t >= R.evTime && R.i < R.seq.length) fireEvent();
+}
+$('#runPick').onclick = () => {
+  if (!R) return;
+  if (R.t0 == null) { R.t0 = performance.now(); tick = setInterval(runTick, 100); runNote('start'); drawRun(); return; }
+  const t = now();
+  if (R.needUnload) { R.lines.push({kind:'unload', t}); R.needUnload = false; R.carried = 0; runNote('unloaded'); drawRun(); return; }
+  if (R.i >= R.seq.length) return finishRun(t);
+  const c = R.seq[R.i];
+  if (R.oos === c && !R.oosDone) { R.oosDone = true; beep(); R.events.push({type:'oos', t, label:`${c} was empty, spare fetched at the start`}); sheet(`<div class="eyebrow or">Surprise</div><h3>Empty bin at ${c}</h3><p>The picker must fetch the spare ${esc(itemName(c))} at the start, then continue. Tap "Picked" again when the spare is on the cart.</p><button class="btn" onclick="closeSheet()">OK</button>`); runNote(c + ' empty'); return; }
+  const search = R.searchOn != null ? (R.searchAcc + t - R.searchOn) : R.searchAcc; if (R.searchOn != null) { R.searchOn = t; } R.searchAcc = 0;
+  R.lines.push({kind:'pick', code:c, t, search:R.searchOn != null ? search : search, wait:R.waitAcc || 0}); R.waitAcc = 0;
+  if (R.searchOn != null) { R.searchOn = null; $('#runSearch').classList.remove('on'); }
+  runNote('picked ' + c); R.i++; R.carried++;
+  if (R.cap && R.carried >= R.cap && R.i < R.seq.length) R.needUnload = true;
+  drawRun();
+};
+$('#runSearch').onclick = () => { if (!R || R.t0 == null) return; const t = now(); if (R.searchOn == null) { R.searchOn = t; $('#runSearch').classList.add('on'); runNote('searching'); } else { R.searchAcc += t - R.searchOn; R.searchOn = null; $('#runSearch').classList.remove('on'); runNote('found'); } };
+$('#runProblem').onclick = () => { if (!R || R.t0 == null) return; sheet(`<h3>What went wrong?</h3><div class="grid2">${['Wrong item picked', 'Item dropped', 'Could not reach', 'Aisle blocked', 'Plan was unclear', 'Other'].map(x => `<button class="btn ghost" data-p="${x}">${x}</button>`).join('')}</div>`); $$('#sheet [data-p]').forEach(b => b.onclick = () => { R.problems.push({t:now(), what:b.dataset.p}); runNote(b.dataset.p); closeSheet(); }); };
+$('#runUndo').onclick = () => { if (!R || !R.lines.length) return; const l = R.lines.pop(); if (l.kind === 'pick') { R.i--; R.carried = Math.max(0, R.carried - 1); } runNote('undo'); drawRun(); };
+$('#runAbort').onclick = () => { if (confirm('Cancel this run? Nothing is saved.')) endRunUI(); };
+function endRunUI() { clearInterval(tick); $('#run').classList.remove('on'); document.body.style.overflow = ''; R = null; }
+function fireEvent() {
+  R.evFired = true; const id = S.cur.eventId, e = EVENT_CARDS[id], t = now(); beep();
+  if (id === 'rush') {
+    const used = new Set(R.seq), pool = Object.keys(M().items).filter(c => !used.has(c)); const add = [];
+    while (add.length < 2 && pool.length) add.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+    R.rush = add;
+    sheet(`<div class="eyebrow or">Surprise · ${fmt(t, 0)} s</div><h3>Rush order</h3><p>Two more lines must leave with this tour.</p><div class="seqbar">${seqHTML(add)}</div><p class="small">Decide as a team, now. Planner can ask the AI or the model, but the clock is running.</p><div class="grid2"><button class="btn" id="evEnd">Add at the end</button><button class="btn" id="evNear">Re-plan, nearest next</button><button class="btn ghost" id="evMine">We decide our own order</button></div>`);
+    const apply = (how, seq) => { R.seq = R.seq.slice(0, R.i).concat(seq); R.events.push({type:'rush', t, how, codes:add, label:`rush order at ${fmt(t, 0)} s, ${how}`}); runNote('rush order, ' + how); closeSheet(); drawRun(); };
+    $('#evEnd').onclick = () => apply('added at the end', R.seq.slice(R.i).concat(add));
+    $('#evNear').onclick = () => apply('re-planned nearest next', planNearest(R.seq.slice(R.i).concat(add), R.i ? R.seq[R.i - 1] : 'START'));
+    $('#evMine').onclick = () => { const rest = R.seq.slice(R.i).concat(add), mine = []; const draw = () => { $('#sheet').innerHTML = `<h3>Tap the lines in your order</h3><div class="grid2">${rest.map(c => `<button class="btn ${mine.includes(c) ? '' : 'ghost'}" data-c="${c}">${mine.includes(c) ? (mine.indexOf(c) + 1) + '. ' : ''}${c} ${esc(itemName(c))}</button>`).join('')}</div><button class="btn" id="evDone" style="margin-top:10px" ${mine.length === rest.length ? '' : 'disabled'}>Use this order</button>`; $$('#sheet [data-c]').forEach(b => b.onclick = () => { const c = b.dataset.c; if (!mine.includes(c)) mine.push(c); draw(); }); const d = $('#evDone'); if (d) d.onclick = () => apply('re-planned by the team', mine); }; draw(); };
+  } else if (id === 'block') {
+    const rest = R.seq.slice(R.i); const c = rest[Math.min(1, rest.length - 1)], p = parse(c);
+    R.events.push({type:'block', t, row:p.row, section:p.s, label:`section ${p.row}${p.s} blocked for 25 s at ${fmt(t, 0)} s`});
+    sheet(`<div class="eyebrow or">Surprise · ${fmt(t, 0)} s</div><h3>Section ${p.row}${p.s} is blocked</h3><p>An AMR is parked in ${esc(M().rowNames[p.row])}, section ${p.s} for 25 seconds. Nobody can pick there now. Wait, or change the order?</p><div class="grid2"><button class="btn" id="evWait">We wait</button><button class="btn ghost" id="evSkip">Pick it later</button></div>`);
+    $('#evWait').onclick = () => { runNote('waiting for AMR'); closeSheet(); };
+    $('#evSkip').onclick = () => { const blocked = R.seq.slice(R.i).filter(x => parse(x).row === p.row && parse(x).s === p.s); R.seq = R.seq.slice(0, R.i).concat(R.seq.slice(R.i).filter(x => !blocked.includes(x)), blocked); runNote('moved blocked lines to the end'); closeSheet(); drawRun(); };
+  } else if (id === 'second') {
+    R.events.push({type:'second', t, label:`second picker joined at ${fmt(t, 0)} s`});
+    sheet(`<div class="eyebrow or">Surprise · ${fmt(t, 0)} s</div><h3>Help arrives</h3><p>The planner joins as a second picker now. Split the remaining ${R.seq.length - R.i} lines between you. The recorder keeps tapping every pick and stops when both are back at the start.</p><button class="btn" onclick="closeSheet()">Go</button>`);
+  }
+}
+function finishRun(t) {
+  clearInterval(tick); const cur = S.cur;
+  const res = {n:cur.n, card:cur.cardId, eventId:cur.eventId, roles:rolesFor(cur.n), order:cur.order.slice(), plan:cur.plan.slice(), executed:R.seq.slice(), strategy:cur.strategy, guess:cur.guess, simPred:cur.simPred, aiEst:cur.aiEst, actual:t, endT:t, lines:R.lines, problems:R.problems, events:R.events, distance:routeDist(R.seq), blind:R.blind, cap:R.cap, time:new Date().toISOString(), note:''};
+  if (R.cap) res.events.push({type:'cap', t:0, label:'cart limited to 5 items'});
+  if (R.blind) res.events.push({type:'blind', t:0, label:'item names only, no location codes'});
+  S.rounds = S.rounds.filter(r => r.n !== cur.n); S.rounds.push(res); S.rounds.sort((a, b) => a.n - b.n); cur.result = res; save();
+  endRunUI(); renderAll(); setTimeout(() => $('#st7').scrollIntoView({behavior:'smooth'}), 100);
+}
+
+/* ---------- model tab ---------- */
+function renderModel() {
+  const C = calibrate();
+  $('#calKpi').innerHTML = `<div><span>Runs used</span><b>${C.runs}</b></div><div><span>Picks measured</span><b>${C.n}</b></div><div><span>Walking speed</span><b>${fmt(C.v, 2)} m/s</b></div><div><span>Variation</span><b>±${fmt(C.cv * 100)}%</b></div><div><span>Search per line</span><b>${fmt(C.search, 0)} s</b></div>`;
+  const mx = Math.max(...C.p, 10);
+  $('#calLevels').innerHTML = '<div class="small" style="font-weight:700;color:var(--muted)">Pick time by level</div>' + C.p.map((v, i) => `<div class="row small" style="flex-wrap:nowrap"><span style="width:58px">Level ${i + 1}</span><span style="flex:1;background:var(--soft);border-radius:6px;height:16px;position:relative"><span style="position:absolute;left:0;top:0;bottom:0;width:${v / mx * 100}%;background:var(--kth);border-radius:6px"></span></span><b style="width:52px;text-align:right">${fmt(v, 1)} s</b></div>`).reverse().join('');
+  $('#calNote').textContent = C.n < 6 ? 'Few measurements yet, so the model still leans on default guesses. Record a run to teach it.' : 'These values come from your own runs.';
+  const cur = S.cur; const opts = [['listed', 'As listed'], ['nearest', 'Nearest next'], ['onepass', 'One pass'], ['loop', 'Out left, back right']];
+  if (cur.strategy === 'mine' && cur.plan.length) opts.push(['mine', 'Your own plan']);
+  if (cur.aiPlan.length) opts.push(['ai', 'AI plan']);
+  const prev = new Set(load('mkt3sel', ['listed', 'nearest', 'onepass']));
+  $('#simPlans').innerHTML = opts.map(([k, l]) => `<label style="display:block"><input type="checkbox" value="${k}" ${prev.has(k) ? 'checked' : ''}> ${l}</label>`).join('') + (cur.order.length ? `<div class="muted" style="margin-top:4px">Order of round ${cur.n}, ${cur.order.length} lines</div>` : '<div class="note" style="margin-top:6px">Get an order in the Round tab first.</div>');
+  $$('#simPlans input').forEach(i => i.onchange = () => store('mkt3sel', $$('#simPlans input:checked').map(x => x.value)));
+  renderEventOpts();
+}
+$('#simEvent').onchange = renderEventOpts;
+function renderEventOpts() {
+  const v = $('#simEvent').value, el = $('#simEventOpts');
+  if (v === 'rush') el.innerHTML = `<label class="f">Arrives after (s)</label><input type="number" id="evT" value="40"><label class="f">Reaction</label><select id="evPol"><option value="end">Add at the end</option><option value="nearest">Re-plan nearest next</option><option value="second">Second picker takes it</option></select>`;
+  else if (v === 'block') el.innerHTML = `<label class="f">Blocked section</label><select id="evSec">${M().rows.map(r => Array.from({length:M().sections}, (_, i) => `<option value="${r}${i + 1}">${r}${i + 1}</option>`).join('')).join('')}</select><label class="f">From (s) and for (s)</label><div class="row" style="flex-wrap:nowrap"><input type="number" id="evT" value="20"><input type="number" id="evDur" value="25"></div>`;
+  else if (v === 'oos') el.innerHTML = '<span class="muted">The middle line of each plan is empty and the spare is at the start.</span>';
+  else el.innerHTML = '';
+}
+function simOptions(plan) {
+  const ev = $('#simEvent').value; const o = {pickers:$('#simPickers').value, unknown:$('#simUnknown').value === '1', cap:+$('#simCap').value};
+  if (ev === 'rush') { const used = new Set(S.cur.order); const pool = Object.keys(M().items).filter(c => !used.has(c)); o.event = {type:'rush', t:+($('#evT') || {}).value || 40, policy:($('#evPol') || {}).value || 'end', codes:pool.slice(0, 2)}; }
+  if (ev === 'block') { const v = ($('#evSec') || {}).value || 'L1'; o.event = {type:'block', row:v[0], section:+v.slice(1), t:+($('#evT') || {}).value || 20, dur:+($('#evDur') || {}).value || 25}; }
+  if (ev === 'oos') o.event = {type:'oos', code:plan[Math.floor(plan.length / 2)]};
+  return o;
+}
+$('#btnSim').onclick = () => {
+  const cur = S.cur; if (!cur.order.length) return alertBox('Get an order in the Round tab first.');
+  const sel = $$('#simPlans input:checked').map(x => x.value); if (!sel.length) return alertBox('Tick at least one plan.');
+  const reps = +$('#simReps').value, res = [];
+  for (const k of sel) { const plan = k === 'mine' ? cur.plan.slice() : k === 'ai' ? cur.aiPlan.filter(c => cur.order.includes(c)).concat(cur.order.filter(c => !cur.aiPlan.includes(c))) : makePlan(k, cur.order); const o = simOptions(plan); res.push({k, plan, o, r:simMany(plan, o, reps)}); }
+  const lbl = k => ({listed:'As listed', nearest:'Nearest next', onepass:'One pass', loop:'Out left, back right', mine:'Your own plan', ai:'AI plan'})[k];
+  const mx = Math.max(...res.map(x => x.r.p90)) * 1.08, W = 640, rowH = 34, H = res.length * rowH + 30, x0 = 150;
+  let svg = `<svg class="bars" viewBox="0 0 ${W} ${H}" role="img" aria-label="Simulated time per plan">`;
+  res.forEach((x, i) => { const y = 10 + i * rowH, sc = v => x0 + (W - x0 - 20) * v / mx; svg += `<text x="${x0 - 8}" y="${y + 17}" text-anchor="end" font-size="13" fill="#16212e">${lbl(x.k)}</text><rect x="${x0}" y="${y + 4}" width="${sc(x.r.mean) - x0}" height="18" rx="4" fill="${i === res.indexOf(res.slice().sort((a, b) => a.r.mean - b.r.mean)[0]) ? '#0b7464' : '#004791'}"/><line x1="${sc(x.r.p10)}" x2="${sc(x.r.p90)}" y1="${y + 13}" y2="${y + 13}" stroke="#16212e" stroke-width="2"/><line x1="${sc(x.r.p10)}" x2="${sc(x.r.p10)}" y1="${y + 7}" y2="${y + 19}" stroke="#16212e" stroke-width="2"/><line x1="${sc(x.r.p90)}" x2="${sc(x.r.p90)}" y1="${y + 7}" y2="${y + 19}" stroke="#16212e" stroke-width="2"/><text x="${sc(x.r.p90) + 6}" y="${y + 17}" font-size="12" fill="#4a5563">${fmtT(x.r.mean)}</text>`; });
+  svg += `<text x="${x0}" y="${H - 4}" font-size="11" fill="#4a5563">bar = average, line = 10 to 90 percent of ${reps} simulated runs</text></svg>`;
+  $('#simOut').innerHTML = `<div class="eyebrow">Experiment result</div>${svg}<table><tr><th>Plan</th><th>Average</th><th>Range</th><th>Walk</th><th>Waiting</th><th></th></tr>${res.map((x, i) => `<tr><td>${lbl(x.k)}</td><td><b>${fmtT(x.r.mean)}</b></td><td>${fmtT(x.r.p10)} to ${fmtT(x.r.p90)}</td><td>${fmt(x.r.d, 1)} m</td><td>${fmt(x.r.w, 0)} s</td><td><button class="btn soft" data-i="${i}">Use for round ${cur.n}</button></td></tr>`).join('')}</table><p class="small muted">Using a plan copies its sequence and its prediction into the Round tab. Two picker setups only give a prediction, the run still follows one list.</p>`;
+  $$('#simOut [data-i]').forEach(b => b.onclick = () => { const x = res[+b.dataset.i]; cur.plan = x.plan.slice(); cur.strategy = x.k === 'ai' ? 'ai' : x.k === 'mine' ? 'mine' : 'model'; cur.simPred = x.r; cur.modelChoice = lbl(x.k) + ($('#simPickers').value !== '1' ? ', two pickers' : ''); save(); showTab('round'); });
+  $('#simInfo').textContent = 'Model uses ' + calibrate().n + ' measured picks.';
+};
+
+/* ---------- AI tab ---------- */
+function context() {
+  const m = M(), C = calibrate(), cur = S.cur;
+  const lines = Object.keys(m.items).sort().map(c => { const p = pos(c); return `${c} ${m.items[c].name} (x = ${fmt(p.x, 1)} m, level ${parse(c).l})`; }).join('\n');
+  let t = `We are a student team in a production logistics lab at KTH. Our lab supermarket has two flow racks facing each other across one straight aisle. The picker starts and ends at the aisle entrance (x = 0 m) with a cart.\n\nLayout. ${m.sections} sections per rack, ${m.levels} levels (level 1 is the floor level). Section width ${m.width} m, first section starts ${m.offset} m from the start. Location code = rack letter (${m.rows.map(r => r + ' = ' + m.rowNames[r]).join(', ')}), section, level. Crossing the aisle costs about 0.6 m.\n${lines}\n\nMeasured data from our own runs (${C.n} picks). Walking speed ${fmt(C.v, 2)} m/s. Pick time by level ${C.p.map((v, i) => 'L' + (i + 1) + ' ' + fmt(v, 1) + ' s').join(', ')}. Variation about ±${fmt(C.cv * 100)}%. Searching for an item without a location code costs about ${fmt(C.search, 0)} s.`;
+  if (cur.order.length) t += `\n\nCurrent order, in arrival order: ${cur.order.map(c => c + ' ' + itemName(c)).join(', ')}.`;
+  return t;
+}
+const AI_PROMPTS = [
+  {t:'Build our model from the photo', d:'Attach a photo of the supermarket. See what the AI gets right without your data, and what it gets wrong.', p:'Look at the attached photo of our lab supermarket. Turn it into a layout and a simulation model.\n1. Give the layout as JSON exactly in this form {"sections":3,"levels":4,"width":1.0,"offset":1.5,"items":{"L1-1":"name"}} using what you can see.\n2. Write a short Python SimPy model of one picker who picks an order and returns to the start, using the data below.\n3. Say which numbers you had to guess.'},
+  {t:'Plan our order', d:'The AI proposes the sequence and a time. Paste the answer back, the app reads the location codes.', p:'Propose the pick sequence for the current order that minimises the total time back at the start. Answer with the sequence as location codes separated by commas on one line, then your time estimate in seconds with a range, then one sentence on why.'},
+  {t:'React to a rush order', d:'Use this when the rush order card appears. Speed matters, the clock is running.', p:'Our picker is in the middle of the tour. Already picked: [write the codes]. The picker stands at [code]. A rush order just arrived: [codes]. Give the new sequence for all remaining lines as location codes separated by commas, and the new time estimate in seconds. Be fast and short.'},
+  {t:'Explain the gap', d:'After a run. Let the AI help you understand why the plan and reality differ.', p:'Our model predicted [x] s and the AI estimated [y] s, but the real run took [z] s. The recorder noted [what happened]. What are the most likely reasons for the difference, and which two measurements should we collect next to make the prediction better?'}
+];
+function renderAI() {
+  $('#aiContext').textContent = context();
+  $('#aiCards').innerHTML = AI_PROMPTS.map((a, i) => `<div class="card"><div class="eyebrow">${i + 1}</div><h3>${esc(a.t)}</h3><p class="small muted">${esc(a.d)}</p><button class="btn" data-i="${i}">Copy prompt</button> <span class="small muted" id="cp${i}"></span></div>`).join('');
+  $$('#aiCards [data-i]').forEach(b => b.onclick = () => { const a = AI_PROMPTS[+b.dataset.i]; copyText(a.p + '\n\n' + context()).then(() => { $('#cp' + b.dataset.i).textContent = 'copied'; }); });
+  $('#aiBar').innerHTML = seqHTML(S.cur.aiPlan);
+}
+$('#btnAiPlan').onclick = () => {
+  const txt = $('#aiAnswer').value; const re = new RegExp('\\b([' + M().rows.join('') + '])\\s?(\\d+)\\s?-\\s?(\\d+)\\b', 'g'); const seen = [];
+  let m; while ((m = re.exec(txt))) { const c = m[1] + m[2] + '-' + m[3]; if (!seen.includes(c) && (M().items[c] || S.cur.order.includes(c))) seen.push(c); }
+  if (!seen.length) return alertBox('No location codes found. Ask the AI to answer with codes like R2-3.');
+  S.cur.aiPlan = seen; const miss = S.cur.order.filter(c => !seen.includes(c)), extra = seen.filter(c => !S.cur.order.includes(c));
+  const est = /(\d{2,4})\s*(s\b|sec|seconds)/i.exec(txt); if (est && !S.cur.aiEst) S.cur.aiEst = +est[1];
+  save(); renderAI();
+  $('#aiInfo').textContent = `${seen.length} codes read.` + (miss.length ? ` Missing from the AI plan: ${miss.join(', ')}.` : '') + (extra.length ? ` Not in the order: ${extra.join(', ')}.` : '') + (S.cur.aiEst ? ` AI estimate ${S.cur.aiEst} s.` : '');
+};
+$('#btnAiLayout').onclick = () => {
+  const txt = $('#aiAnswer').value; const a = txt.indexOf('{'), b = txt.lastIndexOf('}'); let j = null;
+  try { j = JSON.parse(txt.slice(a, b + 1)); } catch (e) { return alertBox('Could not read JSON. Ask the AI for the layout exactly in the requested JSON form.'); }
+  if (!j || !j.items) return alertBox('The JSON has no "items".');
+  if (!confirm('Replace your supermarket with the AI layout? Your own layout is lost.')) return;
+  const m = M(); ['sections', 'levels', 'width', 'offset'].forEach(k => { if (j[k]) m[k] = +j[k]; }); m.items = {};
+  for (const [c, n] of Object.entries(j.items)) { if (parse(c)) m.items[c] = {name:String(n).slice(0, 30), w:Math.random() < .25 ? 6 : Math.random() < .4 ? 2 : 1}; }
+  pruneItems(); save(); $('#aiInfo').textContent = 'AI layout imported. Compare it with the real supermarket.'; renderAll();
+};
+
+/* ---------- results ---------- */
+function renderResults() {
+  const rs = S.rounds;
+  if (!rs.length) { $('#resChart').innerHTML = '<p class="muted small">No runs yet. Results appear after the first recorded run.</p>'; $('#resTable').innerHTML = ''; $('#resPeople').innerHTML = ''; }
+  else {
+    const W = 680, H = 260, x0 = 46, y0 = 20, ph = H - 60, mx = Math.max(...rs.flatMap(r => [r.actual, r.guess || 0, (r.simPred || {}).mean || 0, r.aiEst || 0])) * 1.15;
+    const bw = Math.min(70, (W - x0 - 20) / rs.length * .5), sx = i => x0 + (W - x0 - 20) * (i + .5) / rs.length, sy = v => y0 + ph - ph * v / mx;
+    let s = `<svg class="bars" viewBox="0 0 ${W} ${H}" role="img" aria-label="Actual and predicted time per round">`;
+    for (let k = 0; k <= 4; k++) { const v = mx * k / 4; s += `<line x1="${x0}" x2="${W - 10}" y1="${sy(v)}" y2="${sy(v)}" stroke="#e3e7ec"/><text x="${x0 - 6}" y="${sy(v) + 4}" font-size="11" text-anchor="end" fill="#4a5563">${Math.round(v)}</text>`; }
+    rs.forEach((r, i) => { const x = sx(i); s += `<rect x="${x - bw / 2}" y="${sy(r.actual)}" width="${bw}" height="${sy(0) - sy(r.actual)}" rx="4" fill="#004791"/><text x="${x}" y="${H - 26}" font-size="12" text-anchor="middle" fill="#16212e">R${r.n}</text><text x="${x}" y="${H - 12}" font-size="10" text-anchor="middle" fill="#4a5563">${esc((ROUND_CARDS.find(c => c.id === r.card) || {}).title || '')}</text>`;
+      if (r.guess) s += `<circle cx="${x - bw / 4}" cy="${sy(r.guess)}" r="6" fill="#b04512"/>`;
+      if (r.simPred) s += `<rect x="${x - 6}" y="${sy(r.simPred.mean) - 6}" width="12" height="12" fill="#0b7464" transform="rotate(45 ${x} ${sy(r.simPred.mean)})"/>`;
+      if (r.aiEst) s += `<polygon points="${x + bw / 4},${sy(r.aiEst) - 7} ${x + bw / 4 - 7},${sy(r.aiEst) + 6} ${x + bw / 4 + 7},${sy(r.aiEst) + 6}" fill="#6b3fa8"/>`; });
+    s += `</svg><div class="row small"><span><b style="color:#004791">■</b> actual</span><span><b style="color:#b04512">●</b> guess</span><span><b style="color:#0b7464">◆</b> model</span><span><b style="color:#6b3fa8">▲</b> AI</span><span class="muted">seconds</span></div>`;
+    $('#resChart').innerHTML = s;
+    $('#resTable').innerHTML = '<tr><th>Round</th><th>Plan</th><th>Picker</th><th>Guess</th><th>Model</th><th>AI</th><th>Actual</th><th>Walk</th><th>Events</th><th>Note</th></tr>' + rs.map(r => `<tr><td>${r.n} ${esc((ROUND_CARDS.find(c => c.id === r.card) || {}).title || '')}</td><td>${esc(STRAT[r.strategy] || r.strategy || '')}</td><td>${esc(r.roles.picker)}</td><td>${fmtT(r.guess)}</td><td>${r.simPred ? fmtT(r.simPred.mean) : '–'}</td><td>${fmtT(r.aiEst)}</td><td><b>${fmtT(r.actual)}</b></td><td>${fmt(r.distance, 1)} m</td><td>${esc(r.events.map(e => e.label).join('; '))}</td><td>${esc(r.note || '')}</td></tr>`).join('');
+    // people
+    const C = calibrate(), by = {};
+    rs.forEach(r => { if (!r.executed || r.events.some(e => e.type === 'second')) return; const base = simMany(r.executed, {pickers:'1', unknown:!!r.blind, cap:r.cap || 0}, 100, 5).mean; (by[r.roles.picker] = by[r.roles.picker] || []).push(r.actual / base); });
+    $('#resPeople').innerHTML = Object.keys(by).length ? '<p class="muted">Actual time divided by what the model expects for the same route. 1.00 means exactly as the model says.</p>' + Object.entries(by).map(([n, a]) => `<div class="row" style="flex-wrap:nowrap"><span style="width:110px">${esc(n)}</span><b>${fmt(a.reduce((x, y) => x + y, 0) / a.length, 2)}</b><span class="muted">from ${a.length} run${a.length > 1 ? 's' : ''}</span></div>`).join('') : '<p class="muted">Record runs with different pickers to see this.</p>';
+  }
+  const cnt = {}; rs.forEach(r => r.order.forEach(c => cnt[c] = (cnt[c] || 0) + 1)); const mxc = Math.max(1, ...Object.values(cnt));
+  $('#heatRacks').innerHTML = rackHTML({extra:code => cnt[code] ? `<span class="heat" style="width:${cnt[code] / mxc * 100}%"></span><span class="seqn" style="background:var(--orange)">${cnt[code]}</span>` : ''});
+}
+$('#btnCopySum').onclick = () => {
+  const C = calibrate(); let t = `Team ${S.team.name || ''} (${names().join(', ')}), ML2305 Lab 3 supermarket\nSupermarket ${M().sections} sections x ${M().levels} levels per rack, section width ${M().width} m.\nModel from ${C.n} measured picks, walking ${fmt(C.v, 2)} m/s, pick time by level ${C.p.map(v => fmt(v, 1)).join(', ')} s, variation ±${fmt(C.cv * 100)}%.\n`;
+  S.rounds.forEach(r => { t += `Round ${r.n} ${(ROUND_CARDS.find(c => c.id === r.card) || {}).title}, plan ${STRAT[r.strategy] || ''}, picker ${r.roles.picker}, guess ${fmtT(r.guess)}, model ${r.simPred ? fmtT(r.simPred.mean) : '–'}, AI ${fmtT(r.aiEst)}, actual ${fmtT(r.actual)}, ${fmt(r.distance, 1)} m. ${r.events.map(e => e.label).join('. ')}${r.note ? ' Note. ' + r.note : ''}\n`; });
+  copyText(t).then(() => alertBox('Summary copied. Paste it into your notes for the report.'));
+};
+$('#btnCsv').onclick = () => {
+  let csv = 'round,card,strategy,picker,line,code,item,level,t_pick_s,search_s,guess_s,model_s,ai_s,actual_s,distance_m,events\n';
+  S.rounds.forEach(r => r.lines.forEach((l, i) => { csv += [r.n, r.card, r.strategy, r.roles.picker, i + 1, l.code || l.kind, l.code ? itemName(l.code) : '', l.code ? parse(l.code).l : '', fmt(l.t, 2), fmt(l.search || 0, 2), r.guess || '', r.simPred ? fmt(r.simPred.mean, 1) : '', r.aiEst || '', fmt(r.actual, 2), fmt(r.distance, 2), '"' + r.events.map(e => e.label).join('; ') + '"'].join(',') + '\n'; }));
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'})); a.download = 'supermarket_' + (S.team.name || 'team').replace(/\W+/g, '_') + '.csv'; a.click();
+};
+$('#btnReset').onclick = () => { if (confirm('Delete all rounds, results and the supermarket layout in this browser?')) { S = {team:{name:'', members:['', '', '']}, market:DEF_MARKET(), rounds:[], cur:newCur(1)}; save(); location.reload(); } };
+
+function renderAll() { renderHdr(); renderTeam(); renderMarket(); renderRound(); renderModel(); renderAI(); renderResults(); }
+renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Design a twin service · ML2305 Lab 3</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23004791'/%3E%3Cpath d='M8 22l5-6 4 4 7-9' stroke='%23fff' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{--ink:#16212e;--muted:#4a5563;--bg:#f4f3ee;--line:#d6dce3;--kth:#004791;--navy:#000061;--soft:#e6eef8;--sand:#ece7dc;--orange:#b04512;--teal:#0b7464;--purple:#6b3fa8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+header{background:var(--navy);color:#fff;padding:12px 16px 0}
+.top{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+h1{font-size:19px;margin:0}.sub{font-size:13px;color:#c9d7ea}
+.conn{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.conn input,.conn select{background:#fff;color:var(--ink);border:0;border-radius:8px;padding:6px 8px}
+.dot{width:11px;height:11px;border-radius:99px;background:#9aa6b2;display:inline-block}.dot.on{background:#2fbf71}.dot.err{background:#e5484d}
+nav{display:flex;gap:4px;margin-top:10px}
+nav button{background:none;border:0;color:#c9d7ea;padding:9px 12px;border-radius:10px 10px 0 0;font-weight:700;cursor:pointer}
+nav button.on{background:var(--bg);color:var(--navy)}
+main{max-width:1100px;margin:0 auto;padding:16px 14px 70px}
+section{display:none}section.on{display:block}
+h2{font-size:21px;margin:2px 0 6px}h3{font-size:16px;margin:0 0 6px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:var(--kth)}
+.muted{color:var(--muted)}.small{font-size:13px}
+.btn{background:var(--kth);color:#fff;border:0;border-radius:10px;padding:9px 13px;font-weight:700;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--kth);border:1.5px solid var(--kth)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chal{border:2px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;background:#fbfaf7}
+.chal.on{border-color:var(--kth);background:var(--soft)}
+.chal b{display:block;font-size:16px}
+label.f{display:block;font-size:12px;font-weight:800;color:var(--muted);margin:10px 0 3px;text-transform:uppercase;letter-spacing:.5px}
+textarea,input[type=text],select{border:1.5px solid var(--line);border-radius:9px;padding:8px 9px;background:#fff;width:100%}
+textarea{min-height:58px}
+.lv{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.lv label{border:2px solid var(--line);border-radius:10px;padding:8px;cursor:pointer;font-size:13px;background:#fbfaf7}
+.lv label b{display:block;font-size:15px}
+.lv input{display:none}
+.lv label.on{border-color:var(--kth);background:var(--soft)}
+.effort{display:flex;gap:6px}
+.effort label{flex:1;border:2px solid var(--line);border-radius:10px;padding:6px;text-align:center;cursor:pointer;font-size:13px;background:#fbfaf7}
+.effort input{display:none}.effort label.on{border-color:var(--orange);background:#f6e4da}
+.pitch{background:#fff;border:2px solid var(--kth);border-radius:16px;padding:16px}
+.pitch h3{font-size:20px}
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.tag{display:inline-block;font-size:11px;font-weight:800;border-radius:6px;padding:2px 7px;background:var(--sand);margin-right:4px}
+.tag.m{background:#f6e4da;color:var(--orange)}.tag.s{background:#efe7fb;color:var(--purple)}.tag.t{background:#dff1ec;color:var(--teal)}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div><h1>Design a twin service</h1><div class="sub">ML2305 Lab 3 · what should a digital twin do in our lab?</div></div>
+    <div class="conn"><span class="dot" id="dot"></span><input id="room" size="9" placeholder="room code"><select id="broker"><option value="emqx">Server A (EMQX)</option><option value="hivemq">Server B (HiveMQ)</option><option value="mosq">Server C (Mosquitto)</option><option value="shiftr">Server D (shiftr, port 443)</option></select><input id="team" size="9" placeholder="team name"><button class="btn" id="btnConn">Connect</button></div>
+  </div>
+  <nav id="tabs"><button data-t="canvas" class="on">1 Your service</button><button data-t="board">2 Class board</button></nav>
+</header>
+<main>
+<section id="t-canvas" class="on">
+  <h2>Pick a situation in our lab</h2>
+  <p class="muted">You have seen the lab twin and the UR twin. A twin costs effort to build and to keep in sync. Choose one situation and design the smallest twin service that is worth it.</p>
+  <div class="grid4" id="chals"></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="eyebrow">Your service</div>
+      <label class="f">Name of the service</label><input type="text" id="f_name" placeholder="e.g. Handover watch">
+      <label class="f">Who uses it, and for which decision?</label><textarea id="f_user" placeholder="The operator at the robot cell decides when to step in."></textarea>
+      <label class="f">What is in the twin? Assets and people</label><textarea id="f_scope" placeholder="UR5e, MiR200, the operator, the boxes"></textarea>
+      <label class="f">Data needed. What, how often, from where?</label><textarea id="f_data" placeholder="Robot joint angles 10 per second, MiR position 1 per second, operator position from RTLS"></textarea>
+      <label class="f">Level you need</label>
+      <div class="lv" id="lv"><label data-v="model"><input type="radio" name="lv" value="model"><b>Model</b>no live data</label><label data-v="shadow"><input type="radio" name="lv" value="shadow"><b>Shadow</b>data in only</label><label data-v="twin"><input type="radio" name="lv" value="twin"><b>Twin</b>data in, actions out</label></div>
+      <label class="f">Why this level and not the next one?</label><textarea id="f_why"></textarea>
+      <label class="f">Effort to build and keep running</label>
+      <div class="effort" id="eff"><label data-v="S"><input type="radio" name="eff" value="S">small</label><label data-v="M"><input type="radio" name="eff" value="M">medium</label><label data-v="L"><input type="radio" name="eff" value="L">large</label></div>
+      <label class="f">What does the effort go into?</label><textarea id="f_effort" placeholder="connecting the MiR, a common data model, validating the model, keeping it updated"></textarea>
+      <label class="f">Value. What gets better, and how would you measure it?</label><textarea id="f_value"></textarea>
+      <label class="f">Biggest risk</label><textarea id="f_risk" placeholder="latency, safety, privacy of the operator, who owns the data"></textarea>
+    </div>
+    <div>
+      <div class="pitch" id="pitch"></div>
+      <div class="row" style="margin-top:10px"><button class="btn" id="btnShare">Share to the class board</button><button class="btn ghost" id="btnCopy">Copy as text</button><span class="small muted" id="info"></span></div>
+      <div class="card"><div class="eyebrow">Questions to test your idea</div><ol class="small" style="margin:6px 0 0 18px;padding:0"><li>Could a simple dashboard do the same job without a twin?</li><li>What breaks if the data arrives two seconds late?</li><li>Which data comes from a different supplier, and how will it be understood?</li><li>Who is accountable when the twin acts on the robot?</li><li>What would the person in the twin agree to, and what not?</li></ol></div>
+    </div>
+  </div>
+</section>
+<section id="t-board">
+  <h2>Class board</h2>
+  <p class="muted">Every team's service, live. Use it for the one minute pitches in the joint discussion.</p>
+  <div class="board" id="board"><p class="muted">No services shared yet.</p></div>
+</section>
+</main>
+<script>
+'use strict';
+class MiniMQTT{constructor(u,o={}){this.url=u;this.o=o;this.buf=new Uint8Array(0);this.subs=[];this.pid=1;this.enc=new TextEncoder();this.dec=new TextDecoder();}
+_s(s){const b=this.enc.encode(s);return[b.length>>8,b.length&255,...b];}_len(n){const o=[];do{let d=n%128;n=Math.floor(n/128);if(n>0)d|=128;o.push(d);}while(n>0);return o;}
+_send(h,b){if(!this.ws||this.ws.readyState!==1)return false;this.ws.send(new Uint8Array([h,...this._len(b.length),...b]));return true;}
+connect(){return new Promise((res,rej)=>{let done=false;const fail=e=>{if(!done){done=true;rej(e);}};try{this.ws=new WebSocket(this.url,['mqtt']);}catch(e){return fail(e);}this.ws.binaryType='arraybuffer';const to=setTimeout(()=>{fail(new Error('timeout'));try{this.ws.close();}catch(e){}},8000);
+this.ws.onopen=()=>{let f=2;const pl=this._s('ml2305-'+Math.random().toString(36).slice(2,10));if(this.o.username){f|=128;pl.push(...this._s(this.o.username));}if(this.o.password){f|=64;pl.push(...this._s(this.o.password));}this._send(0x10,[...this._s('MQTT'),4,f,0,30,...pl]);this._p=setInterval(()=>this._send(0xC0,[]),20000);};
+this.ws.onmessage=ev=>{const d=new Uint8Array(ev.data),nb=new Uint8Array(this.buf.length+d.length);nb.set(this.buf);nb.set(d,this.buf.length);this.buf=nb;for(;;){if(this.buf.length<2)break;let m=1,len=0,i=1,b;do{if(i>=this.buf.length)return;b=this.buf[i++];len+=(b&127)*m;m*=128;}while(b&128);if(this.buf.length<i+len)break;const h=this.buf[0],body=this.buf.slice(i,i+len);this.buf=this.buf.slice(i+len);const t=h>>4;
+if(t===2){clearTimeout(to);if(body[1]===0){done=true;this.subs.forEach(s=>this._sub(s));res();}else fail(new Error('refused'));}else if(t===3){const q=(h>>1)&3,tl=(body[0]<<8)|body[1],topic=this.dec.decode(body.slice(2,2+tl));let p=2+tl;if(q>0)p+=2;this.onmessage&&this.onmessage(topic,this.dec.decode(body.slice(p)));}}};
+this.ws.onerror=()=>fail(new Error('error'));this.ws.onclose=()=>{clearInterval(this._p);this.onstatus&&this.onstatus('closed');fail(new Error('closed'));};});}
+_sub(f){const id=this.pid++&0xffff;this._send(0x82,[id>>8,id&255,...this._s(f),0]);}subscribe(f){if(!this.subs.includes(f))this.subs.push(f);this._sub(f);}
+publish(t,p,r){return this._send(0x30|(r?1:0),[...this._s(t),...this.enc.encode(p)]);}close(){try{this._send(0xE0,[]);this.ws.close();}catch(e){}}}
+
+const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function lsGet(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+const params=new URLSearchParams(location.search);
+const CHALS=[
+ {id:'hrc',t:'Sharing the table',d:'An operator and the UR5e work at the same table. When should the robot slow down, wait or warn?'},
+ {id:'handover',t:'MiR to UR handover',d:'The MiR brings boxes to the robot cell. The UR picks them. Today they do not know about each other.'},
+ {id:'material',t:'Where is my material?',d:'Operators keep walking to check if material has arrived, like in the case factory.'},
+ {id:'energy',t:'Energy in the lab',d:'Robots, AMRs and chargers use energy all day. Where can the lab save without slowing down?'},
+ {id:'training',t:'Safe training',d:'New students must learn to run the lab without damaging robots or hurting anyone.'},
+ {id:'remote',t:'Remote help',d:'The robot stops with an error. The supplier engineer sits in another country.'},
+ {id:'ergo',t:'Picking posture',d:'People pick from the supermarket at low and high levels all day. Who is at risk, and when?'},
+ {id:'layout',t:'Next term layout',d:'The lab layout changes next term. Can the new layout be tested before anything is moved?'}];
+let F=lsGet('sv_form',{chal:'handover'});
+function save(){lsSet('sv_form',F);}
+function renderChals(){$('#chals').innerHTML=CHALS.map(c=>`<div class="chal ${c.id===F.chal?'on':''}" data-id="${c.id}"><b>${esc(c.t)}</b><span class="small">${esc(c.d)}</span></div>`).join('');$$('.chal').forEach(e=>e.onclick=()=>{F.chal=e.dataset.id;save();renderChals();renderPitch();});}
+const FIELDS=['name','user','scope','data','why','effort','value','risk'];
+FIELDS.forEach(k=>{const el=$('#f_'+k);el.value=F[k]||'';el.oninput=()=>{F[k]=el.value;save();renderPitch();};});
+function radios(box,key){$$('#'+box+' label').forEach(l=>{l.classList.toggle('on',F[key]===l.dataset.v);l.onclick=()=>{F[key]=l.dataset.v;save();radios(box,key);renderPitch();};});}
+function pitchHTML(f,team){const c=CHALS.find(x=>x.id===f.chal)||CHALS[0];const lvl={model:'<span class="tag m">model</span>',shadow:'<span class="tag s">shadow</span>',twin:'<span class="tag t">twin</span>'}[f.lv]||'';const eff={S:'small effort',M:'medium effort',L:'large effort'}[f.eff]||'';
+return `<div class="eyebrow">${esc(team||'Your team')} · ${esc(c.t)}</div><h3>${esc(f.name||'Name your service')}</h3><p>${lvl} <span class="tag">${eff||'effort?'}</span></p><p class="small"><b>For.</b> ${esc(f.user||'…')}</p><p class="small"><b>In the twin.</b> ${esc(f.scope||'…')}</p><p class="small"><b>Data.</b> ${esc(f.data||'…')}</p><p class="small"><b>Why this level.</b> ${esc(f.why||'…')}</p><p class="small"><b>Effort goes into.</b> ${esc(f.effort||'…')}</p><p class="small"><b>Value.</b> ${esc(f.value||'…')}</p><p class="small"><b>Risk.</b> ${esc(f.risk||'…')}</p>`;}
+function renderPitch(){$('#pitch').innerHTML=pitchHTML(F,$('#team').value);}
+$('#btnCopy').onclick=()=>{const c=CHALS.find(x=>x.id===F.chal)||CHALS[0];const t=`${F.name||''} (${c.t})\nLevel ${F.lv||'?'}, ${F.eff||'?'} effort\nFor ${F.user||''}\nIn the twin ${F.scope||''}\nData ${F.data||''}\nWhy this level ${F.why||''}\nEffort goes into ${F.effort||''}\nValue ${F.value||''}\nRisk ${F.risk||''}`;(navigator.clipboard&&window.isSecureContext?navigator.clipboard.writeText(t):Promise.resolve()).then(()=>{$('#info').textContent='Copied.';});};
+/* board */
+const BROKERS={emqx:{url:'wss://broker.emqx.io:8084/mqtt'},hivemq:{url:'wss://broker.hivemq.com:8884/mqtt'},mosq:{url:'wss://test.mosquitto.org:8081/'},shiftr:{url:'wss://public.cloud.shiftr.io',username:'public',password:'public'}};
+let client=null;const board={};
+$('#room').value=params.get('room')||lsGet('sv_room','');$('#broker').value=params.get('b')||lsGet('sv_b','emqx');$('#team').value=lsGet('sv_team','');
+$('#team').oninput=()=>{lsSet('sv_team',$('#team').value);renderPitch();};
+const room=()=>($('#room').value.trim()||'demo').replace(/[^\w-]/g,'').toLowerCase();
+$('#btnConn').onclick=async()=>{if(client)client.close();lsSet('sv_room',$('#room').value);lsSet('sv_b',$('#broker').value);const p=params.get('url')?{url:params.get('url')}:BROKERS[$('#broker').value];const c=new MiniMQTT(p.url,p);c.onmessage=(t,m)=>{try{const o=JSON.parse(m);board[o.team||t]=o;renderBoard();}catch(e){}};
+try{await c.connect();client=c;c.subscribe('ml2305/'+room()+'/service/#');$('#dot').className='dot on';$('#btnConn').textContent='Connected';}catch(e){$('#dot').className='dot err';$('#info').textContent='Could not reach the server.';}};
+$('#btnShare').onclick=()=>{const team=$('#team').value.trim();if(!team){$('#info').textContent='Write your team name at the top first.';return;}if(!client){$('#info').textContent='Connect first, top right.';return;}const o=Object.assign({team,t:Date.now()},F);client.publish('ml2305/'+room()+'/service/'+team.replace(/[^\w-]/g,'_'),JSON.stringify(o),true);$('#info').textContent='Shared. See the class board.';};
+function renderBoard(){const v=Object.values(board).sort((a,b)=>a.t-b.t);$('#board').innerHTML=v.length?v.map(o=>`<div class="pitch">${pitchHTML(o,o.team)}</div>`).join(''):'<p class="muted">No services shared yet.</p>';}
+$$('#tabs button').forEach(b=>b.onclick=()=>{$$('#tabs button').forEach(x=>x.classList.toggle('on',x===b));$$('main>section').forEach(s=>s.classList.toggle('on',s.id==='t-'+b.dataset.t));});
+renderChals();radios('lv','lv');radios('eff','eff');renderPitch();
+if(params.get('room'))$('#btnConn').click();
+</script>
+</body>
+</html>
