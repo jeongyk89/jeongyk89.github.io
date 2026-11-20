@@ -382,14 +382,14 @@ const liveBox = () => robotFresh() && Array.isArray(remote.box) && remote.box.le
 const pred = ev => ev.naive + calib.ov * ev.n;
 const name = () => $('#me').value.trim() || (BOARD ? 'board' : PHYS ? 'robot-' + sid.slice(0, 3) : 'twin-' + sid.slice(0, 3));
 const BROKERS = {emqx:{url:'wss://broker.emqx.io:8084/mqtt'}, hivemq:{url:'wss://broker.hivemq.com:8884/mqtt'}, mosq:{url:'wss://test.mosquitto.org:8081/'}, shiftr:{url:'wss://public.cloud.shiftr.io', username:'public', password:'public'}};
-$('#room').value = params.get('room') || lsGet('mt_room', 'teacher'); $('#broker').value = params.get('b') || lsGet('mt_broker', 'emqx'); $('#customUrl').value = params.get('url') || lsGet('mt_url', ''); $('#me').value = lsGet('mt_me', '');
+$('#room').value = params.get('room') || lsGet('mt_room', 'teacher'); $('#broker').value = params.get('b') || lsGet('mt_broker', 'emqx'); $('#customUrl').value = params.get('url') || lsGet('mt_url', ''); $('#me').value = lsGet(BOARD ? 'mt_board_me' : 'mt_me', '');
 $('#broker').onchange = () => $('#customUrl').classList.toggle('hide', $('#broker').value !== 'custom'); $('#broker').onchange();
 const room = () => ($('#room').value.trim() || 'teacher').replace(/[^\w-]/g, '').toLowerCase();
 const T = s => 'ml2305/' + room() + '/' + s;
 function pub(s, o, retain) { if (client) client.publish(T(s), o == null ? '' : JSON.stringify(o), !!retain); }
 $('#btnConn').onclick = async () => {
   if (client) client.close(); client = null;
-  lsSet('mt_room', $('#room').value); lsSet('mt_broker', $('#broker').value); lsSet('mt_url', $('#customUrl').value); lsSet('mt_me', $('#me').value);
+  lsSet('mt_room', $('#room').value); lsSet('mt_broker', $('#broker').value); lsSet('mt_url', $('#customUrl').value); lsSet(BOARD ? 'mt_board_me' : 'mt_me', $('#me').value);
   const b = $('#broker').value, p = b === 'custom' ? {url:$('#customUrl').value.trim()} : BROKERS[b];
   $('#dot').className = 'dot'; $('#btnConn').textContent = 'Connecting…';
   const c = new MiniMQTT(p.url, {username:p.username, password:p.password});
@@ -595,7 +595,7 @@ async function moveToBridge(q) {
     if (!ack) throw new Error('No answer from the bridge.');
     if (ack.ok) break;
     if (/too fast/.test(ack.msg || '') && attempt < 4) { await sleep(400); continue; }
-    throw new Error('The bridge said ' + (ack.msg || 'no') + '.');
+    throw new Error('The bridge said ' + (ack.msg || 'no') + '.' + (/only the teacher/.test(ack.msg || '') ? ` Your name box says “${name()}”. It must match the name after --allow.` : ''));
   }
   const t0 = performance.now();
   for (;;) {
@@ -661,7 +661,7 @@ $('#btnReset').onclick = () => {
 /* ===== chips, timer and render loop ===== */
 function chips() {
   const live = robotFresh(), cr = $('#chipRobot'), cc = $('#chipCopy');
-  if (live) { cr.className = 'chip ok'; cr.textContent = (remote.src === 'sim' ? 'simulated robot online' : remote.src === 'phys' ? (PHYS ? 'your physical robot' : 'physical robot online') : 'real robot online') + (BOARD ? (remote.armed ? ' · armed' : ' · not armed') : ''); if (BOARD && !remote.armed) cr.className = 'chip warn'; }
+  if (live) { cr.className = 'chip ok'; cr.textContent = (remote.src === 'sim' ? 'simulated robot online' : remote.src === 'phys' ? (PHYS ? 'your physical robot' : 'physical robot online') : 'real robot online') + (BOARD ? (remote.armed ? ' · armed' : ' · not armed') : ''); if (BOARD && !remote.armed) cr.className = 'chip warn'; if (BOARD && remote.armed && /not armed/.test($('#phase').textContent)) phase('Armed. Tap Run best plan twice.'); }
   else { cr.className = 'chip ' + (client ? 'bad' : ''); cr.textContent = client ? 'no robot in this room' : 'not connected'; }
   if (PHYS) physWarn();
   if (DASH) { const n = Object.values(twins).filter(t => performance.now() - t.at < 12000).length; cc.className = 'chip'; cc.textContent = `${n} twin${n === 1 ? '' : 's'} online`; }
@@ -683,7 +683,7 @@ if (DASH) {
   renderJoin(); renderWorld(); setInterval(renderBoard, 1000); renderBoard();
 }
 else { renderPlan(); renderMine(); $('#toPhys').onclick = e => { e.preventDefault(); goRole('phys'); }; }
-function goRole(r) { const q = new URLSearchParams(location.search); q.set('room', room()); q.set('b', $('#broker').value); if ($('#broker').value === 'custom') q.set('url', $('#customUrl').value); if (r) q.set('role', r); else q.delete('role'); q.delete('board'); lsSet('mt_me', $('#me').value); location.search = q.toString(); }
+function goRole(r) { const q = new URLSearchParams(location.search); q.set('room', room()); q.set('b', $('#broker').value); if ($('#broker').value === 'custom') q.set('url', $('#customUrl').value); if (r) q.set('role', r); else q.delete('role'); q.delete('board'); lsSet(BOARD ? 'mt_board_me' : 'mt_me', $('#me').value); location.search = q.toString(); }
 let shown = HOME.slice(), last = performance.now();
 function animQ(now) {
   const a = anim, t = (now - a.t0) / 1000 * a.speed, pre = a.pre ? a.pre.dur : 0;
