@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Many twins · ML2305 Lab 3</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23004791'/%3E%3Cpath d='M9 26h10M14 26V19l6-7 5 3' stroke='%23fff' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script type="importmap">{"imports":{"three":"./three.module.min.js"}}</script>
+<style>
+:root{--ink:#16212e;--muted:#4a5563;--bg:#f4f3ee;--line:#d6dce3;--kth:#004791;--navy:#000061;--soft:#e6eef8;--orange:#b04512}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.45}
+button,input,select{font:inherit;color:inherit}
+button{touch-action:manipulation}
+header{background:var(--navy);color:#fff;padding:12px 16px}
+.top{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+h1{font-size:19px;margin:0}.sub{font-size:13px;color:#c9d7ea}
+.conn{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.conn input,.conn select{background:#fff;color:var(--ink);border:0;border-radius:8px;padding:6px 8px}
+.dot{width:11px;height:11px;border-radius:99px;background:#9aa6b2;display:inline-block}.dot.on{background:#2fbf71}.dot.err{background:#e5484d}
+main{max-width:1320px;margin:0 auto;padding:14px;display:grid;grid-template-columns:1.15fr 1fr;gap:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+#view{position:relative;height:min(540px,58vh);min-height:380px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(#0b1840,#132a63);margin-bottom:12px}
+#view canvas{display:block;width:100%;height:100%}
+.overlay{position:absolute;left:10px;top:10px;right:10px;display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700;border:1px solid var(--line)}
+.chip.ok{background:#e5f3ea;border-color:#b9dfc8}.chip.bad{background:#fae6e4;border-color:#efc2bd}.chip.warn{background:#fbf2dc;border-color:#ecd9a4}
+.legend{position:absolute;left:10px;bottom:10px;background:rgba(255,255,255,.92);border-radius:10px;padding:6px 10px;font-size:12px}
+.timer{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.6);color:#fff;border-radius:10px;padding:8px 12px;font-weight:800;font-size:18px;text-align:right;line-height:1.25}
+.timer small{display:block;font-size:12px;font-weight:600;opacity:.8}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:var(--kth)}
+.muted{color:var(--muted)}.small{font-size:13px}
+.what{background:var(--soft);border-radius:10px;padding:10px 12px;font-size:14px;margin:10px 0}
+.btn{background:var(--kth);color:#fff;border:0;border-radius:10px;padding:9px 13px;font-weight:700;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--kth);border:1.5px solid var(--kth)}
+.btn.go{background:#1f9d5a}.btn.stop{background:#c4422b}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.big{width:100%;margin-top:14px;padding:13px;font-size:17px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.lbl{font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin:12px 0 6px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opts button{border:2px solid var(--line);background:#fbfaf7;border-radius:12px;padding:8px 10px;cursor:pointer;text-align:left}
+.opts button b{display:block;font-size:15px}.opts button span{font-size:12px;color:var(--muted)}
+.opts button.on{border-color:var(--kth);background:var(--soft)}
+.seg{display:flex;border:1.5px solid var(--kth);border-radius:10px;overflow:hidden}
+.seg button{flex:1;border:0;background:#fff;color:var(--kth);padding:8px 6px;font-weight:700;cursor:pointer;border-left:1px solid #c9d6e8}
+.seg button:first-child{border-left:0}
+.seg button.on{background:var(--kth);color:#fff}
+.seg button:disabled{opacity:.35;cursor:not-allowed}
+.res{font-size:18px;font-weight:800;margin:6px 0 2px}
+.res.ok{color:#14633a}.res.bad{color:#b3321f}.res.warn{color:#8a5a00}
+.flow{list-style:none;margin:6px 0 0;padding:0}
+.flow li{display:flex;gap:8px;align-items:center;padding:3px 0;font-size:14px}
+.flow li i{flex:0 0 18px;height:18px;border-radius:99px;background:#e3e7ec;display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:11px;color:#fff;font-weight:800}
+.flow li.on i{background:#2fbf71}.flow li.on i::after{content:'✓'}
+.banner{border-radius:10px;padding:10px 12px;margin-top:10px;background:#fbf2dc;border:1px solid #ecd9a4;font-weight:700;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
+.stat{border:1px solid var(--line);border-radius:12px;padding:8px 4px;text-align:center;background:#fbfaf7}
+.stat b{display:block;font-size:30px;line-height:1.1}.stat span{font-size:12px;color:var(--muted)}
+.stat.bad b{color:#c4422b}.stat.warn b{color:#b07a00}
+.heat{display:grid;grid-template-columns:104px repeat(6,1fr);gap:4px;margin:8px 0}
+.heat .hd{font-size:12px;font-weight:800;color:var(--muted);text-align:center}
+.heat .rl{font-size:13px;font-weight:700;display:flex;align-items:center}
+.cell{border-radius:8px;min-height:42px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:800;font-size:14px;background:#eef0f3;color:#a3adb8;cursor:pointer;border:2px solid transparent;line-height:1.1}
+.cell small{font-size:10px;font-weight:700;opacity:.85}
+.cell.ok{background:#dff3e7;color:#14633a}.cell.bad{background:#fae6e4;color:#a3321f}.cell.range{background:#fbf2dc;color:#8a5a00}
+.cell.best{border-color:#e0a800;background:#fff3c4;color:#6b4e00}
+.cell.sel{outline:3px solid var(--kth);outline-offset:1px}
+.cell.span{grid-column:span 6}
+table.runs{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}
+table.runs th,table.runs td{text-align:left;padding:4px 6px;border-bottom:1px solid var(--line)}
+.join{display:flex;gap:14px;align-items:center;margin-top:10px}
+.join img{width:120px;height:120px;border-radius:8px;border:1px solid var(--line)}
+.join b{font-size:17px;word-break:break-all}
+.hide{display:none!important}
+.is-board .student-only,.is-student .board-only{display:none!important}
+@media(max-width:920px){
+  main{display:flex;flex-direction:column;padding:10px}
+  .col{display:contents}
+  #view{order:1;height:36vh;min-height:220px;max-height:400px}
+  .is-student #view{position:sticky;top:0;z-index:5;box-shadow:0 6px 18px rgba(0,0,40,.25)}
+  #planCard{order:2}#resCard{order:3}#flowCard{order:4}
+  #runCard{order:2}#statCard{order:3}#heatCard{order:4}#calCard{order:5}
+  .card{padding:12px}
+  .stats{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:920px) and (max-height:700px){#view{height:33vh;min-height:200px}}
+.verdict{position:absolute;left:50%;bottom:46px;transform:translateX(-50%);border-radius:12px;padding:8px 14px;font-weight:800;font-size:18px;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.3);white-space:nowrap}
+.verdict.ok{color:#14633a}.verdict.bad{color:#b3321f}.verdict.warn{color:#8a5a00}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div><h1 id="ttl">Many twins</h1><div class="sub" id="sub">ML2305 Lab 3 · test plans on your own copy of the robot</div></div>
+    <div class="conn">
+      <span class="dot" id="dot"></span>
+      <input id="room" size="9" placeholder="room code" title="The room code on the screen">
+      <select id="broker"><option value="emqx">Server A (EMQX)</option><option value="hivemq">Server B (HiveMQ)</option><option value="mosq">Server C (Mosquitto)</option><option value="shiftr">Server D (shiftr, port 443)</option><option value="custom">Own server URL</option></select>
+      <input id="customUrl" class="hide" size="22" placeholder="ws://192.168.1.10:9001">
+      <input id="me" size="8" placeholder="your name">
+      <button class="btn" id="btnConn">Connect</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="col">
+    <div id="view">
+      <div class="overlay"><span class="chip" id="chipRobot">not connected</span><span class="chip" id="chipCopy">your copy</span></div>
+      <div class="legend" id="legend"></div>
+      <div class="timer hide" id="timer"></div>
+      <div class="verdict hide" id="verdict"></div>
+    </div>
+    <div class="card board-only" id="runCard">
+      <div class="eyebrow">Run on the real robot</div>
+      <div class="what" id="bestLine">No working plan yet. Ask the class to test plans.</div>
+      <div class="row"><button class="btn go" id="btnRun" disabled>Run best plan</button><button class="btn stop" id="btnStop">Stop</button><span class="small" id="phase"></span></div>
+      <div class="small" id="lastRun" style="margin-top:8px"></div>
+      <div class="small muted" style="margin-top:8px">The bridge must be armed, and the name box must match the name after <code>--allow</code>. Only plans that worked in the twins can be sent.</div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="card student-only" id="planCard">
+      <div class="eyebrow">Your plan</div>
+      <div class="what small">Move the tool from the <b style="color:#1f6fd1">blue</b> stand to the <b style="color:#1f9d5a">green</b> stand without touching the <b style="color:#c4422b">red</b> block. Try ideas on your copy first. Only the best plan of the class goes to the real robot.</div>
+      <div class="lbl">Route</div>
+      <div class="opts" id="optRoute">
+        <button data-v="direct"><b>Straight</b><span>the shortest way</span></button>
+        <button data-v="over"><b>Over</b><span>lift over the block</span></button>
+        <button data-v="front"><b>Around the front</b><span>swing out, away from the robot</span></button>
+        <button data-v="back"><b>Around the back</b><span>tuck in, close to the robot</span></button>
+      </div>
+      <div class="lbl">Corners</div>
+      <div class="seg" id="optCorner"><button data-v="square">Square, stop at each corner</button><button data-v="cut">Cut, one diagonal</button></div>
+      <div class="lbl">Height of the route</div>
+      <div class="seg" id="optH"></div>
+      <button class="btn big" id="btnTest">Test in my copy</button>
+    </div>
+    <div class="card student-only" id="resCard">
+      <div class="eyebrow">Result</div>
+      <div class="res" id="res">Pick a plan and test it.</div>
+      <div class="small muted" id="resSmall"></div>
+      <div class="small" id="mine" style="margin-top:8px"></div>
+      <div class="small" id="classSum"></div>
+      <div class="banner hide" id="runBanner"></div>
+    </div>
+    <div class="card student-only" id="flowCard">
+      <div class="eyebrow">What your copy gets from the real robot</div>
+      <ul class="flow">
+        <li id="fPose"><i></i>Where the robot is right now</li>
+        <li id="fBox"><i></i>The safe range of every joint</li>
+        <li id="fCal"><i></i><span id="fCalText">Timing learned from real runs</span></li>
+      </ul>
+      <div class="eyebrow" style="margin-top:10px">What the real robot gets from the copies</div>
+      <div class="small">One plan, the fastest one that worked in the copies. Plans that hit the block never reach it.</div>
+    </div>
+
+    <div class="card board-only" id="statCard">
+      <div class="eyebrow">Many twins, one robot</div>
+      <div class="stats">
+        <div class="stat"><b id="sTwins">0</b><span>twins online</span></div>
+        <div class="stat"><b id="sTested">0</b><span id="sTestedL">of 37 plans tested</span></div>
+        <div class="stat"><b id="sTests">0</b><span>tests run</span></div>
+        <div class="stat bad"><b id="sHit">0</b><span>would hit something</span></div>
+        <div class="stat warn"><b id="sRange">0</b><span>outside the safe range</span></div>
+      </div>
+      <div class="small muted" id="saved" style="margin-top:8px"></div>
+    </div>
+    <div class="card board-only" id="heatCard">
+      <div class="eyebrow">What the class found</div>
+      <div class="heat" id="heat"></div>
+      <div class="small muted">Times are what the twins predict. Tap a cell to preview that plan.</div>
+    </div>
+    <div class="card board-only" id="calCard">
+      <div class="eyebrow">What the twins learned from the real robot</div>
+      <div class="what" id="calLine"></div>
+      <table class="runs" id="runsTbl"></table>
+      <div class="join"><img src="many_qr.png" alt="" onerror="this.remove()"><div class="small">Students open<br><b id="url"></b><br>room <b id="roomShow"></b></div></div>
+      <div class="row" style="margin-top:10px"><button class="btn ghost" id="btnReset">Clear class results</button></div>
+    </div>
+  </div>
+</main>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from './OrbitControls.js';
+
+/* ===== minimal MQTT 3.1.1 client over WebSocket ===== */
+class MiniMQTT {
+  constructor(url, o = {}) { this.url = url; this.o = o; this.buf = new Uint8Array(0); this.subs = []; this.pid = 1; this.enc = new TextEncoder(); this.dec = new TextDecoder(); }
+  _s(str) { const b = this.enc.encode(str); return [b.length >> 8, b.length & 255, ...b]; }
+  _len(n) { const o = []; do { let d = n % 128; n = Math.floor(n / 128); if (n > 0) d |= 128; o.push(d); } while (n > 0); return o; }
+  _send(h, body) { if (!this.ws || this.ws.readyState !== 1) return false; this.ws.send(new Uint8Array([h, ...this._len(body.length), ...body])); return true; }
+  connect() { return new Promise((res, rej) => { let done = false; const fail = e => { if (!done) { done = true; rej(e); } };
+    try { this.ws = new WebSocket(this.url, ['mqtt']); } catch (e) { return fail(e); }
+    this.ws.binaryType = 'arraybuffer'; const to = setTimeout(() => { fail(new Error('timeout')); try { this.ws.close(); } catch (e) {} }, 8000);
+    this.ws.onopen = () => { let f = 0x02; const pl = this._s('ml2305-' + Math.random().toString(36).slice(2, 10)); if (this.o.username) { f |= 0x80; pl.push(...this._s(this.o.username)); } if (this.o.password) { f |= 0x40; pl.push(...this._s(this.o.password)); } this._send(0x10, [...this._s('MQTT'), 4, f, 0, 30, ...pl]); this._ping = setInterval(() => this._send(0xC0, []), 20000); };
+    this.ws.onmessage = ev => { const d = new Uint8Array(ev.data), nb = new Uint8Array(this.buf.length + d.length); nb.set(this.buf); nb.set(d, this.buf.length); this.buf = nb;
+      for (;;) { if (this.buf.length < 2) break; let m = 1, len = 0, i = 1, b; do { if (i >= this.buf.length) return; b = this.buf[i++]; len += (b & 127) * m; m *= 128; } while (b & 128); if (this.buf.length < i + len) break;
+        const h = this.buf[0], body = this.buf.slice(i, i + len); this.buf = this.buf.slice(i + len); const t = h >> 4;
+        if (t === 2) { clearTimeout(to); if (body[1] === 0) { done = true; this.subs.forEach(s => this._sub(s)); res(); this.onstatus && this.onstatus('on'); } else fail(new Error('refused')); }
+        else if (t === 3) { const q = (h >> 1) & 3, tl = (body[0] << 8) | body[1], topic = this.dec.decode(body.slice(2, 2 + tl)); let p = 2 + tl; if (q > 0) { const id = [body[p], body[p + 1]]; p += 2; if (q === 1) this._send(0x40, id); } this.onmessage && this.onmessage(topic, this.dec.decode(body.slice(p))); } } };
+    this.ws.onerror = () => { fail(new Error('error')); this.onstatus && this.onstatus('err'); };
+    this.ws.onclose = () => { clearInterval(this._ping); this.onstatus && this.onstatus(done ? 'closed' : 'err'); fail(new Error('closed')); }; }); }
+  _sub(f) { const id = this.pid++ & 0xffff; this._send(0x82, [id >> 8, id & 255, ...this._s(f), 0]); }
+  subscribe(f) { if (!this.subs.includes(f)) this.subs.push(f); this._sub(f); }
+  publish(t, p, retain) { return this._send(retain ? 0x31 : 0x30, [...this._s(t), ...this.enc.encode(p)]); }
+  close() { try { this._send(0xE0, []); this.ws.close(); } catch (e) {} }
+}
+
+const $ = s => document.querySelector(s), $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const params = new URLSearchParams(location.search);
+const BOARD = !!params.get('board');
+document.body.classList.add(BOARD ? 'is-board' : 'is-student');
+function lsGet(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* ===== UR5e kinematics, tool pointing down (same as the robot twin page) ===== */
+const DH = [[0, .1625, Math.PI / 2], [-.425, 0, 0], [-.3922, 0, 0], [0, .1333, Math.PI / 2], [0, .0997, -Math.PI / 2], [0, .0996, 0]];
+const TOOL = .12, HOME = [0, -Math.PI / 2, Math.PI / 2, -Math.PI / 2, -Math.PI / 2, 0];
+function fk(q) { let T = new THREE.Matrix4(); const out = [T.clone()]; for (let i = 0; i < 6; i++) { const [a, d, al] = DH[i], ct = Math.cos(q[i]), st = Math.sin(q[i]), ca = Math.cos(al), sa = Math.sin(al); const A = new THREE.Matrix4().set(ct, -st * ca, st * sa, a * ct, st, ct * ca, -ct * sa, a * st, 0, sa, ca, d, 0, 0, 0, 1); T = T.clone().multiply(A); out.push(T); } return out; }
+const wrist = (q1, q2, q3, q6) => [q1, q2, q3, -(q2 + q3) - Math.PI / 2, -Math.PI / 2, q6];
+const zAxis = T => new THREE.Vector3(0, 0, 1).applyMatrix4(new THREE.Matrix4().extractRotation(T)).normalize();
+function tcp(q) { const T = fk(q)[6]; return new THREE.Vector3().setFromMatrixPosition(T).addScaledVector(zAxis(T), TOOL); }
+function ik(target, q0) {
+  const q = [q0[0], q0[1], q0[2]], f = qq => tcp(wrist(qq[0], qq[1], qq[2], q0[5]));
+  for (let it = 0; it < 80; it++) {
+    const p = f(q), e = [target[0] - p.x, target[1] - p.y, target[2] - p.z];
+    if (Math.hypot(...e) < 2e-4) return wrist(q[0], q[1], q[2], q0[5]);
+    const J = [[0, 0, 0], [0, 0, 0], [0, 0, 0]], h = 1e-5;
+    for (let j = 0; j < 3; j++) { const qq = q.slice(); qq[j] += h; const pp = f(qq); J[0][j] = (pp.x - p.x) / h; J[1][j] = (pp.y - p.y) / h; J[2][j] = (pp.z - p.z) / h; }
+    const A = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]; for (let i = 0; i < 3; i++) for (let k = 0; k < 3; k++) { let s = 0; for (let j = 0; j < 3; j++) s += J[i][j] * J[k][j]; A[i][k] = s + (i === k ? 1e-4 : 0); }
+    const det = A[0][0] * (A[1][1] * A[2][2] - A[1][2] * A[2][1]) - A[0][1] * (A[1][0] * A[2][2] - A[1][2] * A[2][0]) + A[0][2] * (A[1][0] * A[2][1] - A[1][1] * A[2][0]);
+    if (Math.abs(det) < 1e-12) return null;
+    const inv = [[(A[1][1] * A[2][2] - A[1][2] * A[2][1]) / det, -(A[0][1] * A[2][2] - A[0][2] * A[2][1]) / det, (A[0][1] * A[1][2] - A[0][2] * A[1][1]) / det], [-(A[1][0] * A[2][2] - A[1][2] * A[2][0]) / det, (A[0][0] * A[2][2] - A[0][2] * A[2][0]) / det, -(A[0][0] * A[1][2] - A[0][2] * A[1][0]) / det], [(A[1][0] * A[2][1] - A[1][1] * A[2][0]) / det, -(A[0][0] * A[2][1] - A[0][1] * A[2][0]) / det, (A[0][0] * A[1][1] - A[0][1] * A[1][0]) / det]];
+    const y = [0, 0, 0]; for (let i = 0; i < 3; i++) for (let k = 0; k < 3; k++) y[i] += inv[i][k] * e[k];
+    const dq = [0, 0, 0]; for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) dq[j] += J[i][j] * y[i];
+    const n = Math.hypot(...dq), sc = n > .3 ? .3 / n : 1; for (let j = 0; j < 3; j++) q[j] += dq[j] * sc;
+  }
+  return null;
+}
+
+/* ===== the task: blue stand to green stand around a keep out block ===== */
+const V = .35;                                   // joint speed of the bridge, rad/s
+const ZP = .22, PA = [-.45, .10, ZP], PB = [-.45, -.30, ZP];   // blue start, green goal
+const BLK = {x:[-.56, -.34], y:[-.20, 0], z:[0, .30]};
+const XF = BLK.x[0] - .10, XB = BLK.x[1] + .10, SAFEZ = .52;
+const HS = [22, 28, 34, 40, 46, 52];
+const ROWS = [['direct', '-', 'Straight'], ['over', 'square', 'Over, square'], ['over', 'cut', 'Over, cut'], ['front', 'square', 'Front, square'], ['front', 'cut', 'Front, cut'], ['back', 'square', 'Back, square'], ['back', 'cut', 'Back, cut']];
+const KEYS = ['direct'].concat(...ROWS.slice(1).map(([r, c]) => HS.map(h => `${r}-${c}-${h}`)));
+const RNAME = {direct:'Straight', over:'Over the block', front:'Around the front', back:'Around the back'};
+const DEFBOX = HOME.map(h => [h - Math.PI / 4, h + Math.PI / 4]);
+function parseKey(k) { if (k === 'direct') return {r:'direct', c:'-', h:22}; const [r, c, h] = k.split('-'); return {r, c, h:+h}; }
+function label(k) { const p = parseKey(k); return p.r === 'direct' ? 'Straight' : `${RNAME[p.r]}, ${p.c} corners, ${p.h} cm`; }
+function waypoints(k) {
+  const {r, c, h} = parseKey(k), z = h / 100, mid = [(PA[0] + PB[0]) / 2, (PA[1] + PB[1]) / 2];
+  if (r === 'direct') return [PA, PB];
+  if (r === 'over') return c === 'square' ? [PA, [PA[0], PA[1], z], [PB[0], PB[1], z], PB] : [PA, [mid[0], mid[1], z], PB];
+  const xv = r === 'front' ? XF : XB;
+  return c === 'square' ? [PA, [xv, PA[1], z], [xv, PB[1], z], PB] : [PA, [xv, mid[1], z], PB];
+}
+const lerpQ = (a, b, f) => a.map((v, j) => v + (b[j] - v) * f);
+const maxAbs = (a, b) => Math.max(...a.map((v, j) => Math.abs(b[j] - v)));
+const inBox = (q, box) => q.every((v, j) => v >= box[j][0] - 1e-6 && v <= box[j][1] + 1e-6);
+function bodyPoints(q) {
+  const T = fk(q), O = T.map(t => new THREE.Vector3().setFromMatrixPosition(t)), z6 = zAxis(T[6]);
+  const tip = O[6].clone().addScaledVector(z6, TOOL);
+  const P = [[tip, .03], [O[6].clone().addScaledVector(z6, TOOL * .33), .035], [O[6].clone().addScaledVector(z6, TOOL * .66), .035], [O[6], .045]];
+  for (const [i, j, r] of [[5, 6, .045], [4, 5, .045], [3, 4, .05], [2, 3, .045], [1, 2, .055]]) for (const s of [0, .5, 1]) P.push([O[i].clone().lerp(O[j], s), r]);
+  return {P, tip};
+}
+function hits(q) {
+  const {P, tip} = bodyPoints(q);
+  if (tip.z < .02) return {why:'table', p:tip};
+  for (const [p, r] of P) if (p.x >= BLK.x[0] - r && p.x <= BLK.x[1] + r && p.y >= BLK.y[0] - r && p.y <= BLK.y[1] + r && p.z >= BLK.z[0] - r && p.z <= BLK.z[1] + r) return {why:'block', p};
+  return null;
+}
+function evaluate(k, box) {
+  const W = waypoints(k), qs = []; let seed = HOME;
+  for (const w of W) { const q = ik(w, seed); if (!q) return {key:k, ok:false, why:'reach', mark:w}; qs.push(q); seed = q; }
+  for (let i = 0; i < qs.length; i++) for (let j = 0; j < 6; j++) if (qs[i][j] < box[j][0] - 1e-6 || qs[i][j] > box[j][1] + 1e-6) return {key:k, ok:false, why:'range', joint:j + 1, mark:W[i], qs};
+  const segs = [], trace = []; let naive = 0;
+  for (let i = 0; i < qs.length - 1; i++) {
+    const a = qs[i], b = qs[i + 1], tn = maxAbs(a, b) / V;
+    for (let s = 0; s <= 24; s++) {
+      const f = s / 24, q = lerpQ(a, b, f), h = hits(q), p = tcp(q); trace.push([p.x, p.y, p.z]);
+      if (h) return {key:k, ok:false, why:h.why, mark:[h.p.x, h.p.y, h.p.z], qs, segs:segs.concat([{a, b, tn}]), hitSeg:i, hitFrac:f, naive:naive + tn * f, trace};
+    }
+    segs.push({a, b, tn}); naive += tn;
+  }
+  return {key:k, ok:true, qs, segs, naive, n:segs.length, trace};
+}
+/* a timeline waits ov seconds before every move, then moves at constant joint speed */
+function makeTimeline(ev, ov) {
+  const parts = []; let t = 0; const upto = ev.ok ? ev.segs.length : ev.hitSeg + 1;
+  for (let i = 0; i < upto; i++) {
+    const s = ev.segs[i], frac = !ev.ok && i === ev.hitSeg ? ev.hitFrac : 1;
+    if (ov > 0) { parts.push({a:s.a, b:s.a, t0:t, t1:t + ov}); t += ov; }
+    parts.push({a:s.a, b:lerpQ(s.a, s.b, frac), t0:t, t1:t + s.tn * frac}); t += s.tn * frac;
+  }
+  return {parts, dur:t, q0:ev.qs[0]};
+}
+function qAt(tl, t) { for (const p of tl.parts) if (t <= p.t1) return p.t1 > p.t0 ? lerpQ(p.a, p.b, Math.max(0, t - p.t0) / (p.t1 - p.t0)) : p.b.slice(); const l = tl.parts[tl.parts.length - 1]; return l ? l.b.slice() : tl.q0.slice(); }
+
+/* ===== scene ===== */
+const view = $('#view');
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true}); renderer.setPixelRatio(Math.min(2, devicePixelRatio)); view.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(40, 1, .01, 50);
+const controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
+{ const tg = new THREE.Vector3(-.34, .24, .08), off = new THREE.Vector3(-1.16, .66, -.38).multiplyScalar(view.clientWidth / Math.max(1, view.clientHeight) < 1.3 ? 1.2 : 1); controls.target.copy(tg); camera.position.copy(tg).add(off); }
+window.__view = {camera, controls};
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.1)); const sun = new THREE.DirectionalLight(0xffffff, 1.2); sun.position.set(1, 3, 2); scene.add(sun);
+const root = new THREE.Group(); root.rotation.x = -Math.PI / 2; scene.add(root);
+const grid = new THREE.GridHelper(3, 30, 0x3d5fa8, 0x2a4580); grid.position.y = -.001; scene.add(grid);
+const table = new THREE.Mesh(new THREE.BoxGeometry(1.15, .9, .03), new THREE.MeshStandardMaterial({color:0x24427e, transparent:true, opacity:.6})); table.position.set(-.33, -.05, -.016); root.add(table);
+const blkGeo = new THREE.BoxGeometry(BLK.x[1] - BLK.x[0], BLK.y[1] - BLK.y[0], BLK.z[1] - BLK.z[0]);
+const blkMesh = new THREE.Mesh(blkGeo, new THREE.MeshStandardMaterial({color:0xe5484d, transparent:true, opacity:.45, depthWrite:false}));
+blkMesh.position.set((BLK.x[0] + BLK.x[1]) / 2, (BLK.y[0] + BLK.y[1]) / 2, (BLK.z[0] + BLK.z[1]) / 2); root.add(blkMesh);
+const blkEdge = new THREE.LineSegments(new THREE.EdgesGeometry(blkGeo), new THREE.LineBasicMaterial({color:0xff9a90})); blkEdge.position.copy(blkMesh.position); root.add(blkEdge);
+function stand(p, color) {
+  const m = new THREE.MeshStandardMaterial({color, roughness:.5});
+  const post = new THREE.Mesh(new THREE.CylinderGeometry(.008, .008, p[2] - .015, 12), m); post.rotation.x = Math.PI / 2; post.position.set(p[0], p[1], (p[2] - .015) / 2); root.add(post);
+  const disc = new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .01, 32), m); disc.rotation.x = Math.PI / 2; disc.position.set(p[0], p[1], p[2] - .02); root.add(disc);
+}
+stand(PA, 0x4ea3ff); stand(PB, 0x2fbf71);
+const traceMats = {run:new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:.75}), ok:new THREE.MeshBasicMaterial({color:0x41d67a}), bad:new THREE.MeshBasicMaterial({color:0xff5a4f}), warn:new THREE.MeshBasicMaterial({color:0xffc24d})};
+const markMesh = new THREE.Mesh(new THREE.SphereGeometry(.024, 20, 14), new THREE.MeshBasicMaterial({color:0xff3b30})); markMesh.visible = false; root.add(markMesh);
+let traceMesh = null;
+function showTrace(ev, stage) {
+  if (traceMesh) { root.remove(traceMesh); traceMesh.geometry.dispose(); traceMesh = null; }
+  markMesh.visible = false; if (!ev) return;
+  const pts = []; for (const p of ev.trace || []) { const v = new THREE.Vector3(p[0], p[1], p[2]); if (!pts.length || pts[pts.length - 1].distanceTo(v) > 1e-4) pts.push(v); }
+  if (pts.length > 1) { traceMesh = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, 'centripetal'), Math.min(500, pts.length * 4), .006, 8, false), stage === 'run' ? traceMats.run : ev.ok ? traceMats.ok : traceMats.bad); root.add(traceMesh); }
+  if (stage !== 'run' && !ev.ok && ev.mark) { markMesh.position.set(ev.mark[0], ev.mark[1], ev.mark[2]); markMesh.material.color.set(ev.why === 'range' || ev.why === 'reach' ? 0xffb020 : 0xff3b30); markMesh.visible = true; }
+}
+function makeArm(ghost) {
+  const g = new THREE.Group(); root.add(g);
+  const mLink = ghost ? new THREE.MeshStandardMaterial({color:0xe07b39, transparent:true, opacity:.38, depthWrite:false}) : new THREE.MeshStandardMaterial({color:0xd5dae1, metalness:.2, roughness:.45});
+  const mJoint = ghost ? mLink : new THREE.MeshStandardMaterial({color:0x5b6b80, metalness:.3, roughness:.4});
+  const mCap = ghost ? mLink : new THREE.MeshStandardMaterial({color:0x2f8fd8, roughness:.5});
+  const links = [], joints = [], caps = [], lr = [.055, .045, .038, .033, .033, .03], jr = [.075, .068, .055, .045, .045, .042];
+  for (let i = 0; i < 6; i++) { links.push(new THREE.Mesh(new THREE.CylinderGeometry(lr[i], lr[i], 1, 24), mLink)); joints.push(new THREE.Mesh(new THREE.CylinderGeometry(jr[i], jr[i], jr[i] * 2.1, 28), mJoint)); caps.push(new THREE.Mesh(new THREE.CylinderGeometry(jr[i] * .82, jr[i] * .82, jr[i] * 2.16, 28), mCap)); }
+  links.concat(joints, caps).forEach(m => g.add(m));
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(.09, .1, .06, 32), mJoint); base.rotation.x = Math.PI / 2; base.position.z = .03; g.add(base);
+  const mFinger = ghost ? mLink : new THREE.MeshStandardMaterial({color:0x333a44});
+  const palm = new THREE.Mesh(new THREE.BoxGeometry(.08, .03, .03), mFinger), f1 = new THREE.Mesh(new THREE.BoxGeometry(.012, .02, .07), mFinger), f2 = f1.clone();
+  const hand = new THREE.Group(); hand.add(palm, f1, f2); g.add(hand);
+  const up = new THREE.Vector3(0, 1, 0);
+  function place(mesh, a, b) { const dir = new THREE.Vector3().subVectors(b, a); const L = dir.length(); mesh.visible = L > 1e-4; if (!mesh.visible) return; mesh.position.copy(a).addScaledVector(dir, .5); mesh.quaternion.setFromUnitVectors(up, dir.normalize()); mesh.scale.set(1, L, 1); }
+  function set(q) {
+    const T = fk(q), O = T.map(t => new THREE.Vector3().setFromMatrixPosition(t));
+    for (let i = 0; i < 6; i++) { place(links[i], O[i], O[i + 1]); const z = zAxis(T[i]); joints[i].position.copy(O[i]); joints[i].quaternion.setFromUnitVectors(up, z); caps[i].position.copy(O[i]); caps[i].quaternion.copy(joints[i].quaternion); caps[i].visible = !ghost; }
+    const z6 = zAxis(T[6]); hand.position.copy(O[6]).addScaledVector(z6, .015); hand.quaternion.setFromRotationMatrix(new THREE.Matrix4().extractRotation(T[6]));
+    f1.position.set(-.05, 0, .05); f2.position.set(.05, 0, .05);
+  }
+  return {g, set};
+}
+const arm = makeArm(false), ghost = makeArm(true); ghost.g.visible = false;
+function resize() { const w = view.clientWidth, h = view.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+new ResizeObserver(resize).observe(view); resize();
+$('#legend').innerHTML = BOARD ? '<b style="color:#8a96a8">■</b> real robot &nbsp;<b style="color:#e07b39">■</b> twin prediction &nbsp;<b style="color:#e5484d">■</b> keep out' : '<b style="color:#8a96a8">■</b> your copy &nbsp;<b style="color:#e07b39">■</b> real robot now &nbsp;<b style="color:#e5484d">■</b> keep out';
+
+/* ===== shared state ===== */
+let connectedAt = 0, client = null, remote = null, remoteAt = 0, calib = {ov:0, runs:[]}, anim = null;
+const sid = lsGet('mt_sid', null) || (() => { const s = Math.random().toString(36).slice(2, 8); lsSet('mt_sid', s); return s; })();
+const robotFresh = () => !!remote && performance.now() - remoteAt < 2500;
+const liveBox = () => robotFresh() && Array.isArray(remote.box) && remote.box.length === 6 ? remote.box : DEFBOX;
+const pred = ev => ev.naive + calib.ov * ev.n;
+const name = () => $('#me').value.trim() || (BOARD ? 'board' : 'twin-' + sid.slice(0, 3));
+const BROKERS = {emqx:{url:'wss://broker.emqx.io:8084/mqtt'}, hivemq:{url:'wss://broker.hivemq.com:8884/mqtt'}, mosq:{url:'wss://test.mosquitto.org:8081/'}, shiftr:{url:'wss://public.cloud.shiftr.io', username:'public', password:'public'}};
+$('#room').value = params.get('room') || lsGet('mt_room', 'teacher'); $('#broker').value = params.get('b') || lsGet('mt_broker', 'emqx'); $('#customUrl').value = params.get('url') || lsGet('mt_url', ''); $('#me').value = lsGet('mt_me', '');
+$('#broker').onchange = () => $('#customUrl').classList.toggle('hide', $('#broker').value !== 'custom'); $('#broker').onchange();
+const room = () => ($('#room').value.trim() || 'teacher').replace(/[^\w-]/g, '').toLowerCase();
+const T = s => 'ml2305/' + room() + '/' + s;
+function pub(s, o, retain) { if (client) client.publish(T(s), o == null ? '' : JSON.stringify(o), !!retain); }
+$('#btnConn').onclick = async () => {
+  if (client) client.close(); client = null;
+  lsSet('mt_room', $('#room').value); lsSet('mt_broker', $('#broker').value); lsSet('mt_url', $('#customUrl').value); lsSet('mt_me', $('#me').value);
+  const b = $('#broker').value, p = b === 'custom' ? {url:$('#customUrl').value.trim()} : BROKERS[b];
+  $('#dot').className = 'dot'; $('#btnConn').textContent = 'Connecting…';
+  const c = new MiniMQTT(p.url, {username:p.username, password:p.password});
+  c.onmessage = onMsg; c.onstatus = s => { if (client === c && s !== 'on') { $('#dot').className = 'dot err'; $('#btnConn').textContent = 'Reconnect'; } };
+  try {
+    connectedAt = Date.now(); await c.connect(); client = c;
+    const subs = BOARD ? ['ur/state', 'ur/ack', 'many/st/+', 'many/hb', 'many/calib'] : ['ur/state', 'many/calib', 'many/sum', 'many/run', 'many/reset', 'many/st/' + sid];
+    subs.forEach(s => c.subscribe(T(s)));
+    $('#dot').className = 'dot on'; $('#btnConn').textContent = 'Connected';
+    if (BOARD) renderJoin(); else hb();
+  } catch (e) { $('#dot').className = 'dot err'; $('#btnConn').textContent = 'Connect'; }
+};
+const acks = {};
+function onMsg(topic, payload) {
+  const parts = topic.split('/'), kind = parts[2] === 'ur' ? 'ur/' + parts[3] : parts[3];
+  let m = null; if (payload) { try { m = JSON.parse(payload); } catch (e) { return; } }
+  if (kind === 'ur/state') { if (!m || !Array.isArray(m.q) || m.q.length !== 6 || (m.src !== 'real' && m.src !== 'sim')) return; remote = m; remoteAt = performance.now(); return; }
+  if (kind === 'ur/ack') { if (m && acks[m.id]) { acks[m.id](m); delete acks[m.id]; } return; }
+  if (kind === 'calib') { calib = m && typeof m.ov === 'number' ? m : {ov:0, runs:[]}; BOARD ? (dirty = true) : onCalib(); return; }
+  if (BOARD) {
+    if (kind === 'st') { const id = parts[4]; if (m) students[id] = m; else delete students[id]; dirty = true; }
+    else if (kind === 'hb' && m && m.sid) twins[m.sid] = {name:m.name, at:performance.now()};
+  } else {
+    if (kind === 'st' && parts[4] === sid && m && !restored && m.t < connectedAt) { restored = true; for (const [k, at] of Object.entries(m.tested || {})) if (!tested[k] || at < tested[k]) tested[k] = at; nTests += m.n || 0; publishMine(); renderMine(); }
+    else if (kind === 'sum') { sum = m; renderClass(); }
+    else if (kind === 'run' && m) runBanner(m);
+    else if (kind === 'reset') { tested = {}; nTests = 0; restored = true; renderMine(); setResult(null); showTrace(null); $('#runBanner').classList.add('hide'); }
+  }
+}
+
+/* ===== student: one copy, many ideas ===== */
+let plan = {r:'direct', c:'square', h:34}, tested = {}, nTests = 0, restored = false, sum = null, lastEv = null;
+$('#optH').innerHTML = HS.map(h => `<button data-v="${h}">${h}${h === HS[HS.length - 1] ? ' cm' : ''}</button>`).join('');
+function renderPlan() {
+  $$('#optRoute button').forEach(b => b.classList.toggle('on', b.dataset.v === plan.r));
+  $$('#optCorner button').forEach(b => { b.classList.toggle('on', b.dataset.v === plan.c); b.disabled = plan.r === 'direct'; });
+  $$('#optH button').forEach(b => { b.classList.toggle('on', +b.dataset.v === plan.h); b.disabled = plan.r === 'direct'; });
+}
+$$('#optRoute button').forEach(b => b.onclick = () => { plan.r = b.dataset.v; renderPlan(); });
+$$('#optCorner button').forEach(b => b.onclick = () => { plan.c = b.dataset.v; renderPlan(); });
+$$('#optH button').forEach(b => b.onclick = () => { plan.h = +b.dataset.v; renderPlan(); });
+const curKey = () => plan.r === 'direct' ? 'direct' : `${plan.r}-${plan.c}-${plan.h}`;
+function publishMine() { pub('many/st/' + sid, {name:name(), n:nTests, tested, t:Date.now()}, true); }
+function hb() { if (client && !BOARD) pub('many/hb', {sid, name:name(), t:Date.now()}); }
+setInterval(hb, 4000);
+function renderMine() { const k = Object.keys(tested).length; $('#mine').textContent = nTests ? `You tested ${k} different plan${k === 1 ? '' : 's'} in ${nTests} test${nTests === 1 ? '' : 's'}.` : ''; }
+function renderClass() {
+  const el = $('#classSum');
+  if (!sum) { el.textContent = client ? 'The class board is not open yet.' : ''; return; }
+  el.innerHTML = `The class tested <b>${sum.tested} of ${sum.total}</b> plans on ${sum.twins} cop${sum.twins === 1 ? 'y' : 'ies'}.` + (sum.best ? ` Best so far <b>${sum.best.pred.toFixed(1)} s</b>, ${esc(sum.best.label)}, found by ${esc(sum.best.by)}.` : ' No plan works yet.');
+}
+function setResult(ev) {
+  const el = $('#res'), sm = $('#resSmall');
+  if (ev === 'wait') { el.className = 'res'; el.textContent = 'Testing in your copy…'; sm.textContent = ''; return; }
+  if (!ev) { el.className = 'res'; el.textContent = 'Pick a plan and test it.'; sm.textContent = ''; return; }
+  if (ev.ok) { el.className = 'res ok'; el.textContent = `Works. ${pred(ev).toFixed(1)} s`; sm.textContent = `${ev.n} moves. ` + (calib.ov > 0 ? `Includes ${calib.ov.toFixed(2)} s per move that the twins learned from the real robot.` : 'Time is distance ÷ joint speed. Your copy has not seen a real run yet.'); }
+  else if (ev.why === 'block') { el.className = 'res bad'; el.textContent = `Hits the red block after ${makeTimeline(ev, calib.ov).dur.toFixed(1)} s.`; sm.textContent = 'Good thing it was only your copy.'; }
+  else if (ev.why === 'table') { el.className = 'res bad'; el.textContent = 'Hits the table.'; sm.textContent = 'Good thing it was only your copy.'; }
+  else if (ev.why === 'range') { el.className = 'res warn'; el.textContent = `Joint ${ev.joint} would leave the safe range.`; sm.textContent = 'The real robot would refuse this plan. The orange dot marks the point.'; }
+  else { el.className = 'res warn'; el.textContent = 'The robot cannot reach one of the points.'; sm.textContent = ''; }
+}
+let verdictTo = 0;
+function showVerdict(ev) {
+  const el = $('#verdict'); clearTimeout(verdictTo);
+  el.className = 'verdict ' + (ev.ok ? 'ok' : ev.why === 'range' || ev.why === 'reach' ? 'warn' : 'bad');
+  el.textContent = ev.ok ? `✓ Works, ${pred(ev).toFixed(1)} s` : ev.why === 'block' ? '✗ Hits the block' : ev.why === 'table' ? '✗ Hits the table' : ev.why === 'range' ? `✗ Joint ${ev.joint} out of range` : '✗ Out of reach';
+  verdictTo = setTimeout(() => el.classList.add('hide'), 3500);
+}
+function onCalib() { if (lastEv && (!anim || anim.ended)) setResult(lastEv); chips(); }
+function runBanner(m) {
+  const el = $('#runBanner'); el.classList.remove('hide');
+  const who = m.by ? `, found by ${esc(m.by)}` : '';
+  if (m.phase === 'ready') el.innerHTML = `The real robot is getting ready for “${esc(m.label)}”${who}.`;
+  else if (m.phase === 'start') el.innerHTML = `The real robot is running “${esc(m.label)}”${who}. The twins say ${m.said.toFixed(1)} s.`;
+  else if (m.phase === 'done') el.innerHTML = `The real robot took <b>${m.actual.toFixed(1)} s</b>. The twins said ${m.said.toFixed(1)} s. Every copy now adds ${m.ov.toFixed(2)} s per move.`;
+  else el.innerHTML = `The real run stopped. ${esc(m.msg || '')}`;
+}
+$('#btnTest').onclick = () => {
+  if (anim && !anim.ended) return;
+  const k = curKey(), ev = evaluate(k, liveBox()); lastEv = ev;
+  if (!tested[k]) tested[k] = Date.now(); nTests++; publishMine(); renderMine();
+  if (!ev.segs || !ev.segs.length) { anim = null; showTrace(ev, 'final'); setResult(ev); showVerdict(ev); return; }
+  setResult('wait'); showTrace(ev, 'run');
+  const from = shown.slice();
+  anim = {tl:makeTimeline(ev, calib.ov), t0:performance.now(), speed:2, pre:{from, to:ev.qs[0], dur:Math.min(1.6, maxAbs(from, ev.qs[0]) / .9 + .2)}, onEnd() { this.endAt = performance.now(); showTrace(ev, 'final'); setResult(ev); showVerdict(ev); }};
+};
+
+/* ===== board: collect every copy, run the best on the robot ===== */
+let students = {}, twins = {}, evals = {}, evalSig = '', dirty = true, agg = {by:{}, tests:0}, bestKey = null, selKey = null, running = null, lastSumSig = '', armedClick = 0, confirmReset = 0, lastRunInfo = null, timerInfo = null;
+function ensureEvals() { const sig = JSON.stringify(liveBox()); if (sig === evalSig) return; evalSig = sig; const box = liveBox(); for (const k of KEYS) evals[k] = evaluate(k, box); dirty = true; }
+function aggregate() {
+  const by = {}; let tests = 0;
+  for (const [id, s] of Object.entries(students)) { tests += s.n || 0; for (const [k, at] of Object.entries(s.tested || {})) { if (!KEYS.includes(k)) continue; const b = by[k] || (by[k] = {count:0, at:Infinity, name:''}); b.count++; if (at < b.at) { b.at = at; b.name = s.name || id; } } }
+  return {by, tests};
+}
+function cellHtml(k, span) {
+  const ev = evals[k], t = agg.by[k]; let cls = 'cell' + (span ? ' span' : ''), txt = '·', sub = span ? 'any height' : '';
+  if (t && ev) {
+    if (ev.ok) { cls += ' ok'; txt = pred(ev).toFixed(1) + ' s'; if (k === bestKey) { cls += ' best'; txt = '★ ' + txt; } sub = ev.n + ' moves'; }
+    else { cls += ev.why === 'range' || ev.why === 'reach' ? ' range' : ' bad'; txt = '✗'; sub = {block:'hits block', table:'hits table', range:'joint ' + ev.joint, reach:'no reach'}[ev.why]; }
+  }
+  if (k === selKey) cls += ' sel';
+  return `<div class="${cls}" data-k="${k}">${txt}${sub ? `<small>${esc(sub)}</small>` : ''}</div>`;
+}
+function renderBoard() {
+  ensureEvals(); agg = aggregate();
+  const keys = Object.keys(agg.by), now = performance.now();
+  const nTwins = Object.values(twins).filter(t => now - t.at < 12000).length;
+  const ok = keys.filter(k => evals[k].ok), hit = keys.filter(k => ['block', 'table'].includes(evals[k].why)), rng = keys.filter(k => ['range', 'reach'].includes(evals[k].why));
+  bestKey = ok.length ? ok.reduce((a, b) => pred(evals[b]) < pred(evals[a]) - 1e-9 ? b : a) : null;
+  if (selKey && !agg.by[selKey]) selKey = null;
+  $('#sTwins').textContent = nTwins; $('#sTested').textContent = keys.length; $('#sTestedL').textContent = `of ${KEYS.length} plans tested`; $('#sTests').textContent = agg.tests; $('#sHit').textContent = hit.length; $('#sRange').textContent = rng.length;
+  const robotSec = keys.reduce((s, k) => s + (evals[k].ok ? pred(evals[k]) : evals[k].segs ? makeTimeline(evals[k], calib.ov).dur : 0) + 12, 0);
+  $('#saved').textContent = keys.length ? `Trying these ${keys.length} plans one by one on the real robot would take about ${Math.max(1, Math.round(robotSec / 60))} min, and ${hit.length} of them would hit something.` : 'Waiting for the first test from a copy.';
+  let h = '<div></div>' + HS.map(v => `<div class="hd">${v} cm</div>`).join('');
+  for (const [r, c, lab] of ROWS) { h += `<div class="rl">${lab}</div>`; for (const k of r === 'direct' ? ['direct'] : HS.map(v => `${r}-${c}-${v}`)) h += cellHtml(k, r === 'direct'); }
+  $('#heat').innerHTML = h; $$('#heat .cell').forEach(d => d.onclick = () => selectCell(d.dataset.k));
+  renderRun(); renderCal();
+  const s = {tested:keys.length, total:KEYS.length, valid:ok.length, hit:hit.length, range:rng.length, twins:nTwins, tests:agg.tests, best:bestKey ? {key:bestKey, label:label(bestKey), pred:+pred(evals[bestKey]).toFixed(2), by:agg.by[bestKey].name} : null, ov:+calib.ov.toFixed(3)};
+  const sig = JSON.stringify(s); if (client && sig !== lastSumSig) { pub('many/sum', s, true); lastSumSig = sig; }
+  dirty = false;
+}
+function renderRun() {
+  const k = selKey || bestKey, b = $('#btnRun');
+  if (!bestKey) $('#bestLine').textContent = 'No working plan yet. Ask the class to test plans.';
+  else $('#bestLine').innerHTML = `Best plan now <b>★ ${esc(label(bestKey))}</b>. The twins predict <b>${pred(evals[bestKey]).toFixed(1)} s</b>. Found by ${esc(agg.by[bestKey].name)}.` + (selKey && selKey !== bestKey ? `<br>Selected instead <b>${esc(label(selKey))}</b>.` : '');
+  b.disabled = !!running || !k || !evals[k] || !evals[k].ok;
+  if (!armedClick) b.textContent = selKey && selKey !== bestKey ? 'Run selected plan' : 'Run best plan';
+}
+function renderCal() {
+  const n = calib.runs.length;
+  $('#calLine').innerHTML = n ? `Learned from ${n} real run${n > 1 ? 's' : ''}. Every move takes <b>${calib.ov.toFixed(2)} s</b> more than distance ÷ joint speed, so every twin now adds that to each move.` : 'The twins use distance ÷ joint speed. They know nothing yet about speeding up, slowing down or waiting for the next command.';
+  $('#runsTbl').innerHTML = n ? '<tr><th>Plan</th><th>Twins said</th><th>Robot took</th></tr>' + calib.runs.map(r => `<tr><td>${esc(label(r.key))}</td><td>${r.said.toFixed(1)} s</td><td><b>${r.actual.toFixed(1)} s</b>${r.src === 'sim' ? ' <span class="muted">sim</span>' : ''}</td></tr>`).join('') : '';
+}
+function renderJoin() { $('#url').textContent = location.host + location.pathname.replace(/index\.html$/, '') + '?room=' + room(); $('#roomShow').textContent = room(); const qr = $('.join img'); if (qr) qr.classList.toggle('hide', room() !== 'teacher'); }
+function selectCell(k) {
+  if (!agg.by[k]) return;
+  selKey = selKey === k ? null : k; dirty = true;
+  const ev = evals[k]; showTrace(ev, 'final');
+  if (!running && ev.segs && ev.segs.length) anim = {tl:makeTimeline(ev, calib.ov), t0:performance.now(), speed:1, onEnd() { this.endAt = performance.now(); }};
+}
+function sendRobot(o) { const id = Math.random().toString(36).slice(2, 9); pub('ur/cmd', Object.assign({id, by:name(), t:Date.now()}, o)); return id; }
+function waitAck(id, ms) { return new Promise(res => { const to = setTimeout(() => { delete acks[id]; res(null); }, ms); acks[id] = m => { clearTimeout(to); res(m); }; }); }
+let lastSent = 0;
+async function moveTo(q) {
+  for (let attempt = 0; ; attempt++) {
+    const wait = lastSent + 1650 - performance.now(); if (wait > 0) await sleep(wait);
+    if (running.abort) throw new Error('Stopped.');
+    lastSent = performance.now();
+    const ack = await waitAck(sendRobot({type:'movej', q:q.map(v => +v.toFixed(5))}), 4000);
+    if (running.abort) throw new Error('Stopped.');
+    if (!ack) throw new Error('No answer from the bridge.');
+    if (ack.ok) break;
+    if (/too fast/.test(ack.msg || '') && attempt < 4) { await sleep(400); continue; }
+    throw new Error('The bridge said ' + (ack.msg || 'no') + '.');
+  }
+  const t0 = performance.now();
+  for (;;) {
+    await sleep(40);
+    if (running.abort) throw new Error('Stopped.');
+    if (robotFresh() && maxAbs(remote.q, q) < .01 && !remote.busy) return;
+    if (performance.now() - t0 > 30000) throw new Error('The robot did not arrive.');
+  }
+}
+function safeMove(a, b, box) { if (!inBox(b, box)) return false; for (let s = 1; s <= 24; s++) if (hits(lerpQ(a, b, s / 24))) return false; return true; }
+function readyPath(q0, qA, box) {
+  if (maxAbs(q0, qA) < .01) return [];
+  if (safeMove(q0, qA, box)) return [qA];
+  const p = tcp(q0), up = ik([p.x, p.y, SAFEZ], q0), aUp = up && ik([PA[0], PA[1], SAFEZ], up);
+  if (up && aUp && safeMove(q0, up, box) && safeMove(up, aUp, box) && safeMove(aUp, qA, box)) return [up, aUp, qA];
+  return null;
+}
+function phase(t) { $('#phase').textContent = t; }
+async function runPlan(k) {
+  const ev = evals[k];
+  if (!ev || !ev.ok) return phase('Pick a plan that worked in the twins.');
+  if (!robotFresh()) return phase('No robot online in this room.');
+  if (!remote.armed) return phase('The robot is not armed. Type arm in the bridge terminal.');
+  const box = liveBox(), path = readyPath(remote.q, ev.qs[0], box);
+  if (!path) return phase('No safe way to the start from where the robot is now. Type home in the bridge terminal, then try again.');
+  const said = pred(ev), by = agg.by[k] ? agg.by[k].name : '';
+  running = {key:k, abort:false}; dirty = true; showTrace(ev, 'final'); anim = null;
+  try {
+    phase('Moving to the start…'); pub('many/run', {phase:'ready', key:k, label:label(k), by});
+    for (const q of path) await moveTo(q);
+    const w = lastSent + 1650 - performance.now(); if (w > 0) await sleep(w);
+    const t0 = performance.now(); timerInfo = {t0, said, done:null};
+    anim = {tl:makeTimeline(ev, calib.ov), t0, speed:1, onEnd() { this.endAt = performance.now(); }};
+    pub('many/run', {phase:'start', key:k, label:label(k), by, said});
+    for (let i = 1; i < ev.qs.length; i++) { phase(`Running, move ${i} of ${ev.qs.length - 1}`); await moveTo(ev.qs[i]); }
+    const actual = (performance.now() - t0) / 1000; timerInfo.done = actual;
+    calib.runs.push({key:k, naive:+ev.naive.toFixed(3), n:ev.n, said:+said.toFixed(2), actual:+actual.toFixed(2), src:remote.src, t:Date.now()});
+    const sx = calib.runs.reduce((s, r) => s + (r.actual - r.naive), 0), sn = calib.runs.reduce((s, r) => s + r.n, 0);
+    const oldBest = bestKey; calib.ov = Math.max(0, sx / sn); calib.t = Date.now(); pub('many/calib', calib, true);
+    pub('many/run', {phase:'done', key:k, label:label(k), by, said, actual, ov:calib.ov});
+    selKey = null; renderBoard();
+    $('#lastRun').innerHTML = `<b>${esc(label(k))}</b>. The twins said ${said.toFixed(1)} s, the robot took <b>${actual.toFixed(1)} s</b>.` + (bestKey && bestKey !== oldBest ? ` With what they learned, the twins now pick <b>${esc(label(bestKey))}</b>.` : '');
+    phase('Done.');
+  } catch (e) {
+    phase(e.message); pub('many/run', {phase:'fail', key:k, label:label(k), msg:e.message}); if (timerInfo && timerInfo.done == null) timerInfo = null;
+  } finally { running = null; dirty = true; }
+}
+$('#btnRun').onclick = () => {
+  if (running) return; const k = selKey || bestKey; if (!k) return;
+  if (!armedClick) { armedClick = setTimeout(() => { armedClick = 0; renderRun(); }, 4000); $('#btnRun').textContent = 'Tap again, I am at the emergency stop'; return; }
+  clearTimeout(armedClick); armedClick = 0; renderRun(); runPlan(k);
+};
+$('#btnStop').onclick = () => { if (running) running.abort = true; if (client) sendRobot({type:'stop'}); phase('Stop sent.'); };
+$('#btnReset').onclick = () => {
+  if (!confirmReset) { confirmReset = setTimeout(() => { confirmReset = 0; $('#btnReset').textContent = 'Clear class results'; }, 4000); $('#btnReset').textContent = 'Tap again to clear everything'; return; }
+  clearTimeout(confirmReset); confirmReset = 0; $('#btnReset').textContent = 'Clear class results';
+  Object.keys(students).forEach(id => pub('many/st/' + id, null, true)); pub('many/calib', null, true); pub('many/sum', null, true); pub('many/reset', {t:Date.now()});
+  students = {}; calib = {ov:0, runs:[]}; selKey = null; lastRunInfo = null; timerInfo = null; $('#lastRun').textContent = ''; showTrace(null); dirty = true;
+};
+
+/* ===== chips, timer and render loop ===== */
+function chips() {
+  const live = robotFresh(), cr = $('#chipRobot'), cc = $('#chipCopy');
+  if (live) { cr.className = 'chip ok'; cr.textContent = (remote.src === 'sim' ? 'simulated robot online' : 'real robot online') + (BOARD ? (remote.armed ? ' · armed' : ' · not armed') : ''); if (BOARD && !remote.armed) cr.className = 'chip warn'; }
+  else { cr.className = 'chip ' + (client ? 'bad' : ''); cr.textContent = client ? 'no robot in this room' : 'not connected'; }
+  if (BOARD) { const n = Object.values(twins).filter(t => performance.now() - t.at < 12000).length; cc.className = 'chip'; cc.textContent = `${n} twin${n === 1 ? '' : 's'} online`; }
+  else {
+    const testing = anim && !anim.ended; cc.className = 'chip ' + (testing ? 'warn' : '');
+    cc.textContent = testing ? 'your copy, testing at 2× speed' : live ? 'your copy follows the real robot' : 'your copy';
+    $('#fPose').classList.toggle('on', live); $('#fBox').classList.toggle('on', live && Array.isArray(remote.box));
+    $('#fCal').classList.toggle('on', calib.ov > 0); $('#fCalText').textContent = calib.ov > 0 ? `Timing learned from ${calib.runs.length} real run${calib.runs.length === 1 ? '' : 's'}, ${calib.ov.toFixed(2)} s per move` : 'Timing learned from real runs, none yet';
+    if (!sum) renderClass();
+  }
+}
+setInterval(chips, 500); chips();
+if (BOARD) { $('#ttl').textContent = 'Many twins, one robot'; $('#sub').textContent = 'ML2305 Lab 3 · class board, every copy tests, the real robot runs the best'; renderJoin(); setInterval(renderBoard, 1000); renderBoard(); }
+else { renderPlan(); renderMine(); }
+let shown = HOME.slice(), last = performance.now();
+function animQ(now) {
+  const a = anim, t = (now - a.t0) / 1000 * a.speed, pre = a.pre ? a.pre.dur : 0;
+  if (a.pre && t < pre) return lerpQ(a.pre.from, a.pre.to, t / pre);
+  const tt = t - pre;
+  if (tt >= a.tl.dur) { if (!a.ended) { a.ended = true; a.onEnd && a.onEnd(); } return qAt(a.tl, a.tl.dur); }
+  return qAt(a.tl, tt);
+}
+function frame() {
+  const now = performance.now(), dt = Math.min(.1, (now - last) / 1000); last = now;
+  const live = robotFresh() ? remote.q : null;
+  if (!BOARD && anim) {
+    shown = animQ(now); ghost.g.visible = !!live; if (live) ghost.set(live);
+    if (anim.ended && now - anim.endAt > 2500) anim = null;
+  } else {
+    const tgt = live || HOME, step = 4 * dt; shown = shown.map((v, i) => v + Math.max(-step, Math.min(step, tgt[i] - v)));
+    if (BOARD && anim) { ghost.g.visible = true; ghost.set(animQ(now)); if (anim.ended && !running && now - anim.endAt > 5000) anim = null; }
+    else ghost.g.visible = false;
+  }
+  arm.set(shown);
+  const tm = $('#timer');
+  if (BOARD && timerInfo) {
+    const el = timerInfo.done != null ? timerInfo.done : (now - timerInfo.t0) / 1000;
+    tm.classList.remove('hide'); tm.innerHTML = `Twins said ${timerInfo.said.toFixed(1)} s<br>Robot ${el.toFixed(1)} s${timerInfo.done != null ? '' : '…'}<small>${timerInfo.done != null ? 'measured on the real robot' : 'running'}</small>`;
+  } else tm.classList.add('hide');
+  controls.update(); renderer.render(scene, camera); requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+if (params.get('room')) $('#btnConn').click();
+</script>
+</body>
+</html>
