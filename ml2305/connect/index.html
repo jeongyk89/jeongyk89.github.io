@@ -3,524 +3,262 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Connect the assets · ML2305 Lab 3</title>
+<title>Connect · ML2305 Lab 3</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23004791'/%3E%3Ccircle cx='9' cy='10' r='3' fill='%23fff'/%3E%3Ccircle cx='23' cy='10' r='3' fill='%23fff'/%3E%3Ccircle cx='16' cy='23' r='3' fill='%23fff'/%3E%3Cpath d='M9 10L16 23L23 10' stroke='%23fff' stroke-width='2' fill='none'/%3E%3C/svg%3E">
 <style>
-:root{--ink:#16212e;--muted:#4a5563;--bg:#f4f3ee;--line:#d6dce3;--kth:#004791;--navy:#000061;--soft:#e6eef8;--sand:#ece7dc;--orange:#b04512;--teal:#0b7464;--purple:#6b3fa8;--ok:#e5f3ea;--bad:#fae6e4;--warn:#fbf2dc}
+:root{--ink:#16212e;--muted:#4a5563;--bg:#f4f3ee;--line:#d6dce3;--kth:#004791;--navy:#000061;--soft:#e6eef8}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.45}
-button,input,select,textarea{font:inherit;color:inherit}
-header{background:var(--navy);color:#fff;padding:12px 16px 0}
-.top{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-h1{font-size:19px;margin:0}
-.sub{font-size:13px;color:#c9d7ea}
-.conn{margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.conn input,.conn select{background:#fff;color:var(--ink);border:0;border-radius:8px;padding:6px 8px;width:auto}
-.stdrow{border:1px solid var(--line);border-radius:10px;padding:8px;margin:6px 0;display:grid;grid-template-columns:1fr 1fr auto auto;gap:6px;align-items:center}
-@media(max-width:640px){.stdrow{grid-template-columns:1fr auto}.stdrow .full{grid-column:1/-1}}
-.dot{width:11px;height:11px;border-radius:99px;background:#9aa6b2;display:inline-block}
-.dot.on{background:#2fbf71}.dot.err{background:#e5484d}
-nav{display:flex;gap:4px;margin-top:10px;overflow-x:auto}
-nav button{background:none;border:0;color:#c9d7ea;padding:9px 12px;border-radius:10px 10px 0 0;font-weight:700;cursor:pointer;white-space:nowrap}
-nav button.on{background:var(--bg);color:var(--navy)}
-main{max-width:1180px;margin:0 auto;padding:16px 14px 80px}
-section{display:none}section.on{display:block}
-h2{font-size:21px;margin:2px 0 6px}h3{font-size:15px;margin:0 0 6px}
-.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
-.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
-.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.btn{background:var(--kth);color:#fff;border:0;border-radius:10px;padding:9px 13px;font-weight:700;cursor:pointer}
-.btn.ghost{background:#fff;color:var(--kth);border:1.5px solid var(--kth)}
-.btn.soft{background:var(--soft);color:var(--kth)}
-.btn.go{background:#1f9d5a}.btn.stop{background:#c4422b}
-.btn:disabled{opacity:.45;cursor:not-allowed}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.45}
+button,input,select{font:inherit;color:inherit}
+button{touch-action:manipulation}
+header{background:var(--navy);color:#fff;padding:12px 16px}
+.top{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+h1{font-size:19px;margin:0}.sub{font-size:13px;color:#c9d7ea}
+.who{margin-left:auto;font-size:13px;color:#c9d7ea;text-align:right}
+.dot{width:10px;height:10px;border-radius:99px;background:#9aa6b2;display:inline-block;margin-right:6px}.dot.on{background:#2fbf71}.dot.err{background:#e5484d}
+main{max-width:1180px;margin:0 auto;padding:14px 14px 80px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
 .eyebrow{font-size:12px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:var(--kth)}
 .muted{color:var(--muted)}.small{font-size:13px}
-input[type=text],input[type=number],select,textarea{border:1.5px solid var(--line);border-radius:9px;padding:7px 9px;background:#fff;width:100%}
-textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;min-height:190px}
-pre{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;background:#f7f7f4;border-radius:9px;padding:8px;white-space:pre-wrap;word-break:break-word;margin:6px 0;max-height:220px;overflow:auto}
-label.f{display:block;font-size:12px;font-weight:800;color:var(--muted);margin:8px 0 3px;text-transform:uppercase;letter-spacing:.5px}
-.persona{border:2px solid var(--line);border-radius:12px;padding:10px;cursor:pointer;background:#fbfaf7}
-.persona.on{border-color:var(--kth);background:var(--soft)}
-.persona b{display:block}
-.tok{display:inline-block;background:var(--sand);border-radius:7px;padding:2px 7px;margin:2px;font-family:ui-monospace,Menlo,monospace;font-size:12px;cursor:pointer;border:0}
-.tok:hover{background:#e0d8c8}
-.mode{display:flex;border:1.5px solid var(--kth);border-radius:10px;overflow:hidden}
-.mode button{border:0;background:#fff;color:var(--kth);padding:8px 12px;font-weight:700;cursor:pointer}
-.mode button.on{background:var(--kth);color:#fff}
-table{border-collapse:collapse;width:100%;font-size:13px}
-th,td{text-align:left;padding:6px 7px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
-.okc{background:var(--ok)}.badc{background:var(--bad)}.warnc{background:var(--warn)}
-.tag{display:inline-block;font-size:11px;font-weight:800;border-radius:6px;padding:2px 6px;background:var(--sand)}
-.tag.free{background:#f6e4da;color:var(--orange)}.tag.std{background:#dff1ec;color:var(--teal)}.tag.meta{background:#efe7fb;color:var(--purple)}
-.big{font-size:26px;font-weight:800}
-.note{background:var(--warn);border-radius:10px;padding:9px 12px;font-size:13px}
-.err{color:#b42318;font-weight:700}
-.stream{max-height:430px;overflow:auto}
-.msg{border-bottom:1px solid var(--line);padding:6px 0}
-.msg .h{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:12px}
-.kpis{display:flex;gap:10px;flex-wrap:wrap}
-.kpis div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 12px;min-width:120px}
-.kpis b{display:block;font-size:22px}
-.kpis span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:800}
-svg text{font-family:inherit}
+h2{font-size:21px;margin:4px 0 8px}
+.btn{background:var(--kth);color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--kth);border:1.5px solid var(--kth)}
+.btn.red{background:#c4422b}.btn.go{background:#1f9d5a}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.huge{width:100%;font-size:22px;padding:20px;border-radius:16px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input[type=text],select{border:1.5px solid var(--line);border-radius:10px;padding:9px 10px;background:#fff;width:100%}
+label.f{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:10px 0 4px}
+.pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.pick button{border:2px solid var(--line);background:#fbfaf7;border-radius:12px;padding:10px;text-align:left;cursor:pointer}
+.pick button b{display:block}.pick button span{font-size:12px;color:var(--muted)}
+.pick button.on{border-color:var(--kth);background:var(--soft)}
+.value{font-size:48px;font-weight:900;line-height:1.05}
+.value small{font-size:20px;font-weight:700;color:var(--muted)}
+pre{background:#0f1b2d;color:#d8e6ff;border-radius:10px;padding:10px;font-size:13px;overflow:auto;margin:6px 0;white-space:pre-wrap;word-break:break-all}
+.fb{border-radius:12px;padding:12px;font-weight:800;margin-top:10px;font-size:17px}
+.fb.ok{background:#e5f3ea;color:#14633a}.fb.bad{background:#fae6e4;color:#b3321f}.fb.wait{background:#fbf2dc;color:#8a5a00}
+.rounds{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rounds button{border:2px solid var(--line);background:#fbfaf7;border-radius:12px;padding:10px;text-align:left;cursor:pointer}
+.rounds button b{display:block;font-size:16px}.rounds button span{font-size:12px;color:var(--muted)}
+.rounds button.on{border-color:var(--kth);background:var(--soft)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.tile{border-radius:14px;padding:12px;border:2px solid var(--line);background:#fff}
+.tile.alarm{border-color:#c4422b;background:#fae6e4}
+.tile.unk{background:#f2f3f5}
+.tile .st{font-weight:900;font-size:15px}
+.tile .v{font-size:28px;font-weight:900}
+.tag{display:inline-block;border-radius:99px;padding:1px 8px;font-size:11px;font-weight:800;background:#e3e7ec;color:#4a5563}
+.tag.you{background:#fbf2dc;color:#8a5a00}.tag.sup{background:#e6eef8;color:#004791}.tag.std{background:#e5f3ea;color:#14633a}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+.big{font-size:26px;font-weight:900}
+.grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:12px}
 .hide{display:none!important}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}.rounds{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <header>
   <div class="top">
-    <div><h1>Connect the assets</h1><div class="sub">ML2305 Lab 3 · interoperability station</div></div>
-    <div class="conn">
-      <span class="dot" id="dot"></span>
-      <input id="room" size="10" placeholder="room code" title="Room code. Everyone in the team uses the same one.">
-      <select id="broker" title="Shared server">
-        <option value="emqx">Server A (EMQX)</option>
-        <option value="hivemq">Server B (HiveMQ)</option>
-        <option value="mosq">Server C (Mosquitto)</option>
-        <option value="shiftr">Server D (shiftr, port 443)</option>
-        <option value="custom">Own server URL</option>
-        <option value="offline">Offline practice</option>
-      </select>
-      <input id="customUrl" class="hide" size="22" placeholder="ws://192.168.1.10:9001">
-      <button class="btn" id="btnConn">Connect</button>
-    </div>
+    <div><h1 id="ttl">Connect</h1><div class="sub" id="sub">ML2305 Lab 3 · can the plant view catch the problem?</div></div>
+    <div class="who"><span class="dot" id="dot"></span><span id="whoText">not joined</span></div>
   </div>
-  <nav id="tabs">
-    <button data-t="guide" class="on">Guide</button>
-    <button data-t="asset">1 Your asset</button>
-    <button data-t="integrate">2 Integrate</button>
-    <button data-t="time">3 Time</button>
-  </nav>
 </header>
-<main>
-
-<section id="t-guide" class="on">
-  <h2>Many suppliers, one plant view</h2>
-  <p class="muted">Every asset in a factory comes from a different supplier. Each one sends its data its own way. Your job is to make them work together, three different ways, and to feel what each way costs.</p>
-  <div class="grid3">
-    <div class="card"><div class="eyebrow">Supplier</div><h3>Everyone except the integrator</h3><p class="small">Pick an asset card in tab 1, define the JSON your asset sends, choose how often and press send. Stay true to the habits on your card.</p></div>
-    <div class="card"><div class="eyebrow" style="color:var(--purple)">Integrator</div><h3>One person, rotate each round</h3><p class="small">Opens tab 2 on a laptop. Turns everything that arrives into one plant view with the same names, units and clock.</p></div>
-    <div class="card"><div class="eyebrow" style="color:var(--teal)">Observer</div><h3>Optional, if you are five</h3><p class="small">Times how long integration takes, counts the rules the integrator writes and notes every misunderstanding.</p></div>
-  </div>
-  <div class="card">
-    <h3>Three rounds, about 20 minutes</h3>
-    <table>
-      <tr><th>Round</th><th>Suppliers send</th><th>Integrator does</th><th>Ask yourselves</th></tr>
-      <tr><td><b>1 Dump</b><br><span class="tag free">free</span></td><td>Any JSON they like, in their own words, units and time format</td><td>Writes one translation rule per field for every asset</td><td>How long did it take? What happens when supplier number 20 arrives?</td></tr>
-      <tr><td><b>2 Describe</b><br><span class="tag meta">described</span></td><td>The same JSON, plus a short description of what each field means</td><td>Nothing, the description does the mapping, if it is correct</td><td>Who did the work now? What if a description is wrong?</td></tr>
-      <tr><td><b>3 Standard</b><br><span class="tag std">standard</span></td><td>One agreed message format with fixed names, units and UTC time, like an Asset Administration Shell submodel</td><td>Checks that messages follow the standard</td><td>What did the standard cost the suppliers? What did not fit?</td></tr>
-    </table>
-    <p class="small muted">Then look at tab 3. Every device has its own clock. Which time do you trust when you combine them?</p>
-  </div>
-  <div class="note">Use one room code per team, for example your team name. The shared server is public, so send only made up lab data, never personal data.</div>
-</section>
-
-<section id="t-asset">
-  <div class="row" style="justify-content:space-between">
-    <h2>Your asset</h2>
-    <div class="mode" id="modeSel"><button data-m="free" class="on">1 Free</button><button data-m="meta">2 Describe</button><button data-m="std">3 Standard</button></div>
-  </div>
-  <div class="card">
-    <div class="eyebrow">Pick your asset card</div>
-    <div class="grid3" id="personas" style="margin-top:8px"></div>
-  </div>
-  <div class="grid2">
-    <div class="card" id="freeBox">
-      <div class="eyebrow">What your asset sends</div>
-      <p class="small muted" id="editorHelp">Write the JSON your asset sends. Use your own names. Tap a token to insert a live value.</p>
-      <div id="tokens"></div>
-      <textarea id="tpl" spellcheck="false"></textarea>
-      <div id="metaBox" class="hide">
-        <label class="f">Describe your fields for the integrator</label>
-        <table id="metaTable"></table>
-        <div class="row" style="margin-top:6px"><button class="btn soft" id="btnMeta">Publish description</button><span class="small muted" id="metaInfo"></span></div>
-      </div>
-      <div id="stdBox" class="hide">
-        <p class="small">In the standard every property has a fixed name, a concept ID from a shared dictionary and a fixed unit. Time is always UTC in ISO 8601. Choose a dictionary concept and the value source for each property you send.</p>
-        <div id="stdTable"></div>
-        <div class="row" style="margin-top:6px"><button class="btn soft" id="btnStdAdd">Add property</button></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="eyebrow">Message preview</div>
-      <pre id="preview"></pre>
-      <div id="previewErr" class="err small"></div>
-      <div class="grid2" style="grid-template-columns:1fr 1fr;gap:8px">
-        <div><label class="f">Send every</label><select id="period"><option value="1">1 s</option><option value="2" selected>2 s</option><option value="5">5 s</option><option value="10">10 s</option></select></div>
-        <div><label class="f">Device clock</label><select id="offset"><option value="0">correct</option><option value="3">3 s fast</option><option value="37">37 s fast</option><option value="-12">12 s slow</option><option value="-95">95 s slow</option><option value="3600">one hour off</option></select></div>
-      </div>
-      <div class="row" style="margin-top:10px"><button class="btn go" id="btnSend">Start sending</button><span class="small muted" id="sendInfo"></span></div>
-      <p class="small muted" id="topicInfo"></p>
-    </div>
-  </div>
-</section>
-
-<section id="t-integrate">
-  <div class="row" style="justify-content:space-between">
-    <h2>Integrator view</h2>
-    <div class="row"><button class="btn soft" id="btnSim">Add practice suppliers</button><button class="btn ghost" id="btnClear">Clear</button></div>
-  </div>
-  <div class="kpis" id="kpis"></div>
-  <div class="card">
-    <div class="eyebrow">Plant view</div>
-    <p class="small muted">One table, the same names, the same units. Rows fill only when the app understands an asset.</p>
-    <div style="overflow-x:auto"><table id="plant"></table></div>
-  </div>
-  <div class="grid2">
-    <div class="card">
-      <div class="eyebrow">Translation rules</div>
-      <p class="small muted">Free assets need a rule for every field. Pick an asset, then tell the app what each field means.</p>
-      <select id="ruleAsset"></select>
-      <div id="ruleBox" style="margin-top:8px"></div>
-    </div>
-    <div class="card">
-      <div class="eyebrow">Everything that arrives</div>
-      <div class="stream" id="stream"></div>
-    </div>
-  </div>
-</section>
-
-<section id="t-time">
-  <h2>Whose clock is right?</h2>
-  <p class="muted">Each dot is a message. Its position on the left line is the time written by the device, on the right line the time the server received it. Straight lines mean the clocks agree.</p>
-  <div class="card"><div id="timeSvg"></div></div>
-  <div class="grid2">
-    <div class="card"><div class="eyebrow">Clock offset per asset</div><table id="offTable"></table></div>
-    <div class="card"><div class="eyebrow">Discuss</div><ol class="small" style="margin:6px 0 0 18px;padding:0"><li>The AMR stopped at 10:02:05 and the temperature peaked at 10:02:40, says the data. Did one cause the other?</li><li>Would you order events by device time or by arrival time? What breaks in each case?</li><li>One asset sends no time at all. What can you still do with it?</li><li>How do real factories keep clocks in sync, and how exact must they be for picking, for robots, for energy billing?</li></ol></div>
-  </div>
-</section>
-</main>
-
+<main id="main"></main>
 <script>
-'use strict';
-/* ===== minimal MQTT 3.1.1 over WebSocket, QoS 0 ===== */
+/* ===== minimal MQTT 3.1.1 over WebSocket ===== */
 class MiniMQTT {
-  constructor(url, o = {}) { this.url = url; this.o = o; this.buf = new Uint8Array(0); this.onmessage = null; this.onstatus = null; this.subs = []; this.pid = 1; this.enc = new TextEncoder(); this.dec = new TextDecoder(); }
+  constructor(url, o = {}) { this.url = url; this.o = o; this.buf = new Uint8Array(0); this.subs = []; this.pid = 1; this.enc = new TextEncoder(); this.dec = new TextDecoder(); }
   _s(str) { const b = this.enc.encode(str); return [b.length >> 8, b.length & 255, ...b]; }
   _len(n) { const o = []; do { let d = n % 128; n = Math.floor(n / 128); if (n > 0) d |= 128; o.push(d); } while (n > 0); return o; }
-  _send(h, body) { if (!this.ws || this.ws.readyState !== 1) return false; const pkt = new Uint8Array([h, ...this._len(body.length), ...body]); this.ws.send(pkt); return true; }
-  connect() {
-    return new Promise((res, rej) => {
-      let done = false; const fail = e => { if (!done) { done = true; rej(e); } };
-      try { this.ws = new WebSocket(this.url, ['mqtt']); } catch (e) { return fail(e); }
-      this.ws.binaryType = 'arraybuffer';
-      const to = setTimeout(() => { fail(new Error('timeout')); try { this.ws.close(); } catch (e) {} }, 8000);
-      this.ws.onopen = () => {
-        let flags = 0x02; const pl = this._s(this.o.clientId || ('ml2305-' + Math.random().toString(36).slice(2, 10)));
-        if (this.o.username) { flags |= 0x80; pl.push(...this._s(this.o.username)); }
-        if (this.o.password) { flags |= 0x40; pl.push(...this._s(this.o.password)); }
-        const ka = this.o.keepalive || 30;
-        this._send(0x10, [...this._s('MQTT'), 4, flags, ka >> 8, ka & 255, ...pl]);
-        this._ping = setInterval(() => this._send(0xC0, []), ka * 700);
-      };
-      this.ws.onmessage = ev => {
-        const d = new Uint8Array(ev.data), nb = new Uint8Array(this.buf.length + d.length); nb.set(this.buf); nb.set(d, this.buf.length); this.buf = nb;
-        for (;;) {
-          if (this.buf.length < 2) break;
-          let mult = 1, len = 0, i = 1, b;
-          do { if (i >= this.buf.length) return; b = this.buf[i++]; len += (b & 127) * mult; mult *= 128; } while (b & 128);
-          if (this.buf.length < i + len) break;
-          const h = this.buf[0], body = this.buf.slice(i, i + len); this.buf = this.buf.slice(i + len);
-          const type = h >> 4;
-          if (type === 2) { clearTimeout(to); if (body[1] === 0) { done = true; this.subs.forEach(s => this._sub(s)); res(); this.onstatus && this.onstatus('on'); } else fail(new Error('refused ' + body[1])); }
-          else if (type === 3) { const qos = (h >> 1) & 3; const tl = (body[0] << 8) | body[1]; const topic = this.dec.decode(body.slice(2, 2 + tl)); let p = 2 + tl; if (qos > 0) { const id = [body[p], body[p + 1]]; p += 2; if (qos === 1) this._send(0x40, id); } this.onmessage && this.onmessage(topic, this.dec.decode(body.slice(p)), !!(h & 1)); }
-        }
-      };
-      this.ws.onerror = () => { fail(new Error('socket error')); this.onstatus && this.onstatus('err'); };
-      this.ws.onclose = () => { clearInterval(this._ping); this.onstatus && this.onstatus(done ? 'closed' : 'err'); fail(new Error('closed')); };
-    });
-  }
+  _send(h, body) { if (!this.ws || this.ws.readyState !== 1) return false; this.ws.send(new Uint8Array([h, ...this._len(body.length), ...body])); return true; }
+  connect() { return new Promise((res, rej) => { let done = false; const fail = e => { if (!done) { done = true; rej(e); } };
+    try { this.ws = new WebSocket(this.url, ['mqtt']); } catch (e) { return fail(e); }
+    this.ws.binaryType = 'arraybuffer'; const to = setTimeout(() => { fail(new Error('timeout')); try { this.ws.close(); } catch (e) {} }, 8000);
+    this.ws.onopen = () => { let f = 0x02; const pl = this._s('ml2305-' + Math.random().toString(36).slice(2, 10)); if (this.o.username) { f |= 0x80; pl.push(...this._s(this.o.username)); } if (this.o.password) { f |= 0x40; pl.push(...this._s(this.o.password)); } this._send(0x10, [...this._s('MQTT'), 4, f, 0, 30, ...pl]); this._ping = setInterval(() => this._send(0xC0, []), 20000); };
+    this.ws.onmessage = ev => { const d = new Uint8Array(ev.data), nb = new Uint8Array(this.buf.length + d.length); nb.set(this.buf); nb.set(d, this.buf.length); this.buf = nb;
+      for (;;) { if (this.buf.length < 2) break; let m = 1, len = 0, i = 1, b; do { if (i >= this.buf.length) return; b = this.buf[i++]; len += (b & 127) * m; m *= 128; } while (b & 128); if (this.buf.length < i + len) break;
+        const h = this.buf[0], body = this.buf.slice(i, i + len); this.buf = this.buf.slice(i + len); const t = h >> 4;
+        if (t === 2) { clearTimeout(to); if (body[1] === 0) { done = true; this.subs.forEach(s => this._sub(s)); res(); this.onstatus && this.onstatus('on'); } else fail(new Error('refused')); }
+        else if (t === 3) { const q = (h >> 1) & 3, tl = (body[0] << 8) | body[1], topic = this.dec.decode(body.slice(2, 2 + tl)); let p = 2 + tl; if (q > 0) { const id = [body[p], body[p + 1]]; p += 2; if (q === 1) this._send(0x40, id); } this.onmessage && this.onmessage(topic, this.dec.decode(body.slice(p))); } } };
+    this.ws.onerror = () => { fail(new Error('error')); this.onstatus && this.onstatus('err'); };
+    this.ws.onclose = () => { clearInterval(this._ping); this.onstatus && this.onstatus(done ? 'closed' : 'err'); fail(new Error('closed')); }; }); }
   _sub(f) { const id = this.pid++ & 0xffff; this._send(0x82, [id >> 8, id & 255, ...this._s(f), 0]); }
   subscribe(f) { if (!this.subs.includes(f)) this.subs.push(f); this._sub(f); }
-  publish(topic, payload, retain = false) { return this._send(0x30 | (retain ? 1 : 0), [...this._s(topic), ...this.enc.encode(payload)]); }
+  publish(t, p, retain) { return this._send(retain ? 0x31 : 0x30, [...this._s(t), ...this.enc.encode(p)]); }
   close() { try { this._send(0xE0, []); this.ws.close(); } catch (e) {} }
 }
-
-/* ===== helpers ===== */
-const $ = (s, e = document) => e.querySelector(s), $$ = (s, e = document) => Array.from(e.querySelectorAll(s));
+const $ = s => document.querySelector(s), $$ = s => Array.from(document.querySelectorAll(s));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmt = (v, d = 1) => (v == null || isNaN(v)) ? '–' : Number(v).toFixed(d);
+const params = new URLSearchParams(location.search);
 function lsGet(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
 function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
-const params = new URLSearchParams(location.search);
+const fmt = (v, d = 1) => v == null || isNaN(v) ? '–' : (+v).toFixed(d);
 
-/* ===== dictionary of the shared standard ===== */
-const DICT = {
-  Temperature: {id:'0173-1#02-AAD891#007', unit:'degC', kind:'num'},
-  Humidity:    {id:'0173-1#02-AAA939#004', unit:'percent', kind:'num'},
-  PositionX:   {id:'urn:kth:lab:concept:PositionX', unit:'m', kind:'num'},
-  PositionY:   {id:'urn:kth:lab:concept:PositionY', unit:'m', kind:'num'},
-  Battery:     {id:'0173-1#02-AAQ303#002', unit:'percent', kind:'num'},
-  State:       {id:'urn:kth:lab:concept:OperatingState', unit:'', kind:'str'},
-  Count:       {id:'0173-1#02-AAV232#001', unit:'pcs', kind:'num'},
-  Weight:      {id:'0173-1#02-AAB713#005', unit:'kg', kind:'num'},
-  Power:       {id:'0173-1#02-AAN389#003', unit:'W', kind:'num'},
-  Speed:       {id:'0173-1#02-AAZ442#002', unit:'m/s', kind:'num'}
-};
-const PROPS = Object.keys(DICT);
-const UNITS = {Temperature:['degC','degF','K'], Humidity:['percent'], PositionX:['m','cm','mm'], PositionY:['m','cm','mm'], Battery:['percent','fraction'], State:[''], Count:['pcs'], Weight:['kg','g'], Power:['W','kW'], Speed:['m/s','mm/s']};
-function toStd(prop, v, unit) {
-  if (v == null || v === '') return null; if (DICT[prop].kind === 'str') return String(v); v = parseFloat(v); if (isNaN(v)) return null;
-  switch (unit) { case 'degF': return (v - 32) * 5 / 9; case 'K': return v - 273.15; case 'cm': return v / 100; case 'mm': return v / 1000; case 'g': return v / 1000; case 'kW': return v * 1000; case 'mm/s': return v / 1000; case 'fraction': return v * 100; default: return v; }
-}
-const TFMT = ['auto', 'iso', 'epoch_s', 'epoch_ms', 'local', 'hms', 'eu'];
-function parseTime(v, f, recvMs) {
-  if (v == null || v === '') return null;
-  if (f === 'auto') { if (typeof v === 'number' || /^\d+(\.\d+)?$/.test(String(v))) f = +v > 1e11 ? 'epoch_ms' : 'epoch_s'; else if (/T/.test(v)) f = 'iso'; else if (/^\d\d\/\d\d\/\d{4}/.test(v)) f = 'eu'; else if (/^\d\d:\d\d(:\d\d)?$/.test(v)) f = 'hms'; else f = 'local'; }
-  let ms = null; const s = String(v);
-  if (f === 'epoch_s') ms = +v * 1000; else if (f === 'epoch_ms') ms = +v;
-  else if (f === 'iso') ms = Date.parse(s);
-  else if (f === 'local') ms = new Date(s.replace(' ', 'T')).getTime();
-  else if (f === 'eu') { const m = /^(\d\d)\/(\d\d)\/(\d{4})\s+(\d\d):(\d\d):(\d\d)/.exec(s); if (m) ms = new Date(+m[3], +m[2] - 1, +m[1], +m[4], +m[5], +m[6]).getTime(); }
-  else if (f === 'hms') { const m = /^(\d\d):(\d\d):?(\d\d)?/.exec(s); if (m) { const d = new Date(recvMs); d.setHours(+m[1], +m[2], +(m[3] || 0), 0); ms = d.getTime(); } }
-  return isNaN(ms) ? null : ms;
-}
-
-/* ===== asset personas and live signals ===== */
-const PERSONAS = [
-  {id:'nordtemp', name:'Goods receipt climate', sup:'Nordtemp AB', habit:'Your firmware is American. Fahrenheit, local time without time zone.', type:'Climate sensor',
-   tpl:'{\n  "dev": "NT-204",\n  "tempF": {{temp_F}},\n  "hum": {{humidity}},\n  "time": "{{time_local}}"\n}', clock:0},
-  {id:'robomove', name:'AMR position', sup:'RoboMove GmbH', habit:'Robots think in millimetres. Unix seconds. Battery as a fraction.', type:'AMR',
-   tpl:'{\n  "robot": "MiR-2",\n  "pose": {"x": {{x_mm}}, "y": {{y_mm}}},\n  "bat": {{battery_frac}},\n  "mode": "{{state}}",\n  "ts": {{time_epoch}}\n}', clock:0},
-  {id:'shelfie', name:'Smart shelf', sup:'Shelfie Sverige', habit:'Swedish field names, grams, no time stamp at all.', type:'Smart shelf',
-   tpl:'{\n  "hylla": "S3",\n  "vikt": {{weight_g}},\n  "antal": {{count}}\n}', clock:0},
-  {id:'beltco', name:'Conveyor', sup:'BeltCo', habit:'Everything is a string. Time in epoch milliseconds.', type:'Conveyor',
-   tpl:'{\n  "id": "CV-1",\n  "running": "{{running}}",\n  "speed_mm_s": "{{speed_mms}}",\n  "items": "{{count}}",\n  "t": "{{time_epoch_ms}}"\n}', clock:0},
-  {id:'armtech', name:'Robot cell', sup:'ArmTech', habit:'Proper nested JSON, ISO time in UTC, but its clock runs 37 s fast.', type:'Robot cell',
-   tpl:'{\n  "asset": {"id": "UR5e-1", "vendor": "ArmTech"},\n  "status": {"state": "{{state}}", "cycles": {{count}}},\n  "power": {"value": {{power_kW}}, "unit": "kW"},\n  "timestamp": "{{time_iso}}"\n}', clock:37},
-  {id:'tagit', name:'Worker tag', sup:'TagIt RTLS', habit:'Centimetres from the lab corner, time as hh:mm:ss only.', type:'RTLS tag',
-   tpl:'{\n  "tag": "T-17",\n  "X": {{x_cm}},\n  "Y": {{y_cm}},\n  "zone": "{{zone}}",\n  "clock": "{{time_hms}}"\n}', clock:-12},
-  {id:'voltview', name:'Energy meter', sup:'VoltView', habit:'Kilowatts, European date format, sends rarely.', type:'Energy meter',
-   tpl:'{\n  "meter": "EM-9",\n  "P_kW": {{power_kW}},\n  "date": "{{time_eu}}"\n}', clock:3}
+/* ===== the shared standard: one name and one unit per quantity ===== */
+const STD = {Temperature:'degC', Battery:'percent', Speed:'m/s', Weight:'kg', Power:'W'};
+const UNITS = {Temperature:['degC', 'degF', 'K'], Battery:['percent', 'fraction'], Speed:['m/s', 'mm/s'], Weight:['kg', 'g'], Power:['W', 'kW']};
+const UNIT_LABEL = {degC:'°C', degF:'°F', K:'K', percent:'%', fraction:'0 to 1', 'm/s':'m/s', 'mm/s':'mm/s', kg:'kg', g:'g', W:'W', kW:'kW'};
+function toStd(v, unit) { v = parseFloat(v); if (isNaN(v)) return null; switch (unit) { case 'degF': return (v - 32) * 5 / 9; case 'K': return v - 273.15; case 'fraction': return v * 100; case 'mm/s': return v / 1000; case 'g': return v / 1000; case 'kW': return v * 1000; default: return v; } }
+/* every device has one quantity, one alarm rule in standard units, and the habits of its supplier */
+const DEVICES = [
+  {id:'freezer', name:'Freezer', sup:'Nordtemp AB', q:'Temperature', normal:-19, problem:-4, rule:v => v > -15, ruleTxt:'warmer than −15 °C', habit:'American firmware. Fahrenheit, local time.', own:(v, t) => ({dev:'NT-204', tempF:+(v * 9 / 5 + 32).toFixed(1), time:local(t)}), field:'tempF', unit:'degF', period:1},
+  {id:'amr', name:'Mobile robot', sup:'RoboMove GmbH', q:'Battery', normal:78, problem:9, rule:v => v < 15, ruleTxt:'battery under 15 %', habit:'Battery as a fraction, Unix seconds.', own:(v, t) => ({robot:'MiR-2', bat:+(v / 100).toFixed(3), mode:'moving', ts:Math.floor(t / 1000)}), field:'bat', unit:'fraction', period:1},
+  {id:'conveyor', name:'Conveyor', sup:'BeltCo', q:'Speed', normal:.5, problem:0, rule:v => v < .1, ruleTxt:'slower than 0.1 m/s', habit:'Everything is a string, millimetres per second.', own:(v, t) => ({id:'CV-1', running:v > .05 ? 'true' : 'false', speed_mm_s:String(Math.round(v * 1000)), t:String(t)}), field:'speed_mm_s', unit:'mm/s', period:1},
+  {id:'shelf', name:'Smart shelf', sup:'Shelfie Sverige', q:'Weight', normal:4.6, problem:.3, rule:v => v < 1, ruleTxt:'lighter than 1 kg, refill', habit:'Swedish field names, grams, no time.', own:v => ({hylla:'S3', vikt:Math.round(v * 1000), antal:Math.round(v / .2)}), field:'vikt', unit:'g', period:1},
+  {id:'robotcell', name:'Robot cell', sup:'ArmTech', q:'Power', normal:900, problem:3300, rule:v => v > 2500, ruleTxt:'more than 2500 W', habit:'Nested JSON, kilowatts, ISO time.', own:(v, t) => ({asset:{id:'UR5e-1'}, power:{value:+(v / 1000).toFixed(2), unit:'kW'}, timestamp:new Date(t).toISOString()}), field:'power.value', unit:'kW', period:1},
+  {id:'meter', name:'Energy meter', sup:'VoltView', q:'Power', normal:3100, problem:6400, rule:v => v > 5000, ruleTxt:'more than 5000 W', habit:'Kilowatts, sends only every 4 s.', own:(v, t) => ({meter:'EM-9', P_kW:+(v / 1000).toFixed(2), date:local(t)}), field:'P_kW', unit:'kW', period:4}
 ];
-const TOKENS = {
-  temp_C:'temperature in °C', temp_F:'temperature in °F', temp_K:'temperature in K', humidity:'humidity %',
-  x_m:'x in m', y_m:'y in m', x_mm:'x in mm', y_mm:'y in mm', x_cm:'x in cm', y_cm:'y in cm', zone:'zone name',
-  battery:'battery %', battery_frac:'battery 0..1', state:'state word', running:'true/false', speed_ms:'speed m/s', speed_mms:'speed mm/s',
-  count:'counter', weight_kg:'weight kg', weight_g:'weight g', power_W:'power W', power_kW:'power kW',
-  time_iso:'UTC ISO time', time_local:'local time, no zone', time_epoch:'Unix seconds', time_epoch_ms:'Unix ms', time_hms:'hh:mm:ss', time_eu:'dd/mm/yyyy hh:mm:ss'
-};
-function makeSignals(seed) {
-  let s = seed || 1; const r = () => { s = (s * 16807) % 2147483647; return s / 2147483647; };
-  const st = {temp:21 + r() * 3, hum:38 + r() * 6, ang:r() * 6.28, bat:85 + r() * 10, cnt:Math.floor(r() * 50), w:4.2, run:true, st:0, pw:900, tx:5, ty:4};
-  return function (t) {
-    st.temp += (r() - .5) * .25 + Math.sin(t / 40000) * .02; st.hum += (r() - .5) * .4; st.ang += .05; st.bat = Math.max(5, st.bat - .02);
-    if (r() < .12) st.cnt++; if (r() < .08) st.w = Math.max(0, st.w - .35); if (st.w < .5) st.w = 4.2; if (r() < .03) st.run = !st.run; if (r() < .1) st.st = (st.st + 1) % 3; st.pw = Math.max(200, st.pw + (r() - .5) * 120);
-    st.tx = Math.min(11, Math.max(.5, st.tx + (r() - .5) * .6)); st.ty = Math.min(7.5, Math.max(.5, st.ty + (r() - .5) * .6));
-    const x = 6 + 4 * Math.cos(st.ang), y = 4 + 2.5 * Math.sin(st.ang);
-    return {temp_C:st.temp, temp_F:st.temp * 9 / 5 + 32, temp_K:st.temp + 273.15, humidity:st.hum, x_m:x, y_m:y, x_mm:x * 1000, y_mm:y * 1000, x_cm:st.tx * 100, y_cm:st.ty * 100,
-      zone:st.tx < 4 ? 'goods-in' : st.tx < 8 ? 'supermarket' : 'assembly', battery:st.bat, battery_frac:st.bat / 100, state:['idle', 'moving', 'working'][st.st], running:st.run, speed_ms:st.run ? .5 : 0, speed_mms:st.run ? 500 : 0,
-      count:st.cnt, weight_kg:st.w, weight_g:st.w * 1000, power_W:st.pw, power_kW:st.pw / 1000};
-  };
-}
-function timeTokens(ms) {
-  const d = new Date(ms), p = n => String(n).padStart(2, '0');
-  return {time_iso:d.toISOString(), time_local:`${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`, time_epoch:Math.floor(ms / 1000), time_epoch_ms:Math.floor(ms), time_hms:`${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`, time_eu:`${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`};
-}
-function fill(tpl, vals) { return tpl.replace(/\{\{(\w+)\}\}/g, (m, k) => { if (!(k in vals)) return m; const v = vals[k]; return typeof v === 'number' ? (Number.isInteger(v) ? v : +v.toFixed(k.includes('frac') ? 3 : 2)) : v; }); }
+const dev = id => DEVICES.find(d => d.id === id);
+function local(t) { const d = new Date(t), p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`; }
+function fieldsOf(o, pre = '') { const out = []; for (const [k, v] of Object.entries(o || {})) { const p = pre ? pre + '.' + k : k; if (v && typeof v === 'object') out.push(...fieldsOf(v, p)); else out.push(p); } return out; }
+const getPath = (o, p) => p.split('.').reduce((a, k) => a == null ? undefined : a[k], o);
+function stdMsg(d, v, t) { return {assetId:'urn:kth:lab:' + d.id, quantity:d.q, value:+v.toFixed(3), unit:STD[d.q], time:new Date(t).toISOString()}; }
+const ROUNDS = [null, ['Own format', 'Every supplier sends what it always sends. The integrator translates.'], ['Describe', 'Suppliers keep their format and say which field holds the value and in which unit.'], ['Standard', 'Everyone sends the same names and units.']];
 
 /* ===== connection ===== */
-const PRESETS = {emqx:{url:'wss://broker.emqx.io:8084/mqtt'}, hivemq:{url:'wss://broker.hivemq.com:8884/mqtt'}, mosq:{url:'wss://test.mosquitto.org:8081/'}, shiftr:{url:'wss://public.cloud.shiftr.io', username:'public', password:'public'}};
-let client = null, offline = false;
-const room = () => ($('#room').value.trim() || 'demo').replace(/[^\w-]/g, '').toLowerCase();
-const base = () => 'ml2305/' + room();
-$('#room').value = params.get('room') || lsGet('cn_room', '');
-$('#broker').value = params.get('b') || lsGet('cn_broker', 'emqx');
-$('#customUrl').value = params.get('url') || lsGet('cn_url', '');
-$('#broker').onchange = () => $('#customUrl').classList.toggle('hide', $('#broker').value !== 'custom');
-$('#broker').onchange();
-function status(s, txt) { $('#dot').className = 'dot ' + (s === 'on' ? 'on' : s === 'err' ? 'err' : ''); $('#btnConn').textContent = s === 'on' ? 'Connected' : 'Connect'; if (txt) $('#sendInfo').textContent = txt; }
-$('#btnConn').onclick = async () => {
-  if (client) { client.close(); client = null; }
-  lsSet('cn_room', $('#room').value); lsSet('cn_broker', $('#broker').value); lsSet('cn_url', $('#customUrl').value);
-  const b = $('#broker').value;
-  if (b === 'offline') { offline = true; status('on'); $('#btnConn').textContent = 'Offline'; updateTopic(); return; }
-  offline = false; const p = b === 'custom' ? {url:$('#customUrl').value.trim()} : PRESETS[b];
-  status('', 'connecting…'); $('#btnConn').textContent = 'Connecting…';
-  const c = new MiniMQTT(p.url, {username:p.username, password:p.password});
-  c.onmessage = onMessage; c.onstatus = s => { if (client === c) status(s === 'on' ? 'on' : 'err'); };
-  try { await c.connect(); client = c; c.subscribe(base() + '/#'); status('on', 'connected to ' + p.url.replace(/^wss?:\/\//, '').split('/')[0]); updateTopic(); }
-  catch (e) { status('err', 'Could not reach this server. Try another server or offline practice.'); }
-};
-function pub(topic, payload, retain) {
-  if (offline || !client) { onMessage(topic, payload, retain); return true; }
-  const ok = client.publish(topic, payload, retain); return ok;
+const BROKERS = {emqx:{url:'wss://broker.emqx.io:8084/mqtt'}, hivemq:{url:'wss://broker.hivemq.com:8884/mqtt'}, mosq:{url:'wss://test.mosquitto.org:8081/'}, shiftr:{url:'wss://public.cloud.shiftr.io', username:'public', password:'public'}};
+let me = lsGet('cx_me', null), client = null, round = 1;
+const T = s => `ml2305/cx-${me.team}/${s}`;
+function pub(s, o, retain) { if (client) client.publish(T(s), o == null ? '' : JSON.stringify(o), !!retain); }
+async function connect() {
+  if (client) client.close(); client = null; $('#dot').className = 'dot';
+  const p = me.broker === 'custom' ? {url:me.url} : BROKERS[me.broker || 'emqx'], c = new MiniMQTT(p.url, {username:p.username, password:p.password});
+  c.onmessage = onMsg; c.onstatus = s => { if (client === c && s !== 'on') { $('#dot').className = 'dot err'; setTimeout(() => { if (client === c) connect(); }, 3000); } };
+  try { await c.connect(); client = c; $('#dot').className = 'dot on'; c.subscribe(T('round')); if (me.role === 'integrator') { DEVICES.forEach(d => { alarms[d.id] = false; pub('alarm/' + d.id, {on:false, t:Date.now()}, true); }); c.subscribe(T('data/+')); c.subscribe(T('meta/+')); c.subscribe(T('incident/+')); c.subscribe(T('hello/+')); setTimeout(() => { if (!roundSeen) pub('round', {n:round}, true); }, 1500); } else { c.subscribe(T('alarm/' + me.device)); pub('hello/' + me.device, {name:me.name, t:Date.now()}, true); } }
+  catch (e) { $('#dot').className = 'dot err'; setTimeout(connect, 3000); }
+}
+let roundSeen = false;
+function onMsg(topic, payload) {
+  let m = null; if (payload) { try { m = JSON.parse(payload); } catch (e) { m = undefined; } }
+  const p = topic.split('/'), kind = p[2], id = p[3];
+  if (kind === 'round') { if (m && m.n) { round = m.n; roundSeen = true; if (me.role !== 'integrator') { publishMeta(); } render(); } return; }
+  if (me.role === 'integrator') {
+    if (kind === 'data') { latest[id] = {raw:payload, msg:m, at:Date.now()}; evaluate(id); return; }
+    if (kind === 'meta') { if (m) metas[id] = m; else delete metas[id]; evaluate(id); render(); return; }
+    if (kind === 'hello') { if (m) hellos[id] = m; else delete hellos[id]; render(); return; }
+    if (kind === 'incident' && m) { onIncident(id, m); return; }
+  } else if (kind === 'alarm') { plantAlarm = m && m.on; plantAlarmAt = m ? m.t : 0; feedback(); }
 }
 
-/* ===== supplier side ===== */
-let me = lsGet('cn_me', {persona:'nordtemp', mode:'free', tpl:{}, meta:{}, std:null});
-let sending = null, sentN = 0, sig = makeSignals(Math.floor(Math.random() * 1e6) + 7);
-const persona = () => PERSONAS.find(p => p.id === me.persona) || PERSONAS[0];
-const assetId = () => persona().id + '-' + (lsGet('cn_uid', null) || (() => { const u = Math.random().toString(36).slice(2, 5); lsSet('cn_uid', u); return u; })());
-function saveMe() { lsSet('cn_me', me); }
-function renderPersonas() {
-  $('#personas').innerHTML = PERSONAS.map(p => `<div class="persona ${p.id === me.persona ? 'on' : ''}" data-id="${p.id}"><span class="small muted">${esc(p.sup)}</span><b>${esc(p.name)}</b><span class="small">${esc(p.habit)}</span></div>`).join('');
-  $$('.persona').forEach(el => el.onclick = () => { me.persona = el.dataset.id; if (!me.tpl[me.persona]) me.tpl[me.persona] = persona().tpl; $('#offset').value = String(persona().clock); me.std = null; saveMe(); renderAsset(); });
+/* ===== supplier: one device, one problem button ===== */
+let value = null, incident = null, plantAlarm = false, plantAlarmAt = 0, sendTimer = null, metaPick = null;
+function supplierLoop() {
+  const d = dev(me.device); if (value == null) value = d.normal;
+  clearInterval(sendTimer);
+  sendTimer = setInterval(() => {
+    const now = Date.now(), target = incident && now < incident.until ? d.problem : d.normal, span = Math.abs(d.problem - d.normal);
+    value += (target - value) * .45 + (Math.random() - .5) * span * .03;
+    if (incident && now >= incident.until) { incident = null; pub('incident/' + me.device, {on:false, t:now}); }
+    if (Math.floor(now / 1000) % d.period === 0) { const msg = round === 3 ? stdMsg(d, value, now) : d.own(value, now); pub('data/' + me.device, msg); lastMsg = msg; }
+    renderSupplierLive();
+  }, 1000);
 }
-$$('#modeSel button').forEach(b => b.onclick = () => { me.mode = b.dataset.m; saveMe(); renderAsset(); });
-$('#tpl').oninput = () => { me.tpl[me.persona] = $('#tpl').value; saveMe(); renderPreview(); renderMetaTable(); };
-function curTpl() { return me.tpl[me.persona] || persona().tpl; }
-function fieldsOf(obj, pre = '') { const out = []; for (const [k, v] of Object.entries(obj || {})) { const p = pre ? pre + '.' + k : k; if (v && typeof v === 'object' && !Array.isArray(v)) out.push(...fieldsOf(v, p)); else out.push({path:p, val:v}); } return out; }
-function getPath(o, p) { return p.split('.').reduce((a, k) => a == null ? undefined : a[k], o); }
-function stdDefault() {
-  const map = {nordtemp:[['Temperature', 'temp_F'], ['Humidity', 'humidity']], robomove:[['PositionX', 'x_mm'], ['PositionY', 'y_mm'], ['Battery', 'battery_frac'], ['State', 'state']], shelfie:[['Weight', 'weight_g'], ['Count', 'count']], beltco:[['Speed', 'speed_mms'], ['Count', 'count'], ['State', 'running']], armtech:[['State', 'state'], ['Count', 'count'], ['Power', 'power_kW']], tagit:[['PositionX', 'x_cm'], ['PositionY', 'y_cm']], voltview:[['Power', 'power_kW']]}[me.persona] || [];
-  return map.map(([prop, src]) => ({prop, src, convert:false}));
+let lastMsg = null;
+function publishMeta() { if (!me || me.role === 'integrator') return; if (round === 2 && metaPick) pub('meta/' + me.device, metaPick, true); else pub('meta/' + me.device, null, true); }
+function feedback() {
+  const el = $('#fb'); if (!el) return; const d = dev(me.device);
+  if (incident && incident.pre) { el.className = 'fb bad'; el.textContent = 'The plant already showed an alarm before your problem started ✗ An alarm that is always on tells nothing.'; }
+  else if (incident) { const seen = plantAlarm && plantAlarmAt >= incident.t - 1500; el.className = 'fb ' + (seen ? 'ok' : 'wait'); el.textContent = seen ? `The plant saw it after ${fmt(Math.max(0, (plantAlarmAt - incident.t) / 1000))} s ✓` : `Waiting. Has the plant noticed? ${fmt((Date.now() - incident.t) / 1000, 0)} s`; if (!seen && Date.now() - incident.t > 10000) { el.className = 'fb bad'; el.textContent = 'Not noticed in 10 s ✗ The problem went unseen.'; } }
+  else if (plantAlarm) { el.className = 'fb bad'; el.textContent = 'False alarm ✗ The plant thinks your device has a problem, but it is fine.'; }
+  else { el.className = 'fb ok'; el.textContent = 'All quiet. The plant sees no problem, and there is none.'; }
 }
-function stdMessage(vals, devMs) {
-  const props = (me.std || stdDefault()).map(r => {
-    const unitOf = {temp_F:'degF', temp_K:'K', x_mm:'mm', y_mm:'mm', x_cm:'cm', y_cm:'cm', battery_frac:'fraction', weight_g:'g', power_kW:'kW', speed_mms:'mm/s'}[r.src] || DICT[r.prop].unit;
-    let v = vals[r.src]; if (r.convert) v = toStd(r.prop, v, unitOf); if (typeof v === 'number') v = +v.toFixed(3);
-    return {idShort:r.prop, semanticId:DICT[r.prop].id, value:v, unit:r.convert ? DICT[r.prop].unit : unitOf};
-  });
-  return {assetId:'urn:kth:lab:' + assetId(), assetType:persona().type, timestamp:new Date(devMs).toISOString(), submodel:'OperationalData', properties:props};
+function renderSupplierLive() {
+  const d = dev(me.device), u = d.q === 'Temperature' ? '°C' : d.q === 'Battery' ? '%' : STD[d.q];
+  if ($('#val')) $('#val').innerHTML = `${fmt(value, d.q === 'Speed' ? 2 : d.q === 'Power' ? 0 : 1)} <small>${u}</small>`;
+  if ($('#msg') && lastMsg) $('#msg').textContent = JSON.stringify(lastMsg, null, 1);
+  if ($('#btnProb')) { $('#btnProb').textContent = incident ? `Problem running, ${Math.max(0, Math.ceil((incident.until - Date.now()) / 1000))} s` : 'Cause a problem'; $('#btnProb').disabled = !!incident; }
+  feedback();
 }
-function buildMessage() {
-  const devMs = Date.now() + (+$('#offset').value) * 1000; const vals = Object.assign(sig(Date.now()), timeTokens(devMs));
-  if (me.mode === 'std') return {txt:JSON.stringify(stdMessage(vals, devMs), null, 1), devMs};
-  const txt = fill(curTpl(), vals); return {txt, devMs};
+function supplierView() {
+  const d = dev(me.device), fields = fieldsOf(d.own(d.normal, Date.now()));
+  if (!metaPick) metaPick = lsGet('cx_meta_' + me.device, null);
+  let h = `<div class="grid2"><div><div class="card"><div class="eyebrow">Round ${round} · ${ROUNDS[round][0]}</div><h2>${esc(d.name)}</h2><div class="small muted">${esc(d.sup)}. ${esc(d.habit)}</div>
+    <div class="value" id="val" style="margin-top:10px"></div><div class="small muted">${esc(d.q)}. The plant should raise an alarm when it is ${esc(d.ruleTxt)}.</div>
+    <button class="btn huge red" id="btnProb" style="margin-top:14px">Cause a problem</button><div id="fb" class="fb ok"></div></div></div>`;
+  h += `<div><div class="card"><div class="eyebrow">What your device sends</div><pre id="msg">waiting…</pre><div class="small muted">${round === 3 ? 'Standard message. Same names and units for everyone.' : 'This is your supplier’s own format. You cannot change it.'}</div></div>`;
+  if (round === 2) h += `<div class="card"><div class="eyebrow">Describe your data for the plant</div><div class="small muted">Tell the plant which field holds the ${esc(d.q.toLowerCase())} and in which unit. A wrong description gives wrong alarms.</div>
+    <label class="f">Field</label><select id="mField"><option value="">choose</option>${fields.map(f => `<option ${metaPick && metaPick.field === f ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select>
+    <label class="f">Unit</label><select id="mUnit"><option value="">choose</option>${UNITS[d.q].map(u => `<option value="${u}" ${metaPick && metaPick.unit === u ? 'selected' : ''}>${UNIT_LABEL[u]}</option>`).join('')}</select>
+    <div class="small" id="mState" style="margin-top:8px">${metaPick ? 'Description sent to the plant.' : 'Not described yet.'}</div></div>`;
+  h += '</div></div>';
+  $('#main').innerHTML = h;
+  $('#btnProb').onclick = () => { const now = Date.now(); incident = {t:now, until:now + 25000, pre:!!plantAlarm}; pub('incident/' + me.device, {on:true, t:now}); renderSupplierLive(); };
+  if (round === 2) { const upd = () => { const f = $('#mField').value, u = $('#mUnit').value; metaPick = f && u ? {quantity:d.q, field:f, unit:u} : null; lsSet('cx_meta_' + me.device, metaPick); publishMeta(); $('#mState').textContent = metaPick ? 'Description sent to the plant.' : 'Not described yet.'; }; $('#mField').onchange = upd; $('#mUnit').onchange = upd; }
+  renderSupplierLive();
 }
-function renderPreview() {
-  const {txt} = buildMessage(); let ok = true; try { JSON.parse(txt); } catch (e) { ok = false; $('#previewErr').textContent = 'Not valid JSON yet. ' + e.message; }
-  if (ok) $('#previewErr').textContent = ''; $('#preview').textContent = txt; return ok;
-}
-function renderTokens() { $('#tokens').innerHTML = Object.entries(TOKENS).map(([k, v]) => `<button class="tok" title="${esc(v)}" data-k="${k}">{{${k}}}</button>`).join(''); $$('#tokens .tok').forEach(b => b.onclick = () => { const ta = $('#tpl'), s = ta.selectionStart || ta.value.length; ta.value = ta.value.slice(0, s) + '{{' + b.dataset.k + '}}' + ta.value.slice(ta.selectionEnd || s); ta.oninput(); ta.focus(); }); }
-function renderMetaTable() {
-  let obj = null; try { obj = JSON.parse(buildMessage().txt); } catch (e) {}
-  if (!obj) { $('#metaTable').innerHTML = '<tr><td class="err">Fix the JSON first.</td></tr>'; return; }
-  const meta = me.meta[me.persona] || {};
-  $('#metaTable').innerHTML = '<tr><th>Your field</th><th>Means</th><th>Unit or time format</th></tr>' + fieldsOf(obj).map(f => { const m = meta[f.path] || {}; const prop = m.prop || ''; const opts = prop === 'Timestamp' ? TFMT : (UNITS[prop] || ['']); return `<tr><td><code>${esc(f.path)}</code></td><td><select data-p="${esc(f.path)}" class="mp"><option value="">ignore</option>${PROPS.concat(['Timestamp']).map(x => `<option ${x === prop ? 'selected' : ''}>${x}</option>`).join('')}</select></td><td><select data-p="${esc(f.path)}" class="mu">${opts.map(u => `<option ${u === m.unit ? 'selected' : ''}>${u}</option>`).join('')}</select></td></tr>`; }).join('');
-  $$('#metaTable .mp').forEach(s => s.onchange = () => { const mm = me.meta[me.persona] = me.meta[me.persona] || {}; mm[s.dataset.p] = {prop:s.value, unit:s.value === 'Timestamp' ? 'auto' : (UNITS[s.value] || [''])[0]}; saveMe(); renderMetaTable(); });
-  $$('#metaTable .mu').forEach(s => s.onchange = () => { const mm = me.meta[me.persona] = me.meta[me.persona] || {}; mm[s.dataset.p] = Object.assign(mm[s.dataset.p] || {}, {unit:s.value}); saveMe(); });
-}
-$('#btnMeta').onclick = () => { const d = {assetId:assetId(), supplier:persona().sup, type:persona().type, fields:me.meta[me.persona] || {}}; pub(base() + '/meta/' + assetId(), JSON.stringify(d), true); $('#metaInfo').textContent = 'Description published.'; };
-function renderStdTable() {
-  if (!me.std) me.std = stdDefault();
-  const srcs = Object.keys(TOKENS).filter(k => !k.startsWith('time'));
-  $('#stdTable').innerHTML = me.std.map((r, i) => `<div class="stdrow"><div class="full"><label class="f" style="margin-top:0">Standard property</label><select class="sp" data-i="${i}">${PROPS.map(p => `<option ${p === r.prop ? 'selected' : ''}>${p}</option>`).join('')}</select><div class="small muted">${DICT[r.prop].id} · ${DICT[r.prop].unit || 'text'}</div></div><div class="full"><label class="f" style="margin-top:0">Your value</label><select class="ss" data-i="${i}">${srcs.map(s => `<option value="${s}" ${s === r.src ? 'selected' : ''}>${TOKENS[s]}</option>`).join('')}</select><div class="small muted">&nbsp;</div></div><label class="small"><input type="checkbox" class="sc" data-i="${i}" ${r.convert ? 'checked' : ''}> convert unit</label><button class="btn ghost sx" data-i="${i}" style="padding:4px 9px">×</button></div>`).join('');
-  $$('#stdTable .sp').forEach(s => s.onchange = () => { me.std[+s.dataset.i].prop = s.value; saveMe(); renderStdTable(); renderPreview(); });
-  $$('#stdTable .ss').forEach(s => s.onchange = () => { me.std[+s.dataset.i].src = s.value; saveMe(); renderPreview(); });
-  $$('#stdTable .sc').forEach(s => s.onchange = () => { me.std[+s.dataset.i].convert = s.checked; saveMe(); renderPreview(); });
-  $$('#stdTable .sx').forEach(s => s.onclick = () => { me.std.splice(+s.dataset.i, 1); saveMe(); renderStdTable(); renderPreview(); });
-}
-$('#btnStdAdd').onclick = () => { me.std = me.std || stdDefault(); me.std.push({prop:'Temperature', src:'temp_C', convert:false}); saveMe(); renderStdTable(); renderPreview(); };
-function updateTopic() { const t = base() + '/' + (me.mode === 'std' ? 'std' : 'free') + '/' + assetId(); $('#topicInfo').innerHTML = `Topic <code>${esc(t)}</code>` + (offline ? ' · offline practice, only this browser sees it' : ''); }
-function renderAsset() {
-  renderPersonas();
-  $$('#modeSel button').forEach(b => b.classList.toggle('on', b.dataset.m === me.mode));
-  $('#tpl').value = curTpl();
-  const std = me.mode === 'std';
-  $('#tpl').classList.toggle('hide', std); $('#tokens').classList.toggle('hide', std); $('#stdBox').classList.toggle('hide', !std); $('#metaBox').classList.toggle('hide', me.mode !== 'meta');
-  $('#editorHelp').textContent = std ? 'Standard mode. You no longer choose the names. Map your values onto the shared dictionary.' : me.mode === 'meta' ? 'Keep your own JSON, then describe each field so the integrator does not have to guess.' : 'Write the JSON your asset sends. Use your own names. Tap a token to insert a live value.';
-  if (std) renderStdTable(); if (me.mode === 'meta') renderMetaTable();
-  renderPreview(); updateTopic();
-}
-$('#btnSend').onclick = () => {
-  if (sending) { clearInterval(sending); sending = null; $('#btnSend').textContent = 'Start sending'; $('#btnSend').className = 'btn go'; return; }
-  if (!offline && !client) { $('#sendInfo').textContent = 'Connect first, top right.'; return; }
-  if (!renderPreview()) { $('#sendInfo').textContent = 'Fix the JSON first.'; return; }
-  if (me.mode === 'meta') $('#btnMeta').click();
-  const tick = () => { const {txt} = buildMessage(); $('#preview').textContent = txt; const t = base() + '/' + (me.mode === 'std' ? 'std' : 'free') + '/' + assetId(); if (pub(t, txt)) sentN++; $('#sendInfo').textContent = sentN + ' messages sent'; };
-  tick(); sending = setInterval(tick, +$('#period').value * 1000); $('#btnSend').textContent = 'Stop sending'; $('#btnSend').className = 'btn stop';
-};
-$('#period').onchange = () => { if (sending) { $('#btnSend').click(); $('#btnSend').click(); } };
-setInterval(() => { if (!sending && $('#t-asset').classList.contains('on')) renderPreview(); }, 1000);
 
-/* ===== integrator side ===== */
-const A = {};   // assetId -> {topic kind, last, lastObj, recv, n, meta, rules, firstSeen, times:[]}
-let rules = lsGet('cn_rules', {}), t0 = Date.now(), ruleCount = 0, firstMsg = null, allMappedAt = null;
-function onMessage(topic, payload, retained) {
-  const parts = topic.split('/'); if (parts[0] !== 'ml2305' || parts[1] !== room()) return;
-  const kind = parts[2], id = parts.slice(3).join('/'); if (!id) return;
-  const a = A[id] = A[id] || {id, kind, n:0, times:[], firstSeen:Date.now()};
-  if (kind === 'meta') { try { a.meta = JSON.parse(payload); } catch (e) {} renderIntegrate(); return; }
-  a.kind = kind; a.n++; a.recv = Date.now(); a.last = payload; if (!firstMsg) firstMsg = Date.now();
-  try { a.obj = JSON.parse(payload); a.err = null; } catch (e) { a.obj = null; a.err = 'not JSON'; }
-  const row = interpret(a); let dev = row && row.devMs;
-  if (!dev && a.obj) { const f = fieldsOf(a.obj).find(x => /^(.*\.)?(time|ts|t|timestamp|clock|date|datetime)$/i.test(x.path)); if (f) { dev = parseTime(f.val, 'auto', a.recv); a.timeGuessed = true; } }
-  if (dev) { a.times.push({dev, recv:a.recv}); if (a.times.length > 40) a.times.shift(); }
-  streamAdd(a, payload); scheduleRender();
+/* ===== integrator: the plant view ===== */
+let latest = {}, metas = {}, hellos = {}, maps = lsGet('cx_maps', {}), alarms = {}, scores = lsGet('cx_scores', {1:null, 2:null, 3:null}), live = {};
+function sc() { return scores[round] || (scores[round] = {inc:[], fa:0, faAt:{}, maps:0}); }
+function interpret(id) {
+  const L = latest[id], d = dev(id); if (!L || !d) return null;
+  const m = L.msg; if (!m || typeof m !== 'object') return {how:'unreadable'};
+  if (m.quantity && m.unit && m.value != null) return {how:'std', v:toStd(m.value, m.unit)};
+  if (round === 3) return {how:'unknown'};   // in the standard round only standard messages count
+  if (round >= 2 && metas[id]) return {how:'sup', v:toStd(getPath(m, metas[id].field), metas[id].unit)};
+  if (maps[id] && maps[id].field && maps[id].unit) return {how:'you', v:toStd(getPath(m, maps[id].field), maps[id].unit)};
+  return {how:'unknown'};
 }
-let rTimer = null; function scheduleRender() { if (!rTimer) rTimer = setTimeout(() => { rTimer = null; renderIntegrate(); renderTime(); }, 300); }
-function interpret(a) {
-  if (!a.obj) return null;
-  if (a.kind === 'std') {
-    const o = a.obj, out = {src:'standard', vals:{}, issues:[]};
-    if (!o.assetId) out.issues.push('no assetId'); if (!Array.isArray(o.properties)) { out.issues.push('no properties list'); return out; }
-    if (!o.timestamp || !/Z$|[+-]\d\d:?\d\d$/.test(o.timestamp)) out.issues.push('time is not UTC ISO 8601'); out.devMs = parseTime(o.timestamp, 'iso', a.recv);
-    for (const p of o.properties) { const d = DICT[p.idShort]; if (!d) { out.issues.push('unknown property ' + p.idShort); continue; } if (p.semanticId !== d.id) out.issues.push(p.idShort + ' has wrong concept ID'); if ((p.unit || '') !== d.unit) out.issues.push(`${p.idShort} in ${p.unit || 'no unit'}, standard says ${d.unit}`); out.vals[p.idShort] = d.kind === 'str' ? String(p.value) : +p.value; }
-    return out;
+function evaluate(id) {
+  const d = dev(id), r = interpret(id); live[id] = r;
+  const on = !!(r && r.v != null && d && d.rule(r.v)), was = !!alarms[id], now = Date.now();
+  if (on !== was) {
+    alarms[id] = on; pub('alarm/' + id, {on, t:now}, true);
+    const s = sc(), open = s.inc.find(x => x.id === id && !x.end);
+    if (on) { if (open && open.caught == null && !open.pre) open.caught = (now - open.t) / 1000; else if (!open) { s.fa++; } }
+    lsSet('cx_scores', scores);
   }
-  const map = (a.meta && a.meta.fields && Object.keys(a.meta.fields).length) ? {src:'description', fields:a.meta.fields} : (rules[a.id] && Object.keys(rules[a.id]).length ? {src:'your rules', fields:rules[a.id]} : null);
-  if (!map) return {src:'none', vals:{}};
-  const out = {src:map.src, vals:{}, issues:[]};
-  for (const [path, m] of Object.entries(map.fields)) { if (!m || !m.prop) continue; const v = getPath(a.obj, path); if (m.prop === 'Timestamp') { out.devMs = parseTime(v, m.unit || 'auto', a.recv); continue; } const sv = toStd(m.prop, v, m.unit); if (sv != null) out.vals[m.prop] = sv; }
-  return out;
+  scheduleRender();
 }
-const SHOW = ['Temperature', 'Humidity', 'PositionX', 'PositionY', 'Battery', 'State', 'Count', 'Weight', 'Power', 'Speed'];
-function renderIntegrate() {
-  const ids = Object.keys(A).filter(id => A[id].n); const rows = ids.map(id => ({a:A[id], r:interpret(A[id])}));
-  const understood = rows.filter(x => x.r && Object.keys(x.r.vals).length).length;
-  if (ids.length && understood === ids.length && !allMappedAt) allMappedAt = Date.now();
-  if (understood < ids.length) allMappedAt = null;
-  const mins = firstMsg ? ((allMappedAt || Date.now()) - firstMsg) / 60000 : 0;
-  ruleCount = Object.values(rules).reduce((s, r) => s + Object.values(r).filter(m => m && m.prop).length, 0);
-  $('#kpis').innerHTML = `<div><span>Assets sending</span><b>${ids.length}</b></div><div><span>Understood</span><b>${understood} of ${ids.length}</b></div><div><span>Rules you wrote</span><b>${ruleCount}</b></div><div><span>Time to integrate</span><b>${firstMsg ? fmt(mins, 1) + ' min' : '–'}</b></div><div><span>Messages</span><b>${ids.reduce((s, id) => s + A[id].n, 0)}</b></div>`;
-  $('#plant').innerHTML = `<tr><th>Asset</th><th>How</th>${SHOW.map(p => `<th>${p}<br><span style="text-transform:none">${DICT[p].unit}</span></th>`).join('')}<th>Device time</th><th>Issues</th></tr>` + rows.map(({a, r}) => { const ok = r && Object.keys(r.vals).length; return `<tr class="${ok ? (r.issues && r.issues.length ? 'warnc' : 'okc') : 'badc'}"><td><b>${esc(a.id)}</b></td><td><span class="tag ${a.kind === 'std' ? 'std' : r && r.src === 'description' ? 'meta' : 'free'}">${esc(r ? r.src : 'not JSON')}</span></td>${SHOW.map(p => { const v = r && r.vals[p]; return `<td>${v == null ? '' : typeof v === 'number' ? fmt(v, p === 'Count' ? 0 : 2) : esc(v)}</td>`; }).join('')}<td>${r && r.devMs ? new Date(r.devMs).toLocaleTimeString() : '<span class="muted">none</span>'}</td><td class="small">${esc((r && r.issues || []).concat(a.err ? [a.err] : []).join('; '))}</td></tr>`; }).join('');
-  const sel = $('#ruleAsset'), cur = sel.value; const free = ids.filter(id => A[id].kind === 'free');
-  sel.innerHTML = free.length ? free.map(id => `<option ${id === cur ? 'selected' : ''}>${esc(id)}</option>`).join('') : '<option value="">no free assets yet</option>';
-  renderRules();
+function onIncident(id, m) {
+  const s = sc();
+  if (m.on) { s.inc.push({id, t:Date.now(), caught:null, pre:!!alarms[id]}); }   // an alarm that was already on tells nothing
+  else { const open = s.inc.find(x => x.id === id && !x.end); if (open) open.end = Date.now(); }
+  lsSet('cx_scores', scores); scheduleRender();
 }
-$('#ruleAsset').onchange = renderRules;
-function renderRules() {
-  const id = $('#ruleAsset').value, a = A[id]; const box = $('#ruleBox');
-  if (!a || !a.obj) { box.innerHTML = '<p class="small muted">Waiting for free messages.</p>'; return; }
-  if (a.meta && a.meta.fields && Object.keys(a.meta.fields).length) { box.innerHTML = '<p class="small">This supplier published a description, so no rules are needed. Check it is right.</p><pre>' + esc(JSON.stringify(a.meta.fields, null, 1)) + '</pre>'; return; }
-  const r = rules[id] || {}; const fs = fieldsOf(a.obj);
-  box.innerHTML = '<table><tr><th>Field</th><th>Latest</th><th>Means</th><th>Unit or format</th></tr>' + fs.map(f => { const m = r[f.path] || {}; const opts = m.prop === 'Timestamp' ? TFMT : (UNITS[m.prop] || ['']); return `<tr><td><code>${esc(f.path)}</code></td><td class="small">${esc(String(f.val).slice(0, 24))}</td><td><select class="rp" data-p="${esc(f.path)}"><option value="">ignore</option>${PROPS.concat(['Timestamp']).map(x => `<option ${x === m.prop ? 'selected' : ''}>${x}</option>`).join('')}</select></td><td><select class="ru" data-p="${esc(f.path)}">${opts.map(u => `<option ${u === m.unit ? 'selected' : ''}>${u}</option>`).join('')}</select></td></tr>`; }).join('') + '</table><div class="row" style="margin-top:6px"><button class="btn soft" id="btnGuess">Let the app guess from names</button><span class="small muted">Then check what it got wrong.</span></div>';
-  $$('#ruleBox .rp').forEach(s => s.onchange = () => { const rr = rules[id] = rules[id] || {}; rr[s.dataset.p] = {prop:s.value, unit:s.value === 'Timestamp' ? 'auto' : (UNITS[s.value] || [''])[0]}; lsSet('cn_rules', rules); renderIntegrate(); });
-  $$('#ruleBox .ru').forEach(s => s.onchange = () => { const rr = rules[id] = rules[id] || {}; rr[s.dataset.p] = Object.assign(rr[s.dataset.p] || {}, {unit:s.value}); lsSet('cn_rules', rules); renderIntegrate(); });
-  $('#btnGuess').onclick = () => { const rr = rules[id] = rules[id] || {}; for (const f of fs) { const k = f.path.toLowerCase(); const g = /temp/.test(k) ? 'Temperature' : /hum/.test(k) ? 'Humidity' : /(^|\.)x$/.test(k) ? 'PositionX' : /(^|\.)y$/.test(k) ? 'PositionY' : /bat/.test(k) ? 'Battery' : /state|mode/.test(k) ? 'State' : /count|items|cycles/.test(k) ? 'Count' : /weight/.test(k) ? 'Weight' : /power|(^|\.)p_/.test(k) ? 'Power' : /speed/.test(k) ? 'Speed' : /time|^ts$|^t$/.test(k) ? 'Timestamp' : ''; if (g && !rr[f.path]) rr[f.path] = {prop:g, unit:g === 'Timestamp' ? 'auto' : (UNITS[g] || [''])[0]}; } lsSet('cn_rules', rules); renderIntegrate(); };
+let rt = null; function scheduleRender() { if (!rt) rt = setTimeout(() => { rt = null; if (document.activeElement && document.activeElement.tagName === 'SELECT') { scheduleRender(); return; } render(); }, 400); }
+function scoreRow(n) { const s = scores[n]; if (!s) return `<tr><td>${n}. ${ROUNDS[n][0]}</td><td colspan="4" class="muted">not played</td></tr>`; const tot = s.inc.length, caught = s.inc.filter(x => x.caught != null && x.caught <= 10).length; return `<tr><td>${n}. ${ROUNDS[n][0]}</td><td><b>${caught} of ${tot}</b></td><td>${s.inc.filter(x => x.caught != null).map(x => fmt(x.caught)).join(', ') || '–'}</td><td>${s.fa}</td><td>${s.maps}</td></tr>`; }
+function integratorView() {
+  const ids = DEVICES.map(d => d.id).filter(id => latest[id] || hellos[id]);
+  let h = `<div class="card"><div class="eyebrow">Integrator · team ${esc(me.team)}</div><h2>Make the plant view catch every problem</h2><div class="small muted">Suppliers cause problems on their devices. Your plant view must raise the alarm within 10 seconds, without false alarms. Play the three rounds and compare.</div>
+    <div class="rounds" style="margin-top:10px">${[1, 2, 3].map(n => `<button data-n="${n}" class="${round === n ? 'on' : ''}"><b>Round ${n} · ${ROUNDS[n][0]}</b><span>${ROUNDS[n][1]}</span></button>`).join('')}</div></div>`;
+  h += `<div class="grid2"><div class="card"><div class="eyebrow">Plant view</div><div class="tiles" style="margin-top:8px">${ids.map(id => { const d = dev(id), r = live[id], on = alarms[id], unk = !r || r.v == null; const tag = r && r.how === 'std' ? '<span class="tag std">standard</span>' : r && r.how === 'sup' ? '<span class="tag sup">described by supplier</span>' : r && r.how === 'you' ? '<span class="tag you">translated by you</span>' : '<span class="tag">not understood</span>'; return `<div class="tile ${on ? 'alarm' : unk ? 'unk' : ''}"><div class="row"><b>${esc(d.name)}</b><span class="small muted" style="margin-left:auto">${esc(hellos[id] ? hellos[id].name : '')}</span></div><div class="v">${unk ? '?' : fmt(r.v, d.q === 'Speed' ? 2 : d.q === 'Power' ? 0 : 1) + ' ' + (UNIT_LABEL[STD[d.q]] || STD[d.q])}</div><div class="st" style="color:${on ? '#b3321f' : unk ? '#6b7785' : '#14633a'}">${on ? 'ALARM, ' + esc(d.ruleTxt) : unk ? 'cannot check' : 'OK'}</div><div style="margin-top:4px">${tag}</div></div>`; }).join('') || '<div class="muted">Waiting for suppliers to connect.</div>'}</div></div>`;
+  h += `<div><div class="card"><div class="eyebrow">Score per round</div><table style="margin-top:6px"><tr><th>Round</th><th>Caught in 10 s</th><th>Seconds to alarm</th><th>False alarms</th><th>Your translations</th></tr>${[1, 2, 3].map(scoreRow).join('')}</table><div class="row" style="margin-top:8px"><button class="btn ghost" id="clrScore">Clear scores</button></div></div>`;
+  const needMap = ids.filter(id => { const r = live[id]; return round === 1 || (r && r.how !== 'std' && r.how !== 'sup'); });
+  if (round < 3 && needMap.length) h += `<div class="card"><div class="eyebrow">${round === 1 ? 'Translate each supplier' : 'Not described yet, translate it yourself'}</div><div class="small muted">Choose the field that holds the value and its unit. The plant view converts to the standard.</div>${needMap.map(id => { const d = dev(id), L = latest[id], fs = L && L.msg && typeof L.msg === 'object' ? fieldsOf(L.msg) : [], mp = maps[id] || {}; return `<div style="margin-top:10px"><b>${esc(d.name)}</b> <span class="small muted">${esc(d.q)} in ${esc(UNIT_LABEL[STD[d.q]])}</span><div class="row" style="margin-top:4px"><select data-mf="${id}" style="width:auto;flex:1"><option value="">field</option>${fs.map(f => `<option ${mp.field === f ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select><select data-mu="${id}" style="width:auto;flex:1"><option value="">unit</option>${UNITS[d.q].map(u => `<option value="${u}" ${mp.unit === u ? 'selected' : ''}>${UNIT_LABEL[u]}</option>`).join('')}</select></div><pre style="font-size:11px">${esc(L ? L.raw : 'no message yet')}</pre></div>`; }).join('')}</div>`;
+  h += '</div></div>';
+  $('#main').innerHTML = h;
+  $$('.rounds button').forEach(b => b.onclick = () => { round = +b.dataset.n; pub('round', {n:round}, true); render(); });
+  $('#clrScore').onclick = () => { scores = {1:null, 2:null, 3:null}; lsSet('cx_scores', scores); render(); };
+  const upd = id => { const f = $(`[data-mf="${id}"]`).value, u = $(`[data-mu="${id}"]`).value, old = maps[id] || {}; if (f && u && (old.field !== f || old.unit !== u)) sc().maps++; maps[id] = {field:f, unit:u}; lsSet('cx_maps', maps); lsSet('cx_scores', scores); evaluate(id); };
+  $$('[data-mf]').forEach(s => s.onchange = () => upd(s.dataset.mf)); $$('[data-mu]').forEach(s => s.onchange = () => upd(s.dataset.mu));
 }
-function streamAdd(a, payload) {
-  const el = $('#stream'); const d = document.createElement('div'); d.className = 'msg';
-  d.innerHTML = `<div class="h"><span class="tag ${a.kind}">${a.kind}</span><b>${esc(a.id)}</b><span class="muted">${new Date().toLocaleTimeString()}</span></div><pre style="max-height:110px">${esc(payload)}</pre>`;
-  el.prepend(d); while (el.children.length > 40) el.lastChild.remove();
-}
-$('#btnClear').onclick = () => { for (const k of Object.keys(A)) delete A[k]; rules = {}; lsSet('cn_rules', rules); firstMsg = null; allMappedAt = null; $('#stream').innerHTML = ''; renderIntegrate(); renderTime(); };
-let simTimers = [];
-$('#btnSim').onclick = () => {
-  if (simTimers.length) { simTimers.forEach(clearInterval); simTimers = []; $('#btnSim').textContent = 'Add practice suppliers'; return; }
-  if (!offline && !client) { $('#btnConn').click(); }
-  PERSONAS.forEach((p, i) => { const s = makeSignals(100 + i * 37), id = p.id + '-sim'; const per = [2, 1, 5, 2, 2, 1, 10][i] * 1000;
-    const tick = () => { const dev = Date.now() + p.clock * 1000; const txt = fill(p.tpl, Object.assign(s(Date.now()), timeTokens(dev))); pub(base() + '/free/' + id, txt); };
-    tick(); simTimers.push(setInterval(tick, per)); });
-  $('#btnSim').textContent = 'Stop practice suppliers';
-};
 
-/* ===== time view ===== */
-function renderTime() {
-  const ids = Object.keys(A).filter(id => A[id].n); const now = Date.now(), span = 120000;
-  const W = 760, rowH = 34, H = Math.max(1, ids.length) * rowH + 50, xL = 170, xR = W - 20;
-  const sx = ms => xL + (xR - xL) * (1 - (now - ms) / span);
-  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Device time against receive time"><text x="${xL}" y="14" font-size="12" fill="#4a5563">2 minutes ago</text><text x="${xR}" y="14" font-size="12" text-anchor="end" fill="#4a5563">now</text>`;
-  ids.forEach((id, i) => { const a = A[id], y = 30 + i * rowH; s += `<text x="${xL - 8}" y="${y + 14}" font-size="12" text-anchor="end" fill="#16212e">${esc(id)}</text><line x1="${xL}" x2="${xR}" y1="${y + 4}" y2="${y + 4}" stroke="#d6dce3"/><line x1="${xL}" x2="${xR}" y1="${y + 22}" y2="${y + 22}" stroke="#d6dce3"/>`;
-    if (!a.times.length) s += `<text x="${xL + 6}" y="${y + 17}" font-size="11" fill="#b04512">no device time, only arrival time is known</text>`;
-    a.times.filter(t => now - t.recv < span).forEach(t => { const x1 = sx(t.dev), x2 = sx(t.recv); const off = Math.abs(t.recv - t.dev) > 2000; s += `<line x1="${Math.max(xL, Math.min(xR, x1))}" y1="${y + 4}" x2="${x2}" y2="${y + 22}" stroke="${off ? '#b04512' : '#0b7464'}" stroke-width="1.4" opacity=".8"/><circle cx="${Math.max(xL, Math.min(xR, x1))}" cy="${y + 4}" r="3" fill="#004791"/><circle cx="${x2}" cy="${y + 22}" r="3" fill="#6b3fa8"/>`; }); });
-  s += `<text x="${xL}" y="${H - 6}" font-size="11" fill="#4a5563">top line = device time, bottom line = arrival time at the server, orange = more than 2 s apart</text></svg>`;
-  $('#timeSvg').innerHTML = ids.length ? s : '<p class="muted small">Waiting for messages.</p>';
-  $('#offTable').innerHTML = '<tr><th>Asset</th><th>Device clock vs server</th><th>Gap between messages</th></tr>' + ids.map(id => { const a = A[id]; const offs = a.times.map(t => (t.dev - t.recv) / 1000); const o = offs.length ? offs.reduce((x, y) => x + y, 0) / offs.length : null; const g = a.times.length > 1 ? (a.times[a.times.length - 1].recv - a.times[0].recv) / 1000 / (a.times.length - 1) : null; return `<tr><td>${esc(id)}</td><td>${o == null ? '<span class="muted">unknown</span>' : (o >= 0 ? '+' : '') + fmt(o, 1) + ' s'}</td><td>${g == null ? '–' : fmt(g, 1) + ' s'}</td></tr>`; }).join('');
+/* ===== join ===== */
+function joinView() {
+  let role = me ? me.role : 'supplier', device = me ? me.device : 'freezer';
+  $('#main').innerHTML = `<div class="card"><div class="eyebrow">Join your team</div><h2>One integrator, everyone else a supplier</h2>
+    <div class="row"><div style="flex:1;min-width:140px"><label class="f">Team code</label><input type="text" id="jTeam" placeholder="for example c1" value="${esc(me ? me.team : params.get('team') || '')}"></div><div style="flex:1;min-width:140px"><label class="f">Your name</label><input type="text" id="jName" value="${esc(me ? me.name : '')}"></div></div>
+    <label class="f">Your role</label><div class="pick" id="jRole"><button data-r="supplier"><b>Supplier</b><span>you own one device on the shop floor</span></button><button data-r="integrator"><b>Integrator</b><span>you run the plant view on a laptop</span></button></div>
+    <div id="jDevBox"><label class="f">Your device</label><div class="pick" id="jDev">${DEVICES.map(d => `<button data-d="${d.id}"><b>${esc(d.name)}</b><span>${esc(d.sup)}. ${esc(d.habit)}</span></button>`).join('')}</div></div>
+    <label class="f">Server</label><select id="jBroker"><option value="emqx">Server A</option><option value="hivemq">Server B</option><option value="mosq">Server C</option><option value="shiftr">Server D, port 443</option><option value="custom">Own server URL</option></select><input type="text" id="jUrl" class="hide" placeholder="ws://192.168.1.10:9001" style="margin-top:6px">
+    <div style="margin-top:14px"><button class="btn huge" id="jGo">Join</button></div><div class="small muted" style="margin-top:8px">Each device once per team. The integrator opens this page on a laptop or the projector.</div></div>`;
+  const sync = () => { $$('#jRole button').forEach(b => b.classList.toggle('on', b.dataset.r === role)); $$('#jDev button').forEach(b => b.classList.toggle('on', b.dataset.d === device)); $('#jDevBox').classList.toggle('hide', role !== 'supplier'); };
+  $$('#jRole button').forEach(b => b.onclick = () => { role = b.dataset.r; sync(); }); $$('#jDev button').forEach(b => b.onclick = () => { device = b.dataset.d; sync(); }); sync();
+  $('#jBroker').value = (me && me.broker) || params.get('b') || 'emqx'; $('#jUrl').value = (me && me.url) || params.get('url') || '';
+  $('#jBroker').onchange = () => $('#jUrl').classList.toggle('hide', $('#jBroker').value !== 'custom'); $('#jBroker').onchange();
+  $('#jGo').onclick = () => { const team = $('#jTeam').value.trim().toLowerCase().replace(/[^\w-]/g, ''), name = $('#jName').value.trim(); if (!team || !name) return; me = {team, name, role, device, broker:$('#jBroker').value, url:$('#jUrl').value.trim()}; lsSet('cx_me', me); start(); };
 }
-setInterval(() => { if ($('#t-time').classList.contains('on')) renderTime(); }, 1000);
-
-/* ===== tabs ===== */
-$$('#tabs button').forEach(b => b.onclick = () => { $$('#tabs button').forEach(x => x.classList.toggle('on', x === b)); $$('main > section').forEach(s => s.classList.toggle('on', s.id === 't-' + b.dataset.t)); if (b.dataset.t === 'integrate') renderIntegrate(); if (b.dataset.t === 'time') renderTime(); if (b.dataset.t === 'asset') renderAsset(); });
-if (!me.tpl[me.persona]) me.tpl[me.persona] = persona().tpl;
-$('#offset').value = String(persona().clock);
-renderTokens(); renderAsset(); renderIntegrate();
-if (params.get('room')) $('#btnConn').click();
+function render() {
+  if (!me) { joinView(); return; }
+  $('#whoText').innerHTML = `${esc(me.name)} · ${esc(me.team)} · <a href="#" id="chg" style="color:#c9d7ea">change</a>`; $('#chg').onclick = e => { e.preventDefault(); clearInterval(sendTimer); if (client) client.close(); client = null; joinView(); };
+  if (me.role === 'integrator') integratorView(); else supplierView();
+}
+function start() { render(); connect(); if (me.role !== 'integrator') supplierLoop(); else setInterval(() => { Object.keys(latest).forEach(id => { if (Date.now() - latest[id].at > 12000 && alarms[id]) { alarms[id] = false; pub('alarm/' + id, {on:false, t:Date.now()}, true); } }); }, 3000); }
+if (me) start(); else joinView();
 </script>
 </body>
 </html>

@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Fleet twin · ML2305 Lab 3</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23004791'/%3E%3Ccircle cx='11' cy='16' r='5' fill='%23fff'/%3E%3Ccircle cx='22' cy='12' r='4' fill='%23ffd34d'/%3E%3Ccircle cx='21' cy='23' r='4' fill='%239fd6cd'/%3E%3C/svg%3E">
+<style>
+:root{--ink:#16212e;--muted:#4a5563;--bg:#f4f3ee;--line:#d6dce3;--kth:#004791;--navy:#000061;--soft:#e6eef8}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Figtree,Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.45}
+button,input,select{font:inherit;color:inherit}
+button{touch-action:manipulation}
+header{background:var(--navy);color:#fff;padding:12px 16px}
+.top{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+h1{font-size:19px;margin:0}.sub{font-size:13px;color:#c9d7ea}
+.who{margin-left:auto;font-size:13px;color:#c9d7ea;text-align:right}
+.dot{width:10px;height:10px;border-radius:99px;background:#9aa6b2;display:inline-block;margin-right:6px}.dot.on{background:#2fbf71}.dot.err{background:#e5484d}
+main{max-width:1180px;margin:0 auto;padding:14px 14px 80px;display:grid;grid-template-columns:1.2fr 1fr;gap:12px;align-items:start}
+.col{display:flex;flex-direction:column;gap:12px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;color:var(--kth)}
+.muted{color:var(--muted)}.small{font-size:13px}
+h2{font-size:20px;margin:4px 0 8px}
+.btn{background:var(--kth);color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+.btn.ghost{background:#fff;color:var(--kth);border:1.5px solid var(--kth)}
+.btn.go{background:#1f9d5a}.btn.warn{background:#b04512}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.sm{padding:6px 10px;font-size:14px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input[type=text],select{border:1.5px solid var(--line);border-radius:10px;padding:9px 10px;background:#fff;width:100%}
+label.f{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:10px 0 4px}
+#map svg{width:100%;height:auto;display:block;touch-action:manipulation}
+.status{margin-top:8px;font-weight:700}
+.status.ok{color:#14633a}.status.bad{color:#b3321f}
+.missions{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mis{border:2px solid var(--line);border-radius:10px;padding:7px 9px;cursor:pointer;background:#fbfaf7;display:flex;gap:8px;align-items:center;font-weight:700}
+.mis small{display:block;font-weight:600;color:var(--muted);font-size:12px}
+.mis .tag{margin-left:auto;border-radius:99px;min-width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800;background:#c3ccd8}
+.mis.mine{border-color:var(--kth);background:var(--soft)}
+.mis.dup{border-color:#c4422b;background:#fae6e4}
+.step{border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-top:8px}
+.step .hd{display:flex;align-items:center;gap:8px;font-weight:800}
+.step .ctl{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.stepper{display:inline-flex;align-items:center;border:1.5px solid var(--kth);border-radius:10px;overflow:hidden}
+.stepper button{border:0;background:var(--soft);color:var(--kth);width:34px;height:34px;font-size:18px;font-weight:800;cursor:pointer}
+.stepper b{min-width:70px;text-align:center;font-size:14px}
+.badge{display:inline-flex;align-items:center;justify-content:center;border-radius:99px;min-width:28px;height:28px;color:#fff;font-weight:800;font-size:14px;padding:0 8px}
+.via.on{background:#ffd34d;border-color:#e0a800;color:#16212e}
+.list{font-size:14px;margin:6px 0 0;padding-left:18px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+.big{font-size:30px;font-weight:900}
+.hide{display:none!important}
+@media(max-width:860px){main{display:flex;flex-direction:column;align-items:stretch}.col{display:contents}#mapCard{order:1}#misCard{order:2}#planCard{order:3}#teamCard{order:4}#resCard{order:5}}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div><h1 id="ttl">Fleet twin</h1><div class="sub" id="sub">ML2305 Lab 3 · many robots, one floor</div></div>
+    <div class="who"><span class="dot" id="dot"></span><span id="whoText">not joined</span></div>
+  </div>
+</header>
+<main id="main"></main>
+<script>
+/* ===== minimal MQTT 3.1.1 over WebSocket ===== */
+class MiniMQTT {
+  constructor(url, o = {}) { this.url = url; this.o = o; this.buf = new Uint8Array(0); this.subs = []; this.pid = 1; this.enc = new TextEncoder(); this.dec = new TextDecoder(); }
+  _s(str) { const b = this.enc.encode(str); return [b.length >> 8, b.length & 255, ...b]; }
+  _len(n) { const o = []; do { let d = n % 128; n = Math.floor(n / 128); if (n > 0) d |= 128; o.push(d); } while (n > 0); return o; }
+  _send(h, body) { if (!this.ws || this.ws.readyState !== 1) return false; this.ws.send(new Uint8Array([h, ...this._len(body.length), ...body])); return true; }
+  connect() { return new Promise((res, rej) => { let done = false; const fail = e => { if (!done) { done = true; rej(e); } };
+    try { this.ws = new WebSocket(this.url, ['mqtt']); } catch (e) { return fail(e); }
+    this.ws.binaryType = 'arraybuffer'; const to = setTimeout(() => { fail(new Error('timeout')); try { this.ws.close(); } catch (e) {} }, 8000);
+    this.ws.onopen = () => { let f = 0x02; const pl = this._s('ml2305-' + Math.random().toString(36).slice(2, 10)); if (this.o.username) { f |= 0x80; pl.push(...this._s(this.o.username)); } if (this.o.password) { f |= 0x40; pl.push(...this._s(this.o.password)); } this._send(0x10, [...this._s('MQTT'), 4, f, 0, 30, ...pl]); this._ping = setInterval(() => this._send(0xC0, []), 20000); };
+    this.ws.onmessage = ev => { const d = new Uint8Array(ev.data), nb = new Uint8Array(this.buf.length + d.length); nb.set(this.buf); nb.set(d, this.buf.length); this.buf = nb;
+      for (;;) { if (this.buf.length < 2) break; let m = 1, len = 0, i = 1, b; do { if (i >= this.buf.length) return; b = this.buf[i++]; len += (b & 127) * m; m *= 128; } while (b & 128); if (this.buf.length < i + len) break;
+        const h = this.buf[0], body = this.buf.slice(i, i + len); this.buf = this.buf.slice(i + len); const t = h >> 4;
+        if (t === 2) { clearTimeout(to); if (body[1] === 0) { done = true; this.subs.forEach(s => this._sub(s)); res(); this.onstatus && this.onstatus('on'); } else fail(new Error('refused')); }
+        else if (t === 3) { const q = (h >> 1) & 3, tl = (body[0] << 8) | body[1], topic = this.dec.decode(body.slice(2, 2 + tl)); let p = 2 + tl; if (q > 0) { const id = [body[p], body[p + 1]]; p += 2; if (q === 1) this._send(0x40, id); } this.onmessage && this.onmessage(topic, this.dec.decode(body.slice(p))); } } };
+    this.ws.onerror = () => { fail(new Error('error')); this.onstatus && this.onstatus('err'); };
+    this.ws.onclose = () => { clearInterval(this._ping); this.onstatus && this.onstatus(done ? 'closed' : 'err'); fail(new Error('closed')); }; }); }
+  _sub(f) { const id = this.pid++ & 0xffff; this._send(0x82, [id >> 8, id & 255, ...this._s(f), 0]); }
+  subscribe(f) { if (!this.subs.includes(f)) this.subs.push(f); this._sub(f); }
+  publish(t, p, retain) { return this._send(retain ? 0x31 : 0x30, [...this._s(t), ...this.enc.encode(p)]); }
+  close() { try { this._send(0xE0, []); this.ws.close(); } catch (e) {} }
+}
+const $ = s => document.querySelector(s), $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const params = new URLSearchParams(location.search), BOARD = !!params.get('board');
+function lsGet(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const dev = lsGet('fl_dev', null) || (() => { const s = Math.random().toString(36).slice(2, 9); lsSet('fl_dev', s); return s; })();
+
+/* ===== the floor. One cell is about one metre, a robot moves one cell per second ===== */
+const GRID = ['............', '.SS.SS.SS..D', '.SS.SS.SS...', '...........D', '.SS.SS.SS...', '.SS.SS.SS..D', '............', 'HHHHHH......'];
+const GW = GRID[0].length, GH = GRID.length, CS = 44;
+const STATIONS = {A:[3, 1], B:[6, 1], C:[9, 2], D:[0, 2], E:[3, 4], F:[6, 5], G:[9, 5], H:[0, 5]};
+const DOCKS = {D1:[11, 1], D2:[11, 3], D3:[11, 5]};
+const HOMES = [[0, 7], [1, 7], [2, 7], [3, 7], [4, 7], [5, 7]];
+const MISSIONS = [['A', 'D1'], ['B', 'D2'], ['C', 'D3'], ['D', 'D1'], ['E', 'D2'], ['F', 'D3'], ['G', 'D1'], ['H', 'D2']].map(([f, t], i) => ({id:i, name:'M' + (i + 1), from:f, to:t}));
+const COLORS = ['#004791', '#b04512', '#0b7464', '#6b3fa8', '#c4422b', '#2f8fd8'];
+const LOAD = 2, FLOOR_RUNS = 5;
+const key = c => c[0] + ',' + c[1], same = (a, b) => a[0] === b[0] && a[1] === b[1];
+const isShelf = c => GRID[c[1]][c[0]] === 'S', inGrid = c => c[0] >= 0 && c[0] < GW && c[1] >= 0 && c[1] < GH;
+function bfs(a, b) {
+  if (same(a, b)) return [a];
+  const q = [a], prev = {[key(a)]:null};
+  while (q.length) { const c = q.shift(); if (same(c, b)) break;
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const n = [c[0] + dx, c[1] + dy]; if (!inGrid(n) || isShelf(n) || key(n) in prev) continue; if (GRID[n[1]][n[0]] === 'H' && !same(n, b)) continue; prev[key(n)] = c; q.push(n); } }
+  if (!(key(b) in prev)) return null;
+  const p = [b]; while (prev[key(p[p.length - 1])]) p.push(prev[key(p[p.length - 1])]); return p.reverse();
+}
+/* a robot plan becomes a list of legs, then a timed list of cells */
+function bfsVia(a, b, via) { if (!via) return bfs(a, b) || [a]; const p1 = bfs(a, via), p2 = bfs(via, b); return p1 && p2 ? p1.concat(p2.slice(1)) : (bfs(a, b) || [a]); }
+function legs(home, plan) {
+  const out = [];
+  for (const st of plan) { const M = MISSIONS[st.m]; if (!M) continue; if (st.wait) out.push({a:'wait', k:st.wait}); out.push({a:'go', to:STATIONS[M.from]}); out.push({a:'load', k:LOAD, m:st.m}); out.push({a:'go', to:DOCKS[M.to], via:st.via}); out.push({a:'unload', k:LOAD, m:st.m}); }
+  out.push({a:'go', to:home}); return out;
+}
+function timeline(home, plan) { const cells = [home]; let cur = home; for (const s of legs(home, plan)) { if (s.a === 'go') { const p = bfsVia(cur, s.to, s.via); for (let i = 1; i < p.length; i++) cells.push(p[i]); cur = s.to; } else for (let i = 0; i < s.k; i++) cells.push(cur); } return cells; }
+function rawConflicts(tls) {
+  const T = Math.max(1, ...tls.map(t => t.length)), at = (tl, t) => tl[Math.min(t, tl.length - 1)], out = [];
+  for (let t = 1; t < T; t++) for (let i = 0; i < tls.length; i++) for (let j = i + 1; j < tls.length; j++) {
+    const a = at(tls[i], t), b = at(tls[j], t);
+    if (same(a, b)) out.push({t, i, j, cell:a, kind:'same cell'});
+    else if (same(a, at(tls[j], t - 1)) && same(b, at(tls[i], t - 1))) out.push({t, i, j, cell:a, kind:'head on'});
+  }
+  return out;
+}
+function conflicts(tls) {   // one entry per meeting, not one per second
+  const raw = rawConflicts(tls), last = {}, out = [];
+  for (const c of raw) { const k = c.i + '-' + c.j; if (last[k] != null && c.t - last[k] <= 2) { last[k] = c.t; continue; } last[k] = c.t; out.push(c); }
+  out.raw = raw; return out;
+}
+/* the floor, a stand in for the physical floor. Moves sometimes take longer, people cross,
+   a robot stops when the next cell is taken and after a few seconds looks for a way around */
+function floorRun(robots, seed) {
+  const rnd = mulberry(seed), R = robots.map((r, i) => ({i, cell:r.home, legs:legs(r.home, r.plan), k:0, path:null, busy:0, to:null, wait:0, blocked:0, done:false}));
+  const frames = [], occupied = me => { const m = {}; R.forEach(r => { if (r.i === me) return; m[key(r.cell)] = 1; if (r.to) m[key(r.to)] = 1; }); return m; };
+  function detour(r, goal, occ) {   // shortest path that avoids cells taken right now
+    const q = [r.cell], prev = {[key(r.cell)]:null};
+    while (q.length) { const c = q.shift(); if (same(c, goal)) break; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const n = [c[0] + dx, c[1] + dy]; if (!inGrid(n) || isShelf(n) || key(n) in prev || (occ[key(n)] && !same(n, goal))) continue; if (GRID[n[1]][n[0]] === 'H' && !same(n, goal)) continue; prev[key(n)] = c; q.push(n); } }
+    if (!(key(goal) in prev)) return null; const p = [goal]; while (prev[key(p[p.length - 1])]) p.push(prev[key(p[p.length - 1])]); return p.reverse().slice(1);
+  }
+  let t = 0, still = 0, dead = null;
+  frames.push(R.map(r => ({c:r.cell})));
+  while (t < 900) {
+    t++; let progressed = false;
+    for (const r of R) {
+      if (r.done) continue;
+      if (r.busy > 0) { r.busy--; progressed = true; if (r.busy === 0 && r.to) { r.cell = r.to; r.to = null; r.path.shift(); } continue; }
+      let L = r.legs[r.k];
+      if (L && L.a === 'go' && !r.path) r.path = bfsVia(r.cell, L.to, L.via).slice(1);
+      if (L && L.a === 'go' && !r.path.length) { r.path = null; r.k++; L = r.legs[r.k]; if (L && L.a === 'go') r.path = bfsVia(r.cell, L.to, L.via).slice(1); }
+      if (!L) { r.done = true; continue; }
+      if (L.a === 'go') {
+        if (!r.path.length) { r.path = null; r.k++; continue; }
+        const occ = occupied(r.i), nx = r.path[0];
+        if (occ[key(nx)]) { r.blocked++; r.wait++; if (r.wait >= 3) { const d = detour(r, L.to, occ); if (d && d.length <= r.path.length + 8) { r.path = d; r.wait = 0; } } continue; }
+        r.wait = 0; const u = rnd(); r.to = nx; r.busy = (u < .84 ? 1 : u < .97 ? 2 : 4) - 1; progressed = true;
+        if (r.busy === 0) { r.cell = r.to; r.to = null; r.path.shift(); }
+      } else { r.busy = L.k + (L.a !== 'wait' && rnd() < .3 ? 1 : 0) - 1; r.k++; progressed = true; }
+    }
+    frames.push(R.map(r => ({c:r.cell})));
+    if (R.every(r => r.done)) break;
+    still = progressed ? 0 : still + 1;
+    if (still >= 10) { dead = {t, robots:R.filter(r => !r.done).map(r => r.i)}; break; }
+  }
+  return {frames, makespan:t, dead, blocked:R.map(r => r.blocked), ok:!dead && R.every(r => r.done)};
+}
+
+/* ===== connection and shared state ===== */
+const BROKERS = {emqx:{url:'wss://broker.emqx.io:8084/mqtt'}, hivemq:{url:'wss://broker.hivemq.com:8884/mqtt'}, mosq:{url:'wss://test.mosquitto.org:8081/'}, shiftr:{url:'wss://public.cloud.shiftr.io', username:'public', password:'public'}};
+let me = lsGet('fl_me', null), client = null, robots = {}, lastRun = null, boardRec = null, boards = {}, runs = {};
+const CLS = () => ((me && me.cls) || params.get('class') || 'lab3').toLowerCase().replace(/[^\w-]/g, '') || 'lab3';
+const T = s => `ml2305/fleet-${CLS()}/${s}`;
+function pub(s, o, retain) { if (client) client.publish(T(s), o == null ? '' : JSON.stringify(o), !!retain); }
+async function connect(bk, url) {
+  if (client) client.close(); client = null; $('#dot').className = 'dot';
+  const p = bk === 'custom' ? {url} : BROKERS[bk || 'emqx'], c = new MiniMQTT(p.url, {username:p.username, password:p.password});
+  c.onmessage = onMsg; c.onstatus = s => { if (client === c && s !== 'on') { $('#dot').className = 'dot err'; setTimeout(() => { if (client === c) connect(bk, url); }, 3000); } };
+  try { await c.connect(); client = c; $('#dot').className = 'dot on'; if (BOARD) { c.subscribe(T('board/+')); c.subscribe(T('+/run')); } else { c.subscribe(T(me.team + '/robot/+')); c.subscribe(T(me.team + '/run')); c.subscribe(T('board/+')); } }
+  catch (e) { $('#dot').className = 'dot err'; setTimeout(() => connect(bk, url), 3000); return; }
+  if (!BOARD) setTimeout(() => { if (!robots[dev]) { robots[dev] = {name:me.name, joinedAt:Date.now(), plan:[]}; saveMine(); } else if (robots[dev].name !== me.name) { robots[dev].name = me.name; saveMine(); } render(); }, 1200);
+}
+function onMsg(topic, payload) {
+  let m = null; if (payload) { try { m = JSON.parse(payload); } catch (e) { return; } }
+  const p = topic.split('/');
+  if (p[2] === 'board') { if (m) boards[p[3]] = m; else delete boards[p[3]]; if (!BOARD && p[3] === me.team) boardRec = m; render(); return; }
+  if (p[3] === 'robot') { if (m) robots[p[4]] = m; else delete robots[p[4]]; render(); return; }
+  if (p[3] === 'run') { if (!m) { if (!BOARD) lastRun = null; return; } runs[p[2]] = m; if (BOARD || p[2] === me.team) playFloor(m, p[2]); return; }
+}
+function saveMine() { pub(me.team + '/robot/' + dev, robots[dev], true); }
+function order() { return Object.entries(robots).sort((a, b) => a[1].joinedAt - b[1].joinedAt || (a[0] < b[0] ? -1 : 1)).slice(0, HOMES.length).map(([id, r], i) => ({id, i, name:r.name, home:HOMES[i], plan:r.plan || [], color:COLORS[i]})); }
+function owners() { const o = MISSIONS.map(() => []); order().forEach(r => r.plan.forEach(s => { if (o[s.m]) o[s.m].push(r.i); })); return o; }
+function twin() { const rs = order(), tls = rs.map(r => timeline(r.home, r.plan)), cf = conflicts(tls); return {rs, tls, cf, makespan:Math.max(0, ...tls.map(t => t.length - 1))}; }
+
+/* ===== animation ===== */
+let anim = null, viaFor = null;
+function playTwin() { const tw = twin(); anim = {kind:'twin', t0:performance.now(), rate:4, len:tw.makespan, pos:t => tw.tls.map(tl => ({c:tl[Math.min(Math.floor(t), tl.length - 1)], n:tl[Math.min(Math.floor(t) + 1, tl.length - 1)], f:t - Math.floor(t)})), cf:tw.cf.raw || tw.cf}; loop(); }
+function playFloor(run, team) {
+  const res = floorRun(run.robots, run.seed);
+  anim = {kind:'floor', team, run, res, t0:performance.now(), rate:6, len:res.frames.length - 1, pos:t => { const a = res.frames[Math.min(Math.floor(t), res.frames.length - 1)], b = res.frames[Math.min(Math.floor(t) + 1, res.frames.length - 1)]; return a.map((r, i) => ({c:r.c, n:b[i].c, f:t - Math.floor(t)})); }};
+  if (!BOARD) lastRun = {run, res}; loop(); render();
+}
+let raf = 0;
+function loop() { cancelAnimationFrame(raf); const step = () => { if (!anim) return; const t = (performance.now() - anim.t0) / 1000 * anim.rate; drawRobots(Math.min(t, anim.len)); if (t < anim.len + 2) raf = requestAnimationFrame(step); else { anim.ended = true; } }; raf = requestAnimationFrame(step); }
+
+/* ===== map ===== */
+function mapSVG(tw, opts = {}) {
+  const W = GW * CS, H = GH * CS; let s = `<svg viewBox="0 0 ${W} ${H}" id="svgMap">`;
+  for (let y = 0; y < GH; y++) for (let x = 0; x < GW; x++) {
+    const g = GRID[y][x], X = x * CS, Y = y * CS;
+    s += `<rect x="${X}" y="${Y}" width="${CS}" height="${CS}" fill="${g === 'S' ? '#7d8796' : g === 'H' ? '#e8ecf2' : '#f7f8fa'}" stroke="#e1e5eb" data-x="${x}" data-y="${y}" class="cell"/>`;
+    if (g === 'S' && (x === 1 || x === 4 || x === 7) && (y === 1 || y === 4)) s += `<text x="${X + CS}" y="${Y + CS + 5}" text-anchor="middle" font-size="12" fill="#fff" font-weight="700" pointer-events="none">shelf</text>`;
+  }
+  for (const [k, c] of Object.entries(STATIONS)) s += `<rect x="${c[0] * CS + 5}" y="${c[1] * CS + 5}" width="${CS - 10}" height="${CS - 10}" rx="7" fill="#ffd34d" pointer-events="none"/><text x="${c[0] * CS + CS / 2}" y="${c[1] * CS + CS / 2 + 6}" text-anchor="middle" font-size="17" font-weight="900" fill="#5b4300" pointer-events="none">${k}</text>`;
+  for (const [k, c] of Object.entries(DOCKS)) s += `<rect x="${c[0] * CS + 3}" y="${c[1] * CS + 3}" width="${CS - 6}" height="${CS - 6}" rx="7" fill="#2fbf71" pointer-events="none"/><text x="${c[0] * CS + CS / 2}" y="${c[1] * CS + CS / 2 + 5}" text-anchor="middle" font-size="14" font-weight="900" fill="#fff" pointer-events="none">${k}</text>`;
+  if (tw) {
+    tw.rs.forEach((r, i) => { s += `<rect x="${r.home[0] * CS + 4}" y="${r.home[1] * CS + 4}" width="${CS - 8}" height="${CS - 8}" rx="8" fill="none" stroke="${r.color}" stroke-width="3" pointer-events="none"/>`; });
+    tw.rs.forEach((r, i) => { const tl = tw.tls[i], pts = []; tl.forEach(c => { const p = [c[0] * CS + CS / 2 + (i - 2) * 2.5, c[1] * CS + CS / 2 + (i - 2) * 2.5]; if (!pts.length || pts[pts.length - 1][0] !== p[0] || pts[pts.length - 1][1] !== p[1]) pts.push(p); }); const mine = r.id === dev; s += `<polyline points="${pts.map(p => p.join(',')).join(' ')}" fill="none" stroke="${r.color}" stroke-width="${mine ? 4.5 : 2.5}" opacity="${mine ? .95 : .55}" stroke-linejoin="round" pointer-events="none"/>`;
+      r.plan.forEach(st => { if (st.via) s += `<rect x="${st.via[0] * CS + CS / 2 - 7}" y="${st.via[1] * CS + CS / 2 - 7}" width="14" height="14" transform="rotate(45 ${st.via[0] * CS + CS / 2} ${st.via[1] * CS + CS / 2})" fill="${r.color}" pointer-events="none"/>`; }); });
+    tw.cf.slice(0, 8).forEach(c => { s += `<circle cx="${c.cell[0] * CS + CS / 2}" cy="${c.cell[1] * CS + CS / 2}" r="15" fill="none" stroke="#e5484d" stroke-width="4" pointer-events="none"/><text x="${c.cell[0] * CS + CS / 2}" y="${c.cell[1] * CS + 12}" text-anchor="middle" font-size="11" font-weight="900" fill="#e5484d" pointer-events="none">${c.t}s</text>`; });
+  }
+  s += `<g id="bots" pointer-events="none"></g></svg>`;
+  return s;
+}
+function drawRobots(t) {
+  const g = document.getElementById('bots'); if (!g || !anim) return;
+  const P = anim.pos(t), rs = anim.kind === 'floor' ? anim.run.robots : order();
+  let s = ''; P.forEach((p, i) => { const x = (p.c[0] + (p.n[0] - p.c[0]) * p.f) * CS + CS / 2, y = (p.c[1] + (p.n[1] - p.c[1]) * p.f) * CS + CS / 2, col = (rs[i] && rs[i].color) || COLORS[i % COLORS.length]; s += `<circle cx="${x}" cy="${y}" r="14" fill="${col}" stroke="#fff" stroke-width="3"/><text x="${x}" y="${y + 5}" text-anchor="middle" font-size="14" font-weight="900" fill="#fff">${i + 1}</text>`; });
+  if (anim.kind === 'twin') anim.cf.filter(c => Math.abs(c.t - t) < .6).forEach(c => { s += `<circle cx="${c.cell[0] * CS + CS / 2}" cy="${c.cell[1] * CS + CS / 2}" r="21" fill="#e5484d" opacity=".45"/>`; });
+  if (anim.kind === 'floor' && anim.res.dead && t >= anim.len - .5) anim.res.dead.robots.forEach(i => { const p = P[i]; s += `<text x="${p.c[0] * CS + CS / 2}" y="${p.c[1] * CS - 2}" text-anchor="middle" font-size="13" font-weight="900" fill="#e5484d">stuck</text>`; });
+  g.innerHTML = s;
+  const lab = $('#animLabel'); if (lab) lab.textContent = `${anim.kind === 'twin' ? 'Twin' : 'Floor'} ${Math.floor(t)} s${t >= anim.len ? ', done' : ''}`;
+}
+
+/* ===== student view ===== */
+function joinView() {
+  $('#main').innerHTML = `<div class="card" style="grid-column:1/-1"><div class="eyebrow">Join a fleet</div><h2>Every student adds one robot</h2>
+    <div class="row"><div style="flex:1;min-width:140px"><label class="f">Class code</label><input type="text" id="jCls" value="${esc(CLS())}"></div><div style="flex:1;min-width:140px"><label class="f">Team code</label><input type="text" id="jTeam" placeholder="for example f1" value="${esc(me ? me.team : '')}"></div></div>
+    <label class="f">Your name</label><input type="text" id="jName" value="${esc(me ? me.name : '')}">
+    <label class="f">Server</label><select id="jBroker"><option value="emqx">Server A</option><option value="hivemq">Server B</option><option value="mosq">Server C</option><option value="shiftr">Server D, port 443</option><option value="custom">Own server URL</option></select><input type="text" id="jUrl" class="hide" placeholder="ws://192.168.1.10:9001" style="margin-top:6px">
+    <div style="margin-top:14px"><button class="btn" id="jGo" style="width:100%;padding:14px;font-size:18px">Join and add my robot</button></div></div>`;
+  $('#jBroker').value = (me && me.broker) || params.get('b') || 'emqx'; $('#jUrl').value = (me && me.url) || params.get('url') || '';
+  $('#jBroker').onchange = () => $('#jUrl').classList.toggle('hide', $('#jBroker').value !== 'custom'); $('#jBroker').onchange();
+  $('#jGo').onclick = () => { const team = $('#jTeam').value.trim().toLowerCase().replace(/[^\w-]/g, ''), name = $('#jName').value.trim(); if (!team || !name) return; me = {cls:$('#jCls').value.trim().toLowerCase().replace(/[^\w-]/g, '') || 'lab3', team, name, broker:$('#jBroker').value, url:$('#jUrl').value.trim()}; lsSet('fl_me', me); robots = {}; boardRec = null; lastRun = null; render(); connect(me.broker, me.url); };
+}
+function myRobot() { return order().find(r => r.id === dev); }
+function editMine(fn) { const r = robots[dev]; if (!r) return; r.plan = r.plan || []; fn(r.plan); saveMine(); render(); }
+function studentView() {
+  const tw = twin(), mine = myRobot(), own = owners(), unassigned = own.map((o, m) => o.length ? null : m).filter(v => v != null), dup = own.map((o, m) => o.length > 1 ? m : null).filter(v => v != null);
+  const used = boardRec ? boardRec.runs.length : 0, ready = tw.rs.length && !unassigned.length && !dup.length;
+  const best = boardRec && boardRec.best != null ? boardRec.best : null;
+  let classBest = null; Object.entries(boards).forEach(([t, b]) => { if (b.best != null && (classBest == null || b.best < classBest.v)) classBest = {t, v:b.best}; });
+  const statusTxt = !tw.rs.length ? 'Waiting for robots' : unassigned.length ? `${unassigned.length} mission${unassigned.length > 1 ? 's' : ''} without a robot` : dup.length ? `${dup.map(m => MISSIONS[m].name).join(', ')} taken by two robots` : tw.cf.length ? `Twin ${tw.makespan} s, ${tw.cf.length} collision${tw.cf.length > 1 ? 's' : ''}` : `Twin ${tw.makespan} s, no collisions`;
+  const okStatus = ready && !tw.cf.length;
+  let h = `<div class="col"><div class="card" id="mapCard"><div class="row"><div class="eyebrow">Team ${esc(me.team)} · ${tw.rs.length} robot${tw.rs.length === 1 ? '' : 's'}</div><span class="small muted" style="margin-left:auto" id="animLabel"></span></div>
+    <div id="map">${mapSVG(tw)}</div>
+    <div class="status ${okStatus ? 'ok' : 'bad'}">${statusTxt}</div>
+    ${viaFor != null ? `<div class="small" style="margin-top:4px;background:#fff3c4;border-radius:8px;padding:6px 8px">Tap a floor cell on the map. ${MISSIONS[viaFor].name} will pass it on the way to its dock.</div>` : ''}
+    <div class="row" style="margin-top:8px"><button class="btn ghost" id="bTwin">Play the twin</button><button class="btn go" id="bFloor" ${ready ? '' : 'disabled'}>Run on the floor (${Math.max(0, FLOOR_RUNS - used)} left)</button></div>
+    <div class="small muted" style="margin-top:6px">The twin moves every robot exactly as planned. The floor is like the real hall. Moves sometimes take longer, people cross, and a robot stops when the next cell is taken.</div></div>`;
+  h += `<div class="card" id="resCard"><div class="eyebrow">Floor runs</div>${lastRun ? floorResult(lastRun) : '<div class="small muted">No floor run yet. Plan in the twin first.</div>'}
+    ${boardRec && boardRec.runs.length ? `<table style="margin-top:8px"><tr><th>Run</th><th>Twin said</th><th>Floor</th></tr>${boardRec.runs.map((r, i) => `<tr><td>${i + 1}</td><td>${r.twin} s${r.cf ? `, ${r.cf} coll.` : ''}</td><td><b>${r.ok ? r.makespan + ' s' : 'stuck at ' + r.makespan + ' s'}</b></td></tr>`).join('')}</table>` : ''}
+    <div class="small" style="margin-top:8px">Your best <b>${best != null ? best + ' s' : '–'}</b>. Class best <b>${classBest ? classBest.v + ' s' : '–'}</b>${classBest ? ' by ' + esc(classBest.t) : ''}.</div></div></div>`;
+  h += `<div class="col"><div class="card" id="misCard"><div class="eyebrow">Missions, bring each load to its dock</div><div class="small muted" style="margin:4px 0 8px">Tap a free mission to give it to your robot. Every mission needs exactly one robot.</div><div class="missions">${MISSIONS.map(M => { const o = own[M.id], isMine = mine && o.includes(mine.i), rb = o.length ? tw.rs[o[0]] : null; return `<div class="mis ${isMine ? 'mine' : ''} ${o.length > 1 ? 'dup' : ''}" data-m="${M.id}">${M.name}<small>${M.from} to ${M.to}</small><span class="tag" style="${rb ? 'background:' + rb.color : ''}">${o.length ? o.map(i => i + 1).join('+') : 'free'}</span></div>`; }).join('')}</div></div>`;
+  h += `<div class="card" id="planCard"><div class="row"><div class="eyebrow">Your robot</div>${mine ? `<span class="badge" style="background:${mine.color}">${mine.i + 1}</span>` : ''}<span class="small muted" style="margin-left:auto">starts and ends at its home</span></div>${mine ? (mine.plan.length ? mine.plan.map((st, k) => { const M = MISSIONS[st.m]; return `<div class="step"><div class="hd">${k + 1}. ${M.name} <span class="small muted">${M.from} to ${M.to}</span><span style="margin-left:auto" class="row"><button class="btn ghost sm" data-up="${k}" ${k ? '' : 'disabled'}>↑</button><button class="btn ghost sm" data-dn="${k}" ${k < mine.plan.length - 1 ? '' : 'disabled'}>↓</button></span></div><div class="ctl"><span class="small">wait first</span><span class="stepper"><button data-w="${k}" data-d="-1">−</button><b>${st.wait || 0} s</b><button data-w="${k}" data-d="1">+</button></span><button class="btn ghost sm via ${viaFor === st.m ? 'on' : ''}" data-via="${st.m}">${st.via ? 'Via set, change' : 'Set a via cell'}</button>${st.via ? `<button class="btn ghost sm" data-clr="${k}">Clear via</button>` : ''}</div></div>`; }).join('') : '<div class="small muted" style="margin-top:6px">No missions yet. Tap one in the list.</div>') : '<div class="small muted">Adding your robot…</div>'}</div>`;
+  const cfl = tw.cf.slice(0, 6).map(c => `<li>${c.t} s, robots ${c.i + 1} and ${c.j + 1}, ${c.kind}</li>`).join('');
+  h += `<div class="card" id="teamCard"><div class="eyebrow">Your fleet</div><div class="row" style="margin-top:6px">${tw.rs.map(r => `<span class="row" style="gap:4px"><span class="badge" style="background:${r.color}">${r.i + 1}</span><span class="small">${esc(r.name)}${r.id === dev ? ' (you)' : ''}, ${r.plan.length} mission${r.plan.length === 1 ? '' : 's'}</span></span>`).join('')}</div>${cfl ? `<div class="small" style="margin-top:8px;color:#b3321f;font-weight:700">Collisions in the twin</div><ul class="list">${cfl}</ul><div class="small muted">Fix them with a wait, a different order, a via cell or by swapping missions.</div>` : ''}</div></div>`;
+  $('#main').innerHTML = h;
+  $$('.mis').forEach(d => d.onclick = () => { const m = +d.dataset.m, o = own[m]; if (!mine) return; if (o.includes(mine.i)) editMine(p => { const k = p.findIndex(s => s.m === m); if (k >= 0) p.splice(k, 1); }); else if (!o.length) editMine(p => p.push({m, wait:0})); else toast('Robot ' + (o[0] + 1) + ' has it. Ask them to let it go.'); });
+  $$('[data-up]').forEach(b => b.onclick = () => editMine(p => { const k = +b.dataset.up; [p[k - 1], p[k]] = [p[k], p[k - 1]]; }));
+  $$('[data-dn]').forEach(b => b.onclick = () => editMine(p => { const k = +b.dataset.dn; [p[k + 1], p[k]] = [p[k], p[k + 1]]; }));
+  $$('[data-w]').forEach(b => b.onclick = () => editMine(p => { const k = +b.dataset.w; p[k].wait = Math.max(0, Math.min(30, (p[k].wait || 0) + +b.dataset.d)); }));
+  $$('[data-via]').forEach(b => b.onclick = () => { const m = +b.dataset.via; viaFor = viaFor === m ? null : m; render(); });
+  $$('[data-clr]').forEach(b => b.onclick = () => editMine(p => { delete p[+b.dataset.clr].via; }));
+  $$('#svgMap .cell').forEach(c => c.onclick = () => { if (viaFor == null) return; const x = +c.dataset.x, y = +c.dataset.y; if (GRID[y][x] !== '.') { toast('Pick an open floor cell.'); return; } const m = viaFor; viaFor = null; editMine(p => { const s = p.find(q => q.m === m); if (s) s.via = [x, y]; }); });
+  $('#bTwin').onclick = () => playTwin();
+  $('#bFloor').onclick = () => {
+    if (used >= FLOOR_RUNS) { toast('No floor runs left.'); return; }
+    if (tw.cf.length && !confirmTwice('cf')) { toast(`The twin shows ${tw.cf.length} collisions. Tap again to run anyway.`); return; }
+    const run = {seed:Math.floor(Math.random() * 1e9), robots:tw.rs.map(r => ({home:r.home, plan:r.plan, color:r.color, name:r.name})), t:Date.now(), by:me.name, twin:tw.makespan, cf:tw.cf.length};
+    const res = floorRun(run.robots, run.seed), rec = boardRec ? JSON.parse(JSON.stringify(boardRec)) : {team:me.team, runs:[], best:null};
+    rec.runs.push({t:run.t, twin:tw.makespan, cf:tw.cf.length, makespan:res.makespan, ok:res.ok, robots:run.robots.length}); rec.robots = run.robots.length; rec.best = rec.runs.filter(r => r.ok).reduce((a, r) => a == null || r.makespan < a ? r.makespan : a, null);
+    boardRec = rec; pub('board/' + me.team, rec, true); pub(me.team + '/run', run, true);
+  };
+  if (anim && !anim.ended) loop();
+}
+function floorResult(L) { const r = L.res; return r.ok ? `<div class="big" style="color:#14633a">${r.makespan} s</div><div class="small">All loads delivered and every robot back home. The twin said ${L.run.twin} s. Robots waited ${r.blocked.reduce((a, b) => a + b, 0)} s in total for a free cell.</div>` : `<div class="big" style="color:#b3321f">Stuck at ${r.makespan} s</div><div class="small">Robots ${r.dead.robots.map(i => i + 1).join(', ')} block each other and nobody moves. On a real floor an operator would have to step in. Change the plan and try again.</div>`; }
+let confirmKey = null, confirmAt = 0;
+function confirmTwice(k) { if (confirmKey === k && Date.now() - confirmAt < 4000) { confirmKey = null; return true; } confirmKey = k; confirmAt = Date.now(); return false; }
+function toast(t) { const d = document.createElement('div'); d.className = 'card'; d.style.cssText = 'position:fixed;left:12px;right:12px;bottom:12px;z-index:9;border-color:#e0a800;background:#fff8e1;font-weight:700'; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 3200); }
+
+/* ===== class board ===== */
+function boardView() {
+  const ids = Object.keys(boards).sort((a, b) => (boards[a].best ?? 1e9) - (boards[b].best ?? 1e9));
+  let h = `<div class="col"><div class="card"><div class="eyebrow">Leaderboard, fastest validated floor run</div><table style="margin-top:6px"><tr><th>#</th><th>Team</th><th>Robots</th><th>Best on the floor</th><th>Runs</th><th>Last run</th></tr>${ids.map((t, k) => { const b = boards[t], l = b.runs[b.runs.length - 1]; return `<tr><td>${b.best != null ? k + 1 : ''}</td><td><b>${esc(t)}</b></td><td>${b.robots || ''}</td><td class="big" style="font-size:22px">${b.best != null ? b.best + ' s' : '–'}</td><td>${b.runs.length} of ${FLOOR_RUNS}</td><td>${l ? (l.ok ? `twin ${l.twin} s, floor ${l.makespan} s` : `stuck at ${l.makespan} s`) : ''}</td></tr>`; }).join('') || '<tr><td colspan="6" class="muted">No floor runs yet.</td></tr>'}</table>
+    <div class="small muted" style="margin-top:8px">Students open ${esc(location.host + location.pathname)}?class=${esc(CLS())} and join a team code. Every phone adds a robot.</div><div class="row" style="margin-top:8px"><button class="btn ghost" id="clr">Clear the leaderboard</button></div></div></div>`;
+  h += `<div class="col"><div class="card"><div class="row"><div class="eyebrow">${anim && anim.team ? 'On the floor now, team ' + esc(anim.team) : 'The floor'}</div><span class="small muted" style="margin-left:auto" id="animLabel"></span></div><div id="map">${mapSVG(null)}</div>${anim && anim.res ? `<div class="status ${anim.res.ok ? 'ok' : 'bad'}">${anim.res.ok ? `Done in ${anim.res.makespan} s, the twin said ${anim.run.twin} s` : `Stuck at ${anim.res.makespan} s`}</div>` : ''}</div></div>`;
+  $('#main').innerHTML = h;
+  $('#clr').onclick = () => { if (!confirmTwice('clr')) { toast('Tap again to clear every team.'); return; } Object.keys(boards).forEach(t => { pub('board/' + t, null, true); pub(t + '/run', null, true); }); boards = {}; render(); };
+  if (anim) loop();
+}
+
+/* ===== render ===== */
+function render() {
+  if (BOARD) { $('#ttl').textContent = 'Fleet twin class board'; $('#sub').textContent = 'ML2305 Lab 3 · class ' + CLS(); $('#whoText').textContent = Object.keys(boards).length + ' teams'; boardView(); return; }
+  if (!me) { joinView(); return; }
+  $('#whoText').innerHTML = `${esc(me.name)} · ${esc(me.team)} · <a href="#" id="chg" style="color:#c9d7ea">change</a>`;
+  $('#chg').onclick = e => { e.preventDefault(); if (client) client.close(); client = null; joinView(); };
+  studentView();
+}
+if (BOARD) { render(); connect(params.get('b') || 'emqx', params.get('url') || ''); }
+else if (me) { render(); connect(me.broker, me.url); } else joinView();
+</script>
+</body>
+</html>
