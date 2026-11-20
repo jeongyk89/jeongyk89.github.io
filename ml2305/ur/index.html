@@ -28,7 +28,30 @@ main{max-width:1260px;margin:0 auto;padding:14px;display:grid;grid-template-colu
 .overlay{position:absolute;left:10px;top:10px;display:flex;gap:6px;flex-wrap:wrap}
 .chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border-radius:999px;padding:4px 10px;font-size:13px;font-weight:700;border:1px solid var(--line)}
 .chip.ok{background:#e5f3ea;border-color:#b9dfc8}.chip.bad{background:#fae6e4;border-color:#efc2bd}.chip.warn{background:#fbf2dc;border-color:#ecd9a4}
-.viewtag{position:absolute;right:10px;top:10px;font-size:12px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;padding:5px 10px;border-radius:8px}
+.viewtag{font-size:12px;font-weight:800;letter-spacing:.9px;text-transform:uppercase;padding:5px 10px;border-radius:8px;display:inline-flex;align-items:center}
+.overlay{right:10px}
+button{touch-action:manipulation}
+.joy{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.dpad{display:grid;grid-template-columns:repeat(3,60px);grid-template-rows:repeat(3,54px);gap:6px}
+.dpad .hub{display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--muted);font-weight:800;background:#f0f2f5;border-radius:12px}
+.zpad{display:grid;grid-template-rows:repeat(2,84px);gap:6px;width:76px}
+.joy .btn{padding:4px;font-size:22px;line-height:1.05;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.joy .btn small{font-size:11px;font-weight:700;opacity:.75}
+.zpad .btn{font-size:16px}
+.grips{margin-top:10px}
+@media(max-width:920px){
+  main{display:flex;flex-direction:column;padding:10px}
+  .col{display:contents}
+  #roleCard{order:1}
+  #view{order:2;height:46vh;min-height:250px;max-height:440px;margin-bottom:12px}
+  #padCard{order:3}
+  #taskCard{order:4;margin-top:0!important}
+  #logCard{order:5}
+  .what{font-size:13px;padding:8px 10px}
+  .roles button,.mode button{padding:8px}
+  .card{padding:12px}
+}
+@media(max-width:920px) and (max-height:700px){#view{height:40vh;min-height:230px}}
 #view.phys .viewtag{background:#fff;color:var(--ink)}#view.twin .viewtag{background:#2f8fd8;color:#fff}
 .legend{position:absolute;left:10px;bottom:10px;background:rgba(255,255,255,.92);border-radius:10px;padding:6px 10px;font-size:12px}
 .roles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -44,8 +67,6 @@ main{max-width:1260px;margin:0 auto;padding:14px;display:grid;grid-template-colu
 .btn.go{background:#1f9d5a}.btn.stop{background:#c4422b}.btn.or{background:#e07b39}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:330px}
-.pad .btn{padding:12px 6px}
 .what{background:var(--soft);border-radius:10px;padding:10px 12px;font-size:14px;margin:10px 0}
 .inbox{border:2px solid #e07b39;background:#fff4ec;border-radius:12px;padding:12px;margin-top:10px}
 .seg{display:inline-flex;border:1.5px solid var(--kth);border-radius:10px;overflow:hidden}
@@ -71,13 +92,12 @@ ol{margin:6px 0 0 18px;padding:0}
   </div>
 </header>
 <main>
-  <div>
+  <div class="col">
     <div id="view" class="phys">
-      <div class="overlay"><span class="chip" id="chipA">offline</span><span class="chip" id="chipB">–</span></div>
-      <span class="viewtag" id="viewTag">Physical robot</span>
+      <div class="overlay"><span class="viewtag" id="viewTag">Physical robot</span><span class="chip" id="chipA">offline</span><span class="chip" id="chipB">–</span></div>
       <div class="legend" id="legend"></div>
     </div>
-    <div class="card" style="margin-top:12px">
+    <div class="card" id="taskCard" style="margin-top:12px">
       <div class="eyebrow">Your tasks, in pairs</div>
       <ol class="small">
         <li><b>Shadow.</b> The physical side picks the blue box and puts it in the green square. The twin side only watches and calls out when the box is lifted and when it is placed. Then swap roles.</li>
@@ -86,8 +106,8 @@ ol{margin:6px 0 0 18px;padding:0}
       </ol>
     </div>
   </div>
-  <div>
-    <div class="card">
+  <div class="col">
+    <div class="card" id="roleCard">
       <div class="eyebrow">Who are you?</div>
       <div class="roles" id="roles" style="margin-top:8px">
         <button data-r="phys"><b>Physical robot</b><span>the real robot in its cell, you jog it</span></button>
@@ -103,16 +123,30 @@ ol{margin:6px 0 0 18px;padding:0}
         </div>
       </div>
     </div>
-    <div class="card">
+    <div class="card" id="padCard">
       <div class="eyebrow" id="padTitle">Jog the robot</div>
       <p class="small muted" id="padHelp"></p>
-      <div class="pad" id="pad">
-        <button class="btn soft" data-j="0,0.02,0">+Y</button><button class="btn soft" data-j="0,0,0.02">Up</button><button class="btn soft" data-j="-0.02,0,0">−X</button>
-        <button class="btn soft" data-j="0,-0.02,0">−Y</button><button class="btn soft" data-j="0,0,-0.02">Down</button><button class="btn soft" data-j="0.02,0,0">+X</button>
-        <button class="btn ghost" id="gClose">Close gripper</button><button class="btn ghost" id="gOpen">Open gripper</button><button class="btn ghost" id="bHome">Home</button>
+      <div class="inbox hide" id="inbox" style="margin:0 0 10px"></div>
+      <div id="pad">
+        <div class="row" style="margin-bottom:8px"><span class="small muted">Step</span><div class="seg" id="stepSeg"><button data-s="0.02">2 cm</button><button data-s="0.05" class="on">5 cm</button><button data-s="0.1">10 cm</button></div><span class="small muted">Near the box is enough to pick it.</span></div>
+        <div class="joy">
+          <div class="dpad">
+            <span></span><button class="btn soft" data-j="0,0.02,0" aria-label="Move away, plus Y">↑<small>+Y</small></button><span></span>
+            <button class="btn soft" data-j="-0.02,0,0" aria-label="Move left, minus X">←<small>−X</small></button><span class="hub">XY</span><button class="btn soft" data-j="0.02,0,0" aria-label="Move right, plus X">→<small>+X</small></button>
+            <span></span><button class="btn soft" data-j="0,-0.02,0" aria-label="Move closer, minus Y">↓<small>−Y</small></button><span></span>
+          </div>
+          <div class="zpad">
+            <button class="btn soft" data-j="0,0,0.02" aria-label="Move up">Up<small>+Z</small></button>
+            <button class="btn soft" data-j="0,0,-0.02" aria-label="Move down">Down<small>−Z</small></button>
+          </div>
+        </div>
+        <div class="row grips">
+          <button class="btn or" id="bSend">Send move</button>
+          <button class="btn ghost" id="gClose">Close gripper</button><button class="btn ghost" id="gOpen">Open gripper</button><button class="btn ghost" id="bHome">Home</button>
+        </div>
       </div>
+      <p class="small" id="info" style="margin:8px 0 0"></p>
       <div class="row" style="margin-top:10px" id="twinSend">
-        <button class="btn or" id="bSend">Send move</button>
         <button class="btn ghost" id="bSync">Reset orange to robot</button>
         <button class="btn stop" id="bStop">Stop</button>
       </div>
@@ -121,10 +155,9 @@ ol{margin:6px 0 0 18px;padding:0}
         <span class="seg" id="consent"><button data-c="ask" class="on">Ask me each time</button><button data-c="reject">Reject all</button></span>
         <button class="btn ghost" id="bReset">Reset the box</button>
       </div>
-      <div class="inbox hide" id="inbox"></div>
-      <p class="small" id="info"></p>
+
     </div>
-    <div class="card">
+    <div class="card" id="logCard">
       <div class="eyebrow">What happened</div>
       <div class="log" id="log"></div>
     </div>
@@ -167,6 +200,9 @@ function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch
 const DH = [[0, .1625, Math.PI / 2], [-.425, 0, 0], [-.3922, 0, 0], [0, .1333, Math.PI / 2], [0, .0997, -Math.PI / 2], [0, .0996, 0]];
 const TOOL = .12, HOME = [0, -Math.PI / 2, Math.PI / 2, -Math.PI / 2, -Math.PI / 2, 0];
 const BOX = .06, BOX0 = [-.45, -.22, BOX / 2], ZONE = [-.45, .22];
+/* a forgiving gripper. Near enough counts, the box then snaps into the fingers */
+const GRAB_R = .10, GRAB_UP = .10, GRAB_DOWN = .03, PLACE_R = .10;
+function inReach(q, obj) { if (!q || !obj) return false; const p = tcp(q), top = obj[2] + BOX / 2; return Math.hypot(p.x - obj[0], p.y - obj[1]) < GRAB_R && p.z > top - GRAB_DOWN && p.z < top + GRAB_UP; }
 function fk(q) { let T = new THREE.Matrix4(); const out = [T.clone()]; for (let i = 0; i < 6; i++) { const [a, d, al] = DH[i], ct = Math.cos(q[i]), st = Math.sin(q[i]), ca = Math.cos(al), sa = Math.sin(al); const A = new THREE.Matrix4().set(ct, -st * ca, st * sa, a * ct, st, ct * ca, -ct * sa, a * st, 0, sa, ca, d, 0, 0, 0, 1); T = T.clone().multiply(A); out.push(T); } return out; }
 const wrist = (q1, q2, q3, q6) => [q1, q2, q3, -(q2 + q3) - Math.PI / 2, -Math.PI / 2, q6];
 function tcp(q) { const T = fk(q)[6]; const p = new THREE.Vector3().setFromMatrixPosition(T); const z = new THREE.Vector3(0, 0, 1).applyMatrix4(new THREE.Matrix4().extractRotation(T)); return p.addScaledVector(z, TOOL); }
@@ -205,8 +241,8 @@ class World {
     if (this.held) { const p = tcp(this.q); this.obj = [p.x, p.y, Math.max(BOX / 2, p.z - BOX / 2)]; }
   }
   setGrip(close) {
-    if (close && !this.grip) { const p = tcp(this.q), top = this.obj[2] + BOX / 2; if (Math.hypot(p.x - this.obj[0], p.y - this.obj[1]) < .04 && p.z > top - .015 && p.z < top + .045) { this.held = true; this.placed = false; } }
-    if (!close && this.grip && this.held) { this.held = false; this.obj[2] = BOX / 2; this.placed = Math.hypot(this.obj[0] - ZONE[0], this.obj[1] - ZONE[1]) < .06; }
+    if (close && !this.held && inReach(this.q, this.obj)) { this.held = true; this.placed = false; const p = tcp(this.q); this.obj = [p.x, p.y, Math.max(BOX / 2, p.z - BOX / 2)]; }
+    if (!close && this.held) { this.held = false; this.placed = Math.hypot(this.obj[0] - ZONE[0], this.obj[1] - ZONE[1]) < PLACE_R; if (this.placed) { this.obj[0] = ZONE[0]; this.obj[1] = ZONE[1]; } this.obj[2] = BOX / 2; }
     this.grip = close;
   }
   state() { return {q:this.q.map(v => +v.toFixed(5)), grip:this.grip, obj:this.obj.map(v => +v.toFixed(4)), held:this.held, placed:this.placed, moving:!!this.moving}; }
@@ -227,6 +263,7 @@ const zoneMat = new THREE.MeshStandardMaterial({color:0x2fbf71, transparent:true
 const zone = new THREE.Mesh(new THREE.BoxGeometry(.14, .14, .003), zoneMat); zone.position.set(ZONE[0], ZONE[1], .0015); root.add(zone);
 const boxMat = new THREE.MeshStandardMaterial({color:0x2b5fb3});
 const boxMesh = new THREE.Mesh(new THREE.BoxGeometry(BOX, BOX, BOX), boxMat); root.add(boxMesh);
+const reachRing = new THREE.Mesh(new THREE.RingGeometry(.07, .09, 40), new THREE.MeshBasicMaterial({color:0xffb300, side:THREE.DoubleSide, transparent:true, opacity:.95})); reachRing.visible = false; root.add(reachRing);
 const axes = new THREE.AxesHelper(.25); root.add(axes);
 function makeArm(ghost) {
   const g = new THREE.Group(); root.add(g);
@@ -296,22 +333,24 @@ function setMode(m) {
   $('#modes [data-m=model]').classList.toggle('hide', role === 'real');
   $('#what').innerHTML = WHAT[role === 'real' ? 'real' : m];
   const twin = m === 'twin', shadow = m === 'shadow';
-  $('#twinSend').classList.toggle('hide', !twin);
+  $('#twinSend').classList.toggle('hide', !twin); $('#bSend').classList.toggle('hide', !twin);
   $$('#pad button').forEach(b => b.disabled = shadow);
   $('#gClose').classList.toggle('hide', role === 'real'); $('#gOpen').classList.toggle('hide', role === 'real');
   $('#padTitle').textContent = twin ? 'Plan with the orange robot' : 'Jog the robot';
-  $('#padHelp').textContent = shadow ? 'Shadow mode is watch only. Ask your partner what to do.' : twin ? 'The buttons move the orange robot. Nothing happens on the physical side until you send and your partner accepts.' : 'Each tap moves the tool 2 cm. The red, green and blue arrows at the base show X, Y and Z.';
+  $('#padHelp').textContent = shadow ? 'Shadow mode is watch only. Ask your partner what to do.' : twin ? 'The buttons move the orange robot. Nothing happens on the physical side until you send and your partner accepts.' : 'Each tap moves the tool by the step you choose. The arrows match the start view. The red, green and blue lines at the base show X, Y and Z.';
   ghost.g.visible = twin; if (twin && remote) { ghostQ = remote.q.slice(); ghostGrip = !!remote.grip; }
   $('#legend').innerHTML = twin ? '<b style="color:#5b6b80">■</b> robot as the data says &nbsp; <b style="color:#e07b39">■</b> your planned move' : role === 'phys' && pending ? '<b style="color:#e07b39">■</b> move the twin asks for' : 'Pick the blue box, put it in the green square';
   info(''); sendPresence();
 }
 
 /* ===== jog and gripper ===== */
+let jogStep = .05;
+$$('#stepSeg button').forEach(b => b.onclick = () => { jogStep = +b.dataset.s; $$('#stepSeg button').forEach(x => x.classList.toggle('on', x === b)); });
 $$('#pad [data-j]').forEach(b => b.onclick = () => {
-  const d = b.dataset.j.split(',').map(Number);
+  const d = b.dataset.j.split(',').map(Number).map(v => v / .02 * jogStep);
   if (mode === 'twin') { const r = jogPose(ghostQ, d); if (r.err) return info(r.err); ghostQ = r.q; return; }
   if (mode === 'shadow') return;
-  const r = jogPose(local.target, d); if (r.err) return info(r.err); local.target = r.q; info('');
+  const r = jogPose(local.target, d); if (r.err) return info(r.err); local.target = r.q; info(''); lastReach = lastOver = false;
 });
 $('#gClose').onclick = () => grip(true); $('#gOpen').onclick = () => grip(false);
 function grip(c) {
@@ -410,6 +449,7 @@ function chips() {
     $('#chipB').className = 'chip ' + (remote && remote.armed ? 'warn' : ''); $('#chipB').textContent = on && remoteLat != null ? `delay ${Math.max(0, Math.round(remoteLat))} ms` + (remote.src === 'real' ? (remote.armed ? ' · armed' : ' · not armed') : '') : 'delay –';
   }
 }
+let lastReach = false, lastOver = false;
 function frame(t) {
   const dt = Math.min(.1, (t - last) / 1000); last = t;
   let q, gripOn, obj, real = false;
@@ -420,6 +460,13 @@ function frame(t) {
   else { q = shown; gripOn = false; obj = BOX0; }
   arm.set(q, gripOn);
   boxMesh.visible = zone.visible = !real; if (obj) boxMesh.position.set(obj[0], obj[1], obj[2]);
+  const heldNow = role === 'phys' || mode === 'model' ? local.held : !!(remote && remote.held);
+  const reach = !real && obj && !heldNow && (inReach(q, obj) || (ghost.g.visible && inReach(ghostQ, obj)));
+  reachRing.visible = !!reach; if (reach) reachRing.position.set(obj[0], obj[1], .004);
+  boxMat.emissive.setHex(reach ? 0x5a4200 : heldNow ? 0x0b2a55 : 0x000000);
+  const overZone = !real && heldNow && obj && Math.hypot(obj[0] - ZONE[0], obj[1] - ZONE[1]) < PLACE_R; zoneMat.opacity = overZone ? 1 : .75; zoneMat.emissive.setHex(overZone ? 0x0f5c33 : 0x000000);
+  if (reach !== lastReach) { if (reach) info('Close enough. Close the gripper to pick the box.'); else if (lastReach) info(''); lastReach = reach; }
+  if (overZone !== lastOver) { if (overZone) info('Over the green square. Open the gripper to place the box.'); else if (lastOver) info(''); lastOver = overZone; }
   if (ghost.g.visible) ghost.set(ghostQ, ghostGrip);
   controls.update(); renderer.render(scene, camera); requestAnimationFrame(frame);
 }

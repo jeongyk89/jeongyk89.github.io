@@ -71,6 +71,14 @@ th{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted
 .queue div{border-radius:12px;padding:8px 12px;font-weight:800;background:#eef2f7}
 .queue div.now{background:#1f9d5a;color:#fff}
 .lay{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:center}
+.btn.sm{padding:6px 10px;font-size:13px}
+.racks-ed{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:10px;margin-top:10px}
+.rk{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fbfaf7}
+.lvl{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
+.pos{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.pos input{border:0;padding:5px 6px;font-size:13px;width:92px}
+.pos input.pc{width:74px;color:#6b7785;border-left:1px solid var(--line)}
+.pos button{border:0;background:#fae6e4;color:#b3321f;width:28px;height:30px;cursor:pointer;font-weight:800}
 .hide{display:none!important}
 @media(max-width:760px){.grid2{grid-template-columns:1fr}.res{grid-template-columns:repeat(2,1fr)}.item .code{font-size:56px}}
 </style>
@@ -116,29 +124,34 @@ function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h
 const fmt = (v, d = 1) => (v == null || isNaN(v)) ? '–' : (+v).toFixed(d);
 const dev = lsGet('mk5_dev', null) || (() => { const s = Math.random().toString(36).slice(2, 9); lsSet('mk5_dev', s); return s; })();
 
-/* ===== layout of the lab supermarket, labelled rack-level-position. Position A is the one nearest the start ===== */
-const DEF_LAYOUT = {start:0.9, bayW:1.2, gap:0.1, cross:0.8, flip:false, lines:6, rounds:4,
-  racks:[{id:'01', side:-1, bay:0, levels:[2, 3]}, {id:'03', side:-1, bay:1, levels:[2, 3]}, {id:'02', side:1, bay:0, levels:[2, 2]}, {id:'04', side:1, bay:1, levels:[2, 2]}],
-  names:{'01-02-A':'AIR', '01-02-B':'CAR', '01-02-C':'CHOCOLATE', '01-01-A':'DOG', '01-01-B':'CHAIR', '03-02-A':'STAR', '03-02-B':'PEN', '03-02-C':'SKY', '03-01-A':'SHOE', '03-01-B':'GLASS',
-         '02-02-A':'LIGHT', '02-02-B':'BALL', '02-01-A':'KEY', '02-01-B':'CAT', '04-02-A':'FLOWER', '04-02-B':'WINDOW', '04-01-A':'SALT', '04-01-B':'SUN'}};
-const LETTERS = 'ABCDEFGH';
-let layout = JSON.parse(JSON.stringify(DEF_LAYOUT));
-const sig = () => JSON.stringify([layout.racks.map(r => [r.id, r.side, r.bay, r.levels]), layout.start, layout.bayW, layout.gap, layout.flip, layout.lines]);
+/* ===== layout of the lab supermarket. Every position has the name and the label printed on the rack.
+   In each level the positions are listed from the start of the aisle outwards ===== */
+const P = (c, n) => ({c, n});
+const DEF_LAYOUT = {start:0.9, bayW:1.2, gap:0.1, cross:0.8, flip:false, swap:false, lines:6, rounds:4, racks:[
+  {id:'01', side:-1, bay:0, levels:[[P('01-01-A', 'DOG'), P('01-01-B', 'CHAIR')], [P('01-02-A', 'AIR'), P('01-02-B', 'CAR'), P('01-02-C', 'CHOCOLATE')]]},
+  {id:'03', side:-1, bay:1, levels:[[P('03-01-A', 'SHOE'), P('03-01-B', 'GLASS')], [P('03-02-A', 'STAR'), P('03-02-B', 'PEN'), P('03-02-C', 'SKY')]]},
+  {id:'02', side:1, bay:0, levels:[[P('02-01-A', 'KEY'), P('02-01-B', 'CAT')], [P('02-02-A', 'LIGHT'), P('00-01', 'ICE CREAM'), P('02-02-B', 'BALL')]]},
+  {id:'04', side:1, bay:1, levels:[[P('04-01-A', 'SALT'), P('04-01-B', 'SUN')], [P('04-02-A', 'FLOWER'), P('04-02-B', 'WINDOW')]]}]};
+const LETTERS = 'ABCDEFGHIJ';
+let layout = JSON.parse(JSON.stringify(DEF_LAYOUT)), IDX = {};
+function reindex() { IDX = {}; layout.racks.forEach((r, ri) => r.levels.forEach((lv, li) => lv.forEach((p, k) => { IDX[p.c] = {ri, rack:r, lv:li + 1, k, n:lv.length, name:p.n}; }))); }
+reindex();
 const lv2 = l => String(l).padStart(2, '0');
-function allCodes() { const out = []; layout.racks.forEach(r => r.levels.forEach((n, li) => { for (let k = 0; k < n; k++) out.push(`${r.id}-${lv2(li + 1)}-${LETTERS[k]}`); })); return out; }
-function parse(c) { const m = /^(\d{2})-(\d{2})-([A-Z])$/.exec(c || ''); return m ? {rack:m[1], lv:+m[2], k:LETTERS.indexOf(m[3]), letter:m[3]} : null; }
-const rackById = id => layout.racks.find(r => r.id === id) || layout.racks[0];
+function allCodes() { const out = []; layout.racks.forEach(r => r.levels.forEach(lv => lv.forEach(p => out.push(p.c)))); return out; }
+const sig = () => JSON.stringify([allCodes(), layout.lines]);
+function parse(c) { return IDX[c] || null; }
 const nBays = () => Math.max(...layout.racks.map(r => r.bay)) + 1;
 const aisleEnd = () => layout.start + nBays() * layout.bayW + (nBays() - 1) * layout.gap;
+const effSide = r => r.side * (layout.flip ? -1 : 1) * (layout.swap ? -1 : 1);   // walking in from the other end swaps left and right
+const bayX0 = r => { const x0 = layout.start + r.bay * (layout.bayW + layout.gap); return layout.flip ? layout.start + aisleEnd() - x0 - layout.bayW : x0; };
 function pos(c) {
   if (c === 'START') return {x:0, side:0};
-  const p = parse(c), r = rackById(p.rack), n = r.levels[p.lv - 1] || 1, x0 = layout.start + r.bay * (layout.bayW + layout.gap);
-  let x = x0 + (p.k + .5) * layout.bayW / n;
-  if (layout.flip) x = layout.start + aisleEnd() - x;   // start at the other end of the aisle
-  return {x, side:r.side};
+  const p = IDX[c]; if (!p) return {x:0, side:0};
+  const f = (p.k + .5) / p.n;
+  return {x:bayX0(p.rack) + (layout.flip ? 1 - f : f) * layout.bayW, side:effSide(p.rack)};
 }
 function dist(a, b) { const A = pos(a), B = pos(b); return Math.abs(A.x - B.x) + (A.side && B.side && A.side !== B.side ? layout.cross : 0); }
-function itemName(c) { return (layout.names && layout.names[c]) || c; }
+function itemName(c) { return IDX[c] ? IDX[c].name : c; }
 const nLv = () => Math.max(...layout.racks.map(r => r.levels.length));
 const lvName = l => l === 1 ? 'level 1, bottom' : l === nLv() ? `level ${l}, top` : `level ${l}`;
 function orderFor(round) {
@@ -203,7 +216,7 @@ async function connect(brokerKey, url) {
 function onMsg(topic, payload) {
   let m = null; if (payload) { try { m = JSON.parse(payload); } catch (e) { return; } }
   const parts = topic.split('/');
-  if (parts[2] === 'layout') { if (m && m.racks && m.racks[0] && Array.isArray(m.racks[0].levels)) { layout = m; layoutSeen = true; render(); } return; }
+  if (parts[2] === 'layout') { if (m && m.racks && m.racks[0] && Array.isArray(m.racks[0].levels) && Array.isArray(m.racks[0].levels[0])) { layout = m; layoutSeen = true; reindex(); if (BOARD) { boardSetup = false; } render(); } return; }
   if (parts[2] === 'team') {
     const id = parts[3];
     if (BOARD) { if (m) teams[id] = m; else delete teams[id]; render(); return; }
@@ -219,26 +232,26 @@ setInterval(() => { if (BOARD && Object.values(teams).some(t => t.phase === 'run
 
 /* ===== drawing ===== */
 function mapSVG(seq, done) {
-  const W = 660, H = 300, X0 = 52, X1 = W - 12, maxX = aisleEnd() + .2, sx = x => X0 + x / maxX * (X1 - X0), mid = H / 2, lh = 44;
+  const L = nLv(), lh = 44, W = 660, top = L * lh + 26, H = 2 * top + 34, X0 = 52, X1 = W - 12, maxX = aisleEnd() + .2, sx = x => X0 + x / maxX * (X1 - X0), mid = top + 17;
   const order = seq || [], idx = {}; order.forEach((c, i) => idx[c] = i + 1);
   let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Supermarket map">`;
-  s += `<rect x="${sx(0) - 34}" y="${mid - 15}" width="${sx(maxX) - sx(0) + 34}" height="30" fill="#eef2f7"/><text x="${sx(0) - 30}" y="${mid + 5}" font-size="12" font-weight="800" fill="#4a5563">START</text>`;
-  s += `<text x="${sx(maxX) - 4}" y="${mid + 5}" font-size="11" text-anchor="end" fill="#8a96a8">aisle</text>`;
+  s += `<rect x="${sx(0) - 34}" y="${mid - 15}" width="${sx(maxX) - sx(0) + 34}" height="30" fill="#eef2f7"/><text x="${sx(0) - 30}" y="${mid + 5}" font-size="12" font-weight="800" fill="#4a5563">START</text><text x="${sx(maxX) - 4}" y="${mid + 5}" font-size="11" text-anchor="end" fill="#8a96a8">aisle</text>`;
   for (const r of layout.racks) {
-    const up = r.side < 0, x0 = layout.start + r.bay * (layout.bayW + layout.gap), xa = layout.flip ? layout.start + aisleEnd() - x0 - layout.bayW : x0;
-    r.levels.forEach((n, li) => {
-      const y = up ? mid - 18 - lh * (li + 1) : mid + 18 + lh * li, w = (sx(xa + layout.bayW) - sx(xa)) / n;
-      for (let k = 0; k < n; k++) {
-        const kk = layout.flip ? n - 1 - k : k, c = `${r.id}-${lv2(li + 1)}-${LETTERS[k]}`, x = sx(xa) + kk * w, q = idx[c], isDone = done && q && q <= done;
+    const up = effSide(r) < 0, bw = sx(layout.bayW) - sx(0);
+    r.levels.forEach((lv, li) => {
+      const y = up ? mid - 18 - lh * (li + 1) : mid + 18 + lh * li, w = bw / lv.length;
+      lv.forEach(p => {
+        const c = p.c, x = sx(pos(c).x) - w / 2, q = idx[c], isDone = done && q && q <= done;
         s += `<rect x="${x + 1.5}" y="${y + 1.5}" width="${w - 3}" height="${lh - 3}" rx="6" fill="${q ? (isDone ? '#bfe5cf' : '#004791') : '#fff'}" stroke="#c3ccd8"/>`;
-        if (q) s += `<text x="${x + w / 2}" y="${y + 19}" text-anchor="middle" font-size="20" font-weight="900" fill="${isDone ? '#14633a' : '#fff'}">${q}</text><text x="${x + w / 2}" y="${y + 36}" text-anchor="middle" font-size="10.5" font-weight="700" fill="${isDone ? '#14633a' : '#dbe7f6'}">${esc(itemName(c))}</text>`;
-        else s += `<text x="${x + w / 2}" y="${y + 19}" text-anchor="middle" font-size="11" font-weight="700" fill="#4a5563">${esc(itemName(c))}</text><text x="${x + w / 2}" y="${y + 32}" text-anchor="middle" font-size="9" fill="#8a96a8">${c}</text>`;
-      }
+        if (q) s += `<text x="${x + w / 2}" y="${y + 19}" text-anchor="middle" font-size="20" font-weight="900" fill="${isDone ? '#14633a' : '#fff'}">${q}</text><text x="${x + w / 2}" y="${y + 36}" text-anchor="middle" font-size="${p.n.length > 8 ? 9 : 10.5}" font-weight="700" fill="${isDone ? '#14633a' : '#dbe7f6'}">${esc(p.n)}</text>`;
+        else s += `<text x="${x + w / 2}" y="${y + 19}" text-anchor="middle" font-size="${p.n.length > 8 ? 9.5 : 11}" font-weight="700" fill="#4a5563">${esc(p.n)}</text><text x="${x + w / 2}" y="${y + 32}" text-anchor="middle" font-size="9" fill="#8a96a8">${esc(c)}</text>`;
+      });
     });
     const ty = up ? mid - 18 - lh * r.levels.length - 6 : mid + 18 + lh * r.levels.length + 14;
-    s += `<text x="${sx(xa + layout.bayW / 2)}" y="${ty}" text-anchor="middle" font-size="12" font-weight="800" fill="#004791">Rack ${+r.id}</text>`;
+    s += `<text x="${sx(bayX0(r) + layout.bayW / 2)}" y="${ty}" text-anchor="middle" font-size="12" font-weight="800" fill="#004791">Rack ${+r.id || esc(r.id)}</text>`;
   }
-  for (let l = 1; l <= nLv(); l++) { s += `<text x="4" y="${mid - 18 - lh * l + lh / 2 + 4}" font-size="10" fill="#8a96a8">level ${l}</text><text x="4" y="${mid + 18 + lh * (l - 1) + lh / 2 + 4}" font-size="10" fill="#8a96a8">level ${l}</text>`; }
+  for (let l = 1; l <= L; l++) s += `<text x="4" y="${mid - 18 - lh * l + lh / 2 + 4}" font-size="10" fill="#8a96a8">level ${l}</text><text x="4" y="${mid + 18 + lh * (l - 1) + lh / 2 + 4}" font-size="10" fill="#8a96a8">level ${l}</text>`;
+  s += `<text x="4" y="12" font-size="10" font-weight="800" fill="#8a96a8">LEFT</text><text x="4" y="${H - 4}" font-size="10" font-weight="800" fill="#8a96a8">RIGHT</text>`;
   if (order.length) { const pts = [[sx(0), mid]]; order.forEach(c => { const p = pos(c); pts.push([sx(p.x), mid + p.side * 7]); }); pts.push([sx(0), mid]); s += `<polyline points="${pts.map(p => p.join(',')).join(' ')}" fill="none" stroke="#b04512" stroke-width="3" stroke-linejoin="round" opacity=".85"/>`; }
   return s + '</svg>';
 }
@@ -342,7 +355,7 @@ function pickerView() {
   else h += `<h2>Done in ${fmt(st.hist.length ? st.hist[st.hist.length - 1].actual : 0)} s</h2><p class="muted">Wait for the next round. Same role, same picker.</p>`;
   $('#main').innerHTML = h + '</div>';
 }
-function whereText(c) { const p = parse(c); return `<div class="name" style="font-size:30px">${esc(itemName(c))}</div>Rack ${+p.rack} · ${lvName(p.lv)} · position ${p.letter}`; }
+function whereText(c) { const p = parse(c); if (!p) return esc(c); return `<div class="name" style="font-size:30px">${esc(p.name)}</div>Rack ${+p.rack.id || esc(p.rack.id)} · ${lvName(p.lv)} · ${effSide(p.rack) < 0 ? 'left' : 'right'} side, position ${p.k + 1} of ${p.n} from the start`; }
 function runBlock(rec) {
   const seq = st.plan.seq, n = st.run.taps.length, back = n >= seq.length;
   let h = `<div class="prog">${seq.map((c, i) => `<i class="${i < n ? 'done' : i === n ? 'now' : ''}"></i>`).join('')}</div>`;
@@ -380,28 +393,48 @@ function finishRun(back) {
 }
 
 /* ===== class board for the projector ===== */
+let boardSetup = false;
 function boardView() {
+  if (!$('#boardLive') || !boardSetup) { $('#main').innerHTML = '<div id="boardLive"></div><div class="card" id="boardSetup"></div>'; boardSetup = true; renderSetup(); }
   const ids = Object.keys(teams).sort(), now = Date.now();
   const queue = ids.filter(i => teams[i].phase === 'ready').sort((a, b) => teams[a].readyAt - teams[b].readyAt), atRack = ids.filter(i => teams[i].phase === 'run');
   let h = `<div class="card"><div class="eyebrow">The rack</div><div class="queue" style="margin-top:8px">${atRack.map(i => `<div class="now">At the rack ${esc(i)} · ${fmt((now - teams[i].run.t0) / 1000, 0)} s</div>`).join('')}${queue.map((i, k) => `<div>${k === 0 && !atRack.length ? 'Next ' : ''}${esc(i)}</div>`).join('') || (atRack.length ? '' : '<span class="muted">Nobody is waiting for the rack.</span>')}</div></div>`;
   h += `<div class="grid2"><div class="card"><div class="eyebrow">More data, better predictions</div>${errChart(ids)}<div class="small muted">Model error of every team, round by round. Zero is a perfect prediction.</div></div>`;
   h += `<div class="card"><div class="eyebrow">Leaderboard</div><table><tr><th>Team</th><th>Round</th><th>Last error</th><th>Points</th></tr>${ids.map(i => { const t = teams[i], l = t.hist[t.hist.length - 1]; return {i, t, l, p:t.hist.reduce((a, x) => a + x.points, 0)}; }).sort((a, b) => b.p - a.p).map(({i, t, l, p}) => `<tr><td><b>${esc(i)}</b><div class="small muted">${Object.values(t.members || {}).map(m => esc(m.name)).join(', ')}</div></td><td>${t.round}${t.phase === 'done' ? ' done' : ''}</td><td>${l ? (l.err > 0 ? '+' : '') + Math.round(l.err * 100) + '%' : '–'}</td><td><b>${p}</b></td></tr>`).join('')}</table></div></div>`;
-  h += `<div class="card"><div class="eyebrow">Supermarket layout</div><p class="small muted">Set this once before class. Every phone gets it. Changing it later changes the orders.</p><div class="lay">${layout.racks.map((r, ri) => `<b>Rack ${+r.id}</b><div class="row"><span class="small muted">${r.side < 0 ? 'left' : 'right'} side, bay ${r.bay + 1}</span>${r.levels.map((n, li) => `<span class="small">level ${li + 1}</span><span class="stepper"><button data-a="lane" data-r="${ri}" data-l="${li}" data-d="-1">−</button><b>${n}</b><button data-a="lane" data-r="${ri}" data-l="${li}" data-d="1">+</button></span>`).join('')}</div>`).join('')}
-    <b>Distances</b><div class="row"><span class="small">start to rack</span><span class="stepper"><button data-a="off" data-d="-0.1">−</button><b>${fmt(layout.start)} m</b><button data-a="off" data-d="0.1">+</button></span><span class="small">bay width</span><span class="stepper"><button data-a="len" data-d="-0.1">−</button><b>${fmt(layout.bayW)} m</b><button data-a="len" data-d="0.1">+</button></span><span class="small">cross the aisle</span><span class="stepper"><button data-a="cross" data-d="-0.1">−</button><b>${fmt(layout.cross)} m</b><button data-a="cross" data-d="0.1">+</button></span><button class="btn ghost" data-a="flip" data-d="0">${layout.flip ? 'Start at the A end' : 'Start at the other end'}</button></div>
-    <b>Order</b><div class="row"><span class="stepper"><button data-a="lines" data-d="-1">−</button><b>${layout.lines} lines</b><button data-a="lines" data-d="1">+</button></span><span class="stepper"><button data-a="rounds" data-d="-1">−</button><b>${layout.rounds} rounds</b><button data-a="rounds" data-d="1">+</button></span></div></div>
-    <div style="margin-top:10px">${mapSVG(orderFor(1))}</div><div class="small muted">Shown with the order of round 1. The codes are the labels on the racks, rack, level from the floor, position from the start.</div>
-    <div class="row" style="margin-top:10px"><button class="btn" id="pubLay">Send layout to every phone</button><button class="btn ghost" id="clr">Clear all teams</button><span class="small muted">Students open ${esc(location.host + location.pathname)}?class=${esc(CLS())}</span></div></div>`;
-  $('#main').innerHTML = h;
-  $$('[data-a]').forEach(b => b.onclick = () => {
-    const a = b.dataset.a, d = +b.dataset.d, r = layout.racks[+b.dataset.r];
-    if (a === 'lane') r.levels[+b.dataset.l] = Math.max(1, Math.min(6, r.levels[+b.dataset.l] + d));
-    if (a === 'len') layout.bayW = Math.max(.4, +(layout.bayW + d).toFixed(2)); if (a === 'off') layout.start = Math.max(0, +(layout.start + d).toFixed(2));
-    if (a === 'cross') layout.cross = Math.max(0, +(layout.cross + d).toFixed(2)); if (a === 'flip') layout.flip = !layout.flip;
-    if (a === 'lines') layout.lines = Math.max(3, Math.min(12, layout.lines + d)); if (a === 'rounds') layout.rounds = Math.max(2, Math.min(8, layout.rounds + d));
-    render();
+  $('#boardLive').innerHTML = h;
+}
+function uniqueCode(base) { let c = base, i = 2; while (IDX[c]) c = base + '-' + i++; return c; }
+function renderSetup() {
+  const el = $('#boardSetup'); if (!el) return;
+  const rk = (r, ri) => `<div class="rk"><div class="row"><b>Rack ${+r.id || esc(r.id)}</b><span class="small muted">${effSide(r) < 0 ? 'left' : 'right'} side, bay ${r.bay + 1} from the start</span><button class="btn ghost sm" data-e="side" data-r="${ri}">Other side</button><button class="btn ghost sm" data-e="bay" data-r="${ri}" data-d="-1">Bay −</button><button class="btn ghost sm" data-e="bay" data-r="${ri}" data-d="1">Bay +</button></div>
+    ${r.levels.map((lv, li) => ({lv, li})).reverse().map(({lv, li}) => `<div class="lvl"><span class="small muted">level ${li + 1}${li === 0 ? ', floor' : ''}</span>${lv.map((p, k) => `<span class="pos"><input class="pn" value="${esc(p.n)}" data-r="${ri}" data-l="${li}" data-k="${k}" aria-label="name"><input class="pc" value="${esc(p.c)}" data-r="${ri}" data-l="${li}" data-k="${k}" aria-label="label"><button data-e="del" data-r="${ri}" data-l="${li}" data-k="${k}" title="remove">✕</button></span>`).join('')}<button class="btn ghost sm" data-e="add" data-r="${ri}" data-l="${li}">+ position</button></div>`).join('')}
+    <div class="row" style="margin-top:6px"><button class="btn ghost sm" data-e="addlv" data-r="${ri}">+ level on top</button>${r.levels.length > 1 ? `<button class="btn ghost sm" data-e="dellv" data-r="${ri}">− top level</button>` : ''}</div></div>`;
+  el.innerHTML = `<div class="eyebrow">Supermarket layout</div><p class="small muted">It starts as our lab supermarket. Edit names, labels and positions if the racks change, then send it to every phone. In every level the positions run from the start of the aisle outwards. Changing the layout during class changes the orders.</p>
+    <div class="row"><button class="btn ghost" data-e="flip">${layout.flip ? 'Start at the first end again' : 'Start at the other end'}</button><button class="btn ghost" data-e="swap">Swap left and right</button><button class="btn ghost" data-e="reset">Back to the lab layout</button></div>
+    <div class="row" style="margin-top:8px"><span class="small">start to first rack</span><span class="stepper"><button data-e="off" data-d="-0.1">−</button><b>${fmt(layout.start)} m</b><button data-e="off" data-d="0.1">+</button></span><span class="small">bay width</span><span class="stepper"><button data-e="len" data-d="-0.1">−</button><b>${fmt(layout.bayW)} m</b><button data-e="len" data-d="0.1">+</button></span><span class="small">cross the aisle</span><span class="stepper"><button data-e="cross" data-d="-0.1">−</button><b>${fmt(layout.cross)} m</b><button data-e="cross" data-d="0.1">+</button></span></div>
+    <div class="row" style="margin-top:8px"><span class="stepper"><button data-e="lines" data-d="-1">−</button><b>${layout.lines} lines</b><button data-e="lines" data-d="1">+</button></span><span class="stepper"><button data-e="rounds" data-d="-1">−</button><b>${layout.rounds} rounds</b><button data-e="rounds" data-d="1">+</button></span></div>
+    <div id="layMap" style="margin-top:10px">${mapSVG(orderFor(1))}</div><div class="small muted">Shown with the order of round 1.</div>
+    <div class="racks-ed">${layout.racks.map(rk).join('')}</div>
+    <div class="row" style="margin-top:10px"><button class="btn" id="pubLay">Send layout to every phone</button><button class="btn ghost" id="clr">Clear all teams</button><span class="small muted">Students open ${esc(location.host + location.pathname)}?class=${esc(CLS())}</span></div>`;
+  const redo = () => { reindex(); renderSetup(); };
+  $$('#boardSetup [data-e]').forEach(b => b.onclick = () => {
+    const e = b.dataset.e, d = +b.dataset.d, r = layout.racks[+b.dataset.r], l = +b.dataset.l, k = +b.dataset.k;
+    if (e === 'side') r.side = -r.side;
+    if (e === 'bay') r.bay = Math.max(0, Math.min(5, r.bay + d));
+    if (e === 'del') { if (r.levels[l].length > 1) r.levels[l].splice(k, 1); else alertMsg('A level needs at least one position.'); }
+    if (e === 'add') { const n = r.levels[l].length; r.levels[l].push(P(uniqueCode(`${r.id}-${lv2(l + 1)}-${LETTERS[n] || n + 1}`), 'NEW ITEM')); }
+    if (e === 'addlv') { const li = r.levels.length; r.levels.push(r.levels[li - 1].map((_, j) => P(uniqueCode(`${r.id}-${lv2(li + 1)}-${LETTERS[j] || j + 1}`), 'NEW ITEM'))); }
+    if (e === 'dellv' && r.levels.length > 1) r.levels.pop();
+    if (e === 'flip') layout.flip = !layout.flip; if (e === 'swap') layout.swap = !layout.swap;
+    if (e === 'reset') { if (!confirmTwice('reset')) return; layout = JSON.parse(JSON.stringify(DEF_LAYOUT)); }
+    if (e === 'off') layout.start = Math.max(0, +(layout.start + d).toFixed(2)); if (e === 'len') layout.bayW = Math.max(.4, +(layout.bayW + d).toFixed(2)); if (e === 'cross') layout.cross = Math.max(0, +(layout.cross + d).toFixed(2));
+    if (e === 'lines') layout.lines = Math.max(3, Math.min(12, layout.lines + d)); if (e === 'rounds') layout.rounds = Math.max(2, Math.min(8, layout.rounds + d));
+    redo();
   });
-  $('#pubLay').onclick = () => { pub('layout', layout, true); alertMsg('Layout sent.'); };
-  $('#clr').onclick = () => { if (confirmTwice('clr')) { Object.keys(teams).forEach(i => pub('team/' + i, null, true)); teams = {}; render(); } };
+  $$('#boardSetup input.pn').forEach(i => i.onchange = () => { const v = i.value.trim().toUpperCase() || 'ITEM'; layout.racks[+i.dataset.r].levels[+i.dataset.l][+i.dataset.k].n = v; reindex(); $('#layMap').innerHTML = mapSVG(orderFor(1)); });
+  $$('#boardSetup input.pc').forEach(i => i.onchange = () => { const p = layout.racks[+i.dataset.r].levels[+i.dataset.l][+i.dataset.k], v = i.value.trim(); if (!v || (v !== p.c && IDX[v])) { alertMsg('Every position needs its own label.'); i.value = p.c; return; } p.c = v; reindex(); $('#layMap').innerHTML = mapSVG(orderFor(1)); });
+  $('#pubLay').onclick = () => { pub('layout', layout, true); alertMsg('Layout sent to every phone.'); };
+  $('#clr').onclick = () => { if (confirmTwice('clr')) { Object.keys(teams).forEach(i => pub('team/' + i, null, true)); teams = {}; render(); } else alertMsg('Tap again to clear every team.'); };
 }
 function errChart(ids) {
   const W = 560, H = 240, L = 44, R = 12, Tp = 14, B = 30, n = Math.max(layout.rounds, ...ids.map(i => teams[i].hist.length), 1);

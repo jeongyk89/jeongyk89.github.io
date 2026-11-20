@@ -112,17 +112,18 @@ table.runs th,table.runs td{text-align:left;padding:4px 6px;border-bottom:1px so
       <div class="verdict hide" id="verdict"></div>
     </div>
     <div class="card board-only" id="runCard">
-      <div class="eyebrow">Run on the real robot</div>
+      <div class="eyebrow" id="runTitle">Run on the real robot</div>
+      <div class="banner hide" id="physWarn" style="margin:6px 0"></div>
       <div class="what" id="bestLine">No working plan yet. Ask the class to test plans.</div>
       <div class="row"><button class="btn go" id="btnRun" disabled>Run best plan</button><button class="btn stop" id="btnStop">Stop</button><span class="small" id="phase"></span></div>
       <div class="small" id="lastRun" style="margin-top:8px"></div>
-      <div class="small muted" style="margin-top:8px">The bridge must be armed, and the name box must match the name after <code>--allow</code>. Only plans that worked in the twins can be sent.</div>
+      <div class="small muted" style="margin-top:8px" id="runHelp">The bridge must be armed, and the name box must match the name after <code>--allow</code>. Only plans that worked in the twins can be sent.</div>
     </div>
   </div>
   <div class="col">
     <div class="card student-only" id="planCard">
       <div class="eyebrow">Your plan</div>
-      <div class="what small">Move the tool from the <b style="color:#1f6fd1">blue</b> stand to the <b style="color:#1f9d5a">green</b> stand without touching the <b style="color:#c4422b">red</b> block. Try ideas on your copy first. Only the best plan of the class goes to the real robot.</div>
+      <div class="what small">Move the tool from the <b style="color:#1f6fd1">blue</b> stand to the <b style="color:#1f9d5a">green</b> stand without touching the <b style="color:#c4422b">red</b> block. Try ideas on your copy first. Only one plan goes to the physical robot.</div>
       <div class="lbl">Route</div>
       <div class="opts" id="optRoute">
         <button data-v="direct"><b>Straight</b><span>the shortest way</span></button>
@@ -145,16 +146,23 @@ table.runs th,table.runs td{text-align:left;padding:4px 6px;border-bottom:1px so
       <div class="banner hide" id="runBanner"></div>
     </div>
     <div class="card student-only" id="flowCard">
-      <div class="eyebrow">What your copy gets from the real robot</div>
+      <div class="eyebrow">What your copy gets from the physical robot</div>
       <ul class="flow">
         <li id="fPose"><i></i>Where the robot is right now</li>
         <li id="fBox"><i></i>The safe range of every joint</li>
         <li id="fCal"><i></i><span id="fCalText">Timing learned from real runs</span></li>
       </ul>
-      <div class="eyebrow" style="margin-top:10px">What the real robot gets from the copies</div>
-      <div class="small">One plan, the fastest one that worked in the copies. Plans that hit the block never reach it.</div>
+      <div class="eyebrow" style="margin-top:10px">What the physical robot gets from the copies</div>
+      <div class="small">One plan that worked in the copies, chosen by the physical robot. Plans that hit the block never reach it.</div>
+      <div class="small" style="margin-top:10px">Physical robot in this room <b id="physName">nobody yet</b>. <a href="#" id="toPhys">Be the physical robot</a></div>
     </div>
 
+    <div class="card board-only" id="worldCard">
+      <div class="eyebrow">Physical conditions</div>
+      <div class="small muted">Change the red block and every twin gets a new mission. Results for the old block are cleared, the learned timing stays.</div>
+      <div class="row" style="margin-top:8px"><span class="small" style="width:52px">Height</span><div class="seg" id="wH" style="flex:1"><button data-v="0.24">24 cm</button><button data-v="0.30">30 cm</button><button data-v="0.36">36 cm</button></div></div>
+      <div class="row" style="margin-top:8px"><span class="small" style="width:52px">Width</span><div class="seg" id="wW" style="flex:1"><button data-v="0.14">14 cm</button><button data-v="0.20">20 cm</button><button data-v="0.26">26 cm</button></div></div>
+    </div>
     <div class="card board-only" id="statCard">
       <div class="eyebrow">Many twins, one robot</div>
       <div class="stats">
@@ -172,7 +180,7 @@ table.runs th,table.runs td{text-align:left;padding:4px 6px;border-bottom:1px so
       <div class="small muted">Times are what the twins predict. Tap a cell to preview that plan.</div>
     </div>
     <div class="card board-only" id="calCard">
-      <div class="eyebrow">What the twins learned from the real robot</div>
+      <div class="eyebrow" id="learnTitle">What the twins learned from the real robot</div>
       <div class="what" id="calLine"></div>
       <table class="runs" id="runsTbl"></table>
       <div class="join"><img src="many_qr.png" alt="" onerror="this.remove()"><div class="small">Students open<br><b id="url"></b><br>room <b id="roomShow"></b></div></div>
@@ -210,8 +218,10 @@ class MiniMQTT {
 const $ = s => document.querySelector(s), $$ = s => Array.from(document.querySelectorAll(s));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const params = new URLSearchParams(location.search);
-const BOARD = !!params.get('board');
-document.body.classList.add(BOARD ? 'is-board' : 'is-student');
+const BOARD = !!params.get('board');                       // teacher board, steers the real UR through the bridge
+const PHYS = !BOARD && params.get('role') === 'phys';      // a student plays the physical robot, simulated in this browser
+const DASH = BOARD || PHYS;
+document.body.classList.add(DASH ? 'is-board' : 'is-student');
 function lsGet(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }
 function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -244,8 +254,9 @@ function ik(target, q0) {
 /* ===== the task: blue stand to green stand around a keep out block ===== */
 const V = .35;                                   // joint speed of the bridge, rad/s
 const ZP = .22, PA = [-.45, .10, ZP], PB = [-.45, -.30, ZP];   // blue start, green goal
-const BLK = {x:[-.56, -.34], y:[-.20, 0], z:[0, .30]};
-const XF = BLK.x[0] - .10, XB = BLK.x[1] + .10, SAFEZ = .52;
+const BLK0 = {x:[-.56, -.34], y:[-.20, 0], z:[0, .30]};
+let BLK = JSON.parse(JSON.stringify(BLK0)), worldV = 0;
+const XF = BLK0.x[0] - .10, XB = BLK0.x[1] + .10, SAFEZ = .52;
 const HS = [22, 28, 34, 40, 46, 52];
 const ROWS = [['direct', '-', 'Straight'], ['over', 'square', 'Over, square'], ['over', 'cut', 'Over, cut'], ['front', 'square', 'Front, square'], ['front', 'cut', 'Front, cut'], ['back', 'square', 'Back, square'], ['back', 'cut', 'Back, cut']];
 const KEYS = ['direct'].concat(...ROWS.slice(1).map(([r, c]) => HS.map(h => `${r}-${c}-${h}`)));
@@ -315,10 +326,11 @@ scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.1)); const sun = new T
 const root = new THREE.Group(); root.rotation.x = -Math.PI / 2; scene.add(root);
 const grid = new THREE.GridHelper(3, 30, 0x3d5fa8, 0x2a4580); grid.position.y = -.001; scene.add(grid);
 const table = new THREE.Mesh(new THREE.BoxGeometry(1.15, .9, .03), new THREE.MeshStandardMaterial({color:0x24427e, transparent:true, opacity:.6})); table.position.set(-.33, -.05, -.016); root.add(table);
-const blkGeo = new THREE.BoxGeometry(BLK.x[1] - BLK.x[0], BLK.y[1] - BLK.y[0], BLK.z[1] - BLK.z[0]);
-const blkMesh = new THREE.Mesh(blkGeo, new THREE.MeshStandardMaterial({color:0xe5484d, transparent:true, opacity:.45, depthWrite:false}));
-blkMesh.position.set((BLK.x[0] + BLK.x[1]) / 2, (BLK.y[0] + BLK.y[1]) / 2, (BLK.z[0] + BLK.z[1]) / 2); root.add(blkMesh);
-const blkEdge = new THREE.LineSegments(new THREE.EdgesGeometry(blkGeo), new THREE.LineBasicMaterial({color:0xff9a90})); blkEdge.position.copy(blkMesh.position); root.add(blkEdge);
+const blkGeo = new THREE.BoxGeometry(1, 1, 1);
+const blkMesh = new THREE.Mesh(blkGeo, new THREE.MeshStandardMaterial({color:0xe5484d, transparent:true, opacity:.45, depthWrite:false})); root.add(blkMesh);
+const blkEdge = new THREE.LineSegments(new THREE.EdgesGeometry(blkGeo), new THREE.LineBasicMaterial({color:0xff9a90})); root.add(blkEdge);
+function updateBlock() { const sx = BLK.x[1] - BLK.x[0], sy = BLK.y[1] - BLK.y[0], sz = BLK.z[1] - BLK.z[0]; [blkMesh, blkEdge].forEach(o => { o.scale.set(sx, sy, sz); o.position.set((BLK.x[0] + BLK.x[1]) / 2, (BLK.y[0] + BLK.y[1]) / 2, sz / 2); }); }
+updateBlock();
 function stand(p, color) {
   const m = new THREE.MeshStandardMaterial({color, roughness:.5});
   const post = new THREE.Mesh(new THREE.CylinderGeometry(.008, .008, p[2] - .015, 12), m); post.rotation.x = Math.PI / 2; post.position.set(p[0], p[1], (p[2] - .015) / 2); root.add(post);
@@ -360,7 +372,7 @@ function makeArm(ghost) {
 const arm = makeArm(false), ghost = makeArm(true); ghost.g.visible = false;
 function resize() { const w = view.clientWidth, h = view.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
 new ResizeObserver(resize).observe(view); resize();
-$('#legend').innerHTML = BOARD ? '<b style="color:#8a96a8">■</b> real robot &nbsp;<b style="color:#e07b39">■</b> twin prediction &nbsp;<b style="color:#e5484d">■</b> keep out' : '<b style="color:#8a96a8">■</b> your copy &nbsp;<b style="color:#e07b39">■</b> real robot now &nbsp;<b style="color:#e5484d">■</b> keep out';
+$('#legend').innerHTML = DASH ? '<b style="color:#8a96a8">■</b> ' + (BOARD ? 'real robot' : 'physical robot') + ' &nbsp;<b style="color:#e07b39">■</b> twin prediction &nbsp;<b style="color:#e5484d">■</b> keep out' : '<b style="color:#8a96a8">■</b> your copy &nbsp;<b style="color:#e07b39">■</b> physical robot now &nbsp;<b style="color:#e5484d">■</b> keep out';
 
 /* ===== shared state ===== */
 let connectedAt = 0, client = null, remote = null, remoteAt = 0, calib = {ov:0, runs:[]}, anim = null;
@@ -368,7 +380,7 @@ const sid = lsGet('mt_sid', null) || (() => { const s = Math.random().toString(3
 const robotFresh = () => !!remote && performance.now() - remoteAt < 2500;
 const liveBox = () => robotFresh() && Array.isArray(remote.box) && remote.box.length === 6 ? remote.box : DEFBOX;
 const pred = ev => ev.naive + calib.ov * ev.n;
-const name = () => $('#me').value.trim() || (BOARD ? 'board' : 'twin-' + sid.slice(0, 3));
+const name = () => $('#me').value.trim() || (BOARD ? 'board' : PHYS ? 'robot-' + sid.slice(0, 3) : 'twin-' + sid.slice(0, 3));
 const BROKERS = {emqx:{url:'wss://broker.emqx.io:8084/mqtt'}, hivemq:{url:'wss://broker.hivemq.com:8884/mqtt'}, mosq:{url:'wss://test.mosquitto.org:8081/'}, shiftr:{url:'wss://public.cloud.shiftr.io', username:'public', password:'public'}};
 $('#room').value = params.get('room') || lsGet('mt_room', 'teacher'); $('#broker').value = params.get('b') || lsGet('mt_broker', 'emqx'); $('#customUrl').value = params.get('url') || lsGet('mt_url', ''); $('#me').value = lsGet('mt_me', '');
 $('#broker').onchange = () => $('#customUrl').classList.toggle('hide', $('#broker').value !== 'custom'); $('#broker').onchange();
@@ -384,26 +396,28 @@ $('#btnConn').onclick = async () => {
   c.onmessage = onMsg; c.onstatus = s => { if (client === c && s !== 'on') { $('#dot').className = 'dot err'; $('#btnConn').textContent = 'Reconnect'; } };
   try {
     connectedAt = Date.now(); await c.connect(); client = c;
-    const subs = BOARD ? ['ur/state', 'ur/ack', 'many/st/+', 'many/hb', 'many/calib'] : ['ur/state', 'many/calib', 'many/sum', 'many/run', 'many/reset', 'many/st/' + sid];
+    const subs = BOARD ? ['ur/state', 'ur/ack', 'many/st/+', 'many/hb', 'many/calib'] : PHYS ? ['many/world', 'many/phys', 'many/st/+', 'many/hb', 'many/calib'] : ['many/world', 'many/phys', 'ur/state', 'many/calib', 'many/sum', 'many/run', 'many/reset', 'many/st/' + sid];
     subs.forEach(s => c.subscribe(T(s)));
     $('#dot').className = 'dot on'; $('#btnConn').textContent = 'Connected';
-    if (BOARD) renderJoin(); else hb();
+    if (DASH) { renderJoin(); if (PHYS) { physSince = physSince || Date.now(); setTimeout(physHello, 1200); } } else hb();
   } catch (e) { $('#dot').className = 'dot err'; $('#btnConn').textContent = 'Connect'; }
 };
 const acks = {};
 function onMsg(topic, payload) {
   const parts = topic.split('/'), kind = parts[2] === 'ur' ? 'ur/' + parts[3] : parts[3];
   let m = null; if (payload) { try { m = JSON.parse(payload); } catch (e) { return; } }
-  if (kind === 'ur/state') { if (!m || !Array.isArray(m.q) || m.q.length !== 6 || (m.src !== 'real' && m.src !== 'sim')) return; remote = m; remoteAt = performance.now(); return; }
+  if (kind === 'ur/state') { if (!m || !Array.isArray(m.q) || m.q.length !== 6 || !['real', 'sim', 'phys'].includes(m.src)) return; if (PHYS || (BOARD && m.src === 'phys')) return; remote = m; remoteAt = performance.now(); return; }
+  if (kind === 'world') { if (BOARD || room() === 'teacher') return; applyWorld(m && Array.isArray(m.y) && m.y.length === 2 && typeof m.top === 'number' && m.top >= .2 && m.top <= .4 ? m : {y:BLK0.y, top:BLK0.z[1], v:0}); return; }
+  if (kind === 'phys') { if (m && m.sid) { physAll[m.sid] = {name:m.name, since:m.since || m.t, t:m.t}; physInfo = m; } if (PHYS) physWarn(); return; }
   if (kind === 'ur/ack') { if (m && acks[m.id]) { acks[m.id](m); delete acks[m.id]; } return; }
-  if (kind === 'calib') { calib = m && typeof m.ov === 'number' ? m : {ov:0, runs:[]}; BOARD ? (dirty = true) : onCalib(); return; }
-  if (BOARD) {
+  if (kind === 'calib') { calib = m && typeof m.ov === 'number' ? m : {ov:0, runs:[]}; DASH ? (dirty = true) : onCalib(); return; }
+  if (DASH) {
     if (kind === 'st') { const id = parts[4]; if (m) students[id] = m; else delete students[id]; dirty = true; }
     else if (kind === 'hb' && m && m.sid) twins[m.sid] = {name:m.name, at:performance.now()};
   } else {
-    if (kind === 'st' && parts[4] === sid && m && !restored && m.t < connectedAt) { restored = true; for (const [k, at] of Object.entries(m.tested || {})) if (!tested[k] || at < tested[k]) tested[k] = at; nTests += m.n || 0; publishMine(); renderMine(); }
+    if (kind === 'st' && parts[4] === sid && m && !restored && m.t < connectedAt && (!worldSeen || (m.wv || 0) === worldV)) { restored = true; testedV = m.wv || 0; for (const [k, at] of Object.entries(m.tested || {})) if (!tested[k] || at < tested[k]) tested[k] = at; nTests += m.n || 0; publishMine(); renderMine(); }
     else if (kind === 'sum') { sum = m; renderClass(); }
-    else if (kind === 'run' && m) runBanner(m);
+    else if (kind === 'run' && m) { runBanner(m); setShadow(m.phase === 'ready' || m.phase === 'start', m.key); }
     else if (kind === 'reset') { tested = {}; nTests = 0; restored = true; renderMine(); setResult(null); showTrace(null); $('#runBanner').classList.add('hide'); }
   }
 }
@@ -420,23 +434,50 @@ $$('#optRoute button').forEach(b => b.onclick = () => { plan.r = b.dataset.v; re
 $$('#optCorner button').forEach(b => b.onclick = () => { plan.c = b.dataset.v; renderPlan(); });
 $$('#optH button').forEach(b => b.onclick = () => { plan.h = +b.dataset.v; renderPlan(); });
 const curKey = () => plan.r === 'direct' ? 'direct' : `${plan.r}-${plan.c}-${plan.h}`;
-function publishMine() { pub('many/st/' + sid, {name:name(), n:nTests, tested, t:Date.now()}, true); }
-function hb() { if (client && !BOARD) pub('many/hb', {sid, name:name(), t:Date.now()}); }
+function publishMine() { pub('many/st/' + sid, {name:name(), n:nTests, tested, wv:worldV, t:Date.now()}, true); }
+function hb() { if (client && !DASH) pub('many/hb', {sid, name:name(), t:Date.now()}); }
+/* the physical side changes the block, every copy gets the new mission */
+let testedV = 0, physInfo = null, physAll = {}, physSince = 0, shadowLock = false, shadowTo = 0, worldSeen = false;
+const blockText = () => `${Math.round(BLK.z[1] * 100)} cm high, ${Math.round((BLK.y[1] - BLK.y[0]) * 100)} cm wide`;
+function applyWorld(m) {
+  const changed = (m.v || 0) !== worldV && (worldSeen || (m.v || 0) > connectedAt);
+  BLK = {x:BLK0.x.slice(), y:m.y.slice(), z:[0, m.top]}; worldV = m.v || 0; worldSeen = true; updateBlock();
+  if (DASH) { evalSig = ''; dirty = true; renderWorld(); return; }
+  if (testedV !== worldV && (Object.keys(tested).length || nTests)) { tested = {}; nTests = 0; publishMine(); renderMine(); }
+  testedV = worldV;
+  if (changed) {
+    lastEv = null; if (!shadowLock) anim = null; setResult(null); showTrace(null);
+    const el = $('#runBanner'); el.classList.remove('hide'); el.innerHTML = `New mission. The physical robot changed the red block to <b>${blockText()}</b>. Your old results are gone, test your plans again.`;
+  }
+}
+function setShadow(on, key) {
+  shadowLock = on; clearTimeout(shadowTo);
+  if (on) { anim = null; shadowTo = setTimeout(() => setShadow(false), 90000); if (KEYS.includes(key)) showTrace(evaluate(key, liveBox()), 'final'); }
+  const b = $('#btnTest'); if (b) { b.disabled = on; b.textContent = on ? 'Watching the physical robot…' : 'Test in my copy'; }
+  $$('#planCard .opts button, #planCard .seg button').forEach(x => x.style.pointerEvents = on ? 'none' : '');
+  $('#planCard').style.opacity = on ? .55 : '';
+  chips();
+}
+const RR = BOARD ? 'real' : 'physical';
+const physOther = () => { const now = Date.now(); return Object.entries(physAll).map(([k, e]) => Object.assign({sid:k}, e)).filter(e => e.sid !== sid && now - e.t < 12000 && e.since < physSince).sort((a, b) => a.since - b.since)[0] || null; };
+const physBlocked = () => PHYS && (room() === 'teacher' || !!physOther());
+function physHello() { if (client && PHYS && room() !== 'teacher' && !physOther()) pub('many/phys', {name:name(), sid, since:physSince, t:Date.now()}, true); }
+if (PHYS) setInterval(physHello, 5000);
 setInterval(hb, 4000);
 function renderMine() { const k = Object.keys(tested).length; $('#mine').textContent = nTests ? `You tested ${k} different plan${k === 1 ? '' : 's'} in ${nTests} test${nTests === 1 ? '' : 's'}.` : ''; }
 function renderClass() {
   const el = $('#classSum');
-  if (!sum) { el.textContent = client ? 'The class board is not open yet.' : ''; return; }
-  el.innerHTML = `The class tested <b>${sum.tested} of ${sum.total}</b> plans on ${sum.twins} cop${sum.twins === 1 ? 'y' : 'ies'}.` + (sum.best ? ` Best so far <b>${sum.best.pred.toFixed(1)} s</b>, ${esc(sum.best.label)}, found by ${esc(sum.best.by)}.` : ' No plan works yet.');
+  if (!sum) { el.textContent = client ? (room() === 'teacher' ? 'The class board is not open yet.' : 'Nobody is the physical robot in this room yet.') : ''; return; }
+  el.innerHTML = `Together you tested <b>${sum.tested} of ${sum.total}</b> plans on ${sum.twins} cop${sum.twins === 1 ? 'y' : 'ies'}.` + (sum.best ? ` Best so far <b>${sum.best.pred.toFixed(1)} s</b>, ${esc(sum.best.label)}, found by ${esc(sum.best.by)}.` : ' No plan works yet.');
 }
 function setResult(ev) {
   const el = $('#res'), sm = $('#resSmall');
   if (ev === 'wait') { el.className = 'res'; el.textContent = 'Testing in your copy…'; sm.textContent = ''; return; }
   if (!ev) { el.className = 'res'; el.textContent = 'Pick a plan and test it.'; sm.textContent = ''; return; }
-  if (ev.ok) { el.className = 'res ok'; el.textContent = `Works. ${pred(ev).toFixed(1)} s`; sm.textContent = `${ev.n} moves. ` + (calib.ov > 0 ? `Includes ${calib.ov.toFixed(2)} s per move that the twins learned from the real robot.` : 'Time is distance ÷ joint speed. Your copy has not seen a real run yet.'); }
+  if (ev.ok) { el.className = 'res ok'; el.textContent = `Works. ${pred(ev).toFixed(1)} s`; sm.textContent = `${ev.n} moves. ` + (calib.ov > 0 ? `Includes ${calib.ov.toFixed(2)} s per move that the twins learned from the physical robot.` : 'Time is distance ÷ joint speed. Your copy has not seen a physical run yet.'); }
   else if (ev.why === 'block') { el.className = 'res bad'; el.textContent = `Hits the red block after ${makeTimeline(ev, calib.ov).dur.toFixed(1)} s.`; sm.textContent = 'Good thing it was only your copy.'; }
   else if (ev.why === 'table') { el.className = 'res bad'; el.textContent = 'Hits the table.'; sm.textContent = 'Good thing it was only your copy.'; }
-  else if (ev.why === 'range') { el.className = 'res warn'; el.textContent = `Joint ${ev.joint} would leave the safe range.`; sm.textContent = 'The real robot would refuse this plan. The orange dot marks the point.'; }
+  else if (ev.why === 'range') { el.className = 'res warn'; el.textContent = `Joint ${ev.joint} would leave the safe range.`; sm.textContent = 'The physical robot would refuse this plan. The orange dot marks the point.'; }
   else { el.className = 'res warn'; el.textContent = 'The robot cannot reach one of the points.'; sm.textContent = ''; }
 }
 let verdictTo = 0;
@@ -450,13 +491,13 @@ function onCalib() { if (lastEv && (!anim || anim.ended)) setResult(lastEv); chi
 function runBanner(m) {
   const el = $('#runBanner'); el.classList.remove('hide');
   const who = m.by ? `, found by ${esc(m.by)}` : '';
-  if (m.phase === 'ready') el.innerHTML = `The real robot is getting ready for “${esc(m.label)}”${who}.`;
-  else if (m.phase === 'start') el.innerHTML = `The real robot is running “${esc(m.label)}”${who}. The twins say ${m.said.toFixed(1)} s.`;
-  else if (m.phase === 'done') el.innerHTML = `The real robot took <b>${m.actual.toFixed(1)} s</b>. The twins said ${m.said.toFixed(1)} s. Every copy now adds ${m.ov.toFixed(2)} s per move.`;
-  else el.innerHTML = `The real run stopped. ${esc(m.msg || '')}`;
+  if (m.phase === 'ready') el.innerHTML = `The physical robot is getting ready for “${esc(m.label)}”${who}. Your copy is in shadow mode now.`;
+  else if (m.phase === 'start') el.innerHTML = `The physical robot is running “${esc(m.label)}”${who}. Watch your copy follow it. The twins say ${m.said.toFixed(1)} s.`;
+  else if (m.phase === 'done') el.innerHTML = `The physical robot took <b>${m.actual.toFixed(1)} s</b>. The twins said ${m.said.toFixed(1)} s. Every copy now adds ${m.ov.toFixed(2)} s per move.`;
+  else el.innerHTML = `The run stopped. ${esc(m.msg || '')}`;
 }
 $('#btnTest').onclick = () => {
-  if (anim && !anim.ended) return;
+  if (shadowLock || (anim && !anim.ended)) return; testedV = worldV;
   const k = curKey(), ev = evaluate(k, liveBox()); lastEv = ev;
   if (!tested[k]) tested[k] = Date.now(); nTests++; publishMine(); renderMine();
   if (!ev.segs || !ev.segs.length) { anim = null; showTrace(ev, 'final'); setResult(ev); showVerdict(ev); return; }
@@ -467,10 +508,10 @@ $('#btnTest').onclick = () => {
 
 /* ===== board: collect every copy, run the best on the robot ===== */
 let students = {}, twins = {}, evals = {}, evalSig = '', dirty = true, agg = {by:{}, tests:0}, bestKey = null, selKey = null, running = null, lastSumSig = '', armedClick = 0, confirmReset = 0, lastRunInfo = null, timerInfo = null;
-function ensureEvals() { const sig = JSON.stringify(liveBox()); if (sig === evalSig) return; evalSig = sig; const box = liveBox(); for (const k of KEYS) evals[k] = evaluate(k, box); dirty = true; }
+function ensureEvals() { const sig = JSON.stringify([liveBox(), worldV]); if (sig === evalSig) return; evalSig = sig; const box = liveBox(); for (const k of KEYS) evals[k] = evaluate(k, box); dirty = true; }
 function aggregate() {
   const by = {}; let tests = 0;
-  for (const [id, s] of Object.entries(students)) { tests += s.n || 0; for (const [k, at] of Object.entries(s.tested || {})) { if (!KEYS.includes(k)) continue; const b = by[k] || (by[k] = {count:0, at:Infinity, name:''}); b.count++; if (at < b.at) { b.at = at; b.name = s.name || id; } } }
+  for (const [id, s] of Object.entries(students)) { if ((s.wv || 0) !== worldV) continue; tests += s.n || 0; for (const [k, at] of Object.entries(s.tested || {})) { if (!KEYS.includes(k)) continue; const b = by[k] || (by[k] = {count:0, at:Infinity, name:''}); b.count++; if (at < b.at) { b.at = at; b.name = s.name || id; } } }
   return {by, tests};
 }
 function cellHtml(k, span) {
@@ -491,7 +532,7 @@ function renderBoard() {
   if (selKey && !agg.by[selKey]) selKey = null;
   $('#sTwins').textContent = nTwins; $('#sTested').textContent = keys.length; $('#sTestedL').textContent = `of ${KEYS.length} plans tested`; $('#sTests').textContent = agg.tests; $('#sHit').textContent = hit.length; $('#sRange').textContent = rng.length;
   const robotSec = keys.reduce((s, k) => s + (evals[k].ok ? pred(evals[k]) : evals[k].segs ? makeTimeline(evals[k], calib.ov).dur : 0) + 12, 0);
-  $('#saved').textContent = keys.length ? `Trying these ${keys.length} plans one by one on the real robot would take about ${Math.max(1, Math.round(robotSec / 60))} min, and ${hit.length} of them would hit something.` : 'Waiting for the first test from a copy.';
+  $('#saved').textContent = keys.length ? `Trying these ${keys.length} plans one by one on the ${RR} robot would take about ${Math.max(1, Math.round(robotSec / 60))} min, and ${hit.length} of them would hit something.` : 'Waiting for the first test from a copy.';
   let h = '<div></div>' + HS.map(v => `<div class="hd">${v} cm</div>`).join('');
   for (const [r, c, lab] of ROWS) { h += `<div class="rl">${lab}</div>`; for (const k of r === 'direct' ? ['direct'] : HS.map(v => `${r}-${c}-${v}`)) h += cellHtml(k, r === 'direct'); }
   $('#heat').innerHTML = h; $$('#heat .cell').forEach(d => d.onclick = () => selectCell(d.dataset.k));
@@ -502,16 +543,27 @@ function renderBoard() {
 }
 function renderRun() {
   const k = selKey || bestKey, b = $('#btnRun');
-  if (!bestKey) $('#bestLine').textContent = 'No working plan yet. Ask the class to test plans.';
+  if (!bestKey) $('#bestLine').textContent = BOARD ? 'No working plan yet. Ask the class to test plans.' : 'No working plan yet. Ask the twins to test plans.';
   else $('#bestLine').innerHTML = `Best plan now <b>★ ${esc(label(bestKey))}</b>. The twins predict <b>${pred(evals[bestKey]).toFixed(1)} s</b>. Found by ${esc(agg.by[bestKey].name)}.` + (selKey && selKey !== bestKey ? `<br>Selected instead <b>${esc(label(selKey))}</b>.` : '');
   b.disabled = !!running || !k || !evals[k] || !evals[k].ok;
   if (!armedClick) b.textContent = selKey && selKey !== bestKey ? 'Run selected plan' : 'Run best plan';
 }
 function renderCal() {
   const n = calib.runs.length;
-  $('#calLine').innerHTML = n ? `Learned from ${n} real run${n > 1 ? 's' : ''}. Every move takes <b>${calib.ov.toFixed(2)} s</b> more than distance ÷ joint speed, so every twin now adds that to each move.` : 'The twins use distance ÷ joint speed. They know nothing yet about speeding up, slowing down or waiting for the next command.';
-  $('#runsTbl').innerHTML = n ? '<tr><th>Plan</th><th>Twins said</th><th>Robot took</th></tr>' + calib.runs.map(r => `<tr><td>${esc(label(r.key))}</td><td>${r.said.toFixed(1)} s</td><td><b>${r.actual.toFixed(1)} s</b>${r.src === 'sim' ? ' <span class="muted">sim</span>' : ''}</td></tr>`).join('') : '';
+  $('#calLine').innerHTML = n ? `Learned from ${n} ${RR} run${n > 1 ? 's' : ''}. Every move takes <b>${calib.ov.toFixed(2)} s</b> more than distance ÷ joint speed, so every twin now adds that to each move.` : 'The twins use distance ÷ joint speed. They know nothing yet about speeding up, slowing down or waiting for the next command.';
+  $('#runsTbl').innerHTML = n ? '<tr><th>Plan</th><th>Twins said</th><th>Robot took</th></tr>' + calib.runs.map(r => `<tr><td>${esc(label(r.key))}</td><td>${r.said.toFixed(1)} s</td><td><b>${r.actual.toFixed(1)} s</b>${r.src === 'sim' ? ' <span class="muted">sim</span>' : r.src === 'phys' ? ' <span class="muted">student robot</span>' : ''}</td></tr>`).join('') : '';
 }
+function renderWorld() {
+  const h = +(BLK.z[1]).toFixed(2), w = +(BLK.y[1] - BLK.y[0]).toFixed(2);
+  $$('#wH button').forEach(b => b.classList.toggle('on', Math.abs(+b.dataset.v - h) < .005)); $$('#wW button').forEach(b => b.classList.toggle('on', Math.abs(+b.dataset.v - w) < .005));
+}
+function setWorld(h, w) {
+  const mid = -.10, m = {y:[+(mid - w / 2).toFixed(3), +(mid + w / 2).toFixed(3)], top:h, v:Date.now()};
+  pub('many/world', m, true); applyWorld(m); students = {}; selKey = null; showTrace(null); dirty = true; renderBoard();
+}
+$$('#wH button').forEach(b => b.onclick = () => { if (!running) setWorld(+b.dataset.v, BLK.y[1] - BLK.y[0]); });
+$$('#wW button').forEach(b => b.onclick = () => { if (!running) setWorld(BLK.z[1], +b.dataset.v); });
+function physWarn() { const el = $('#physWarn'); if (!el) return; const tr = room() === 'teacher', other = physOther(); el.classList.toggle('hide', !tr && !other); $('#worldCard').classList.toggle('hide', tr || !!other); el.innerHTML = tr ? 'The teacher room has the real robot. Use your group room, for example <b>g1</b>.' : other ? `<b>${esc(other.name)}</b> is already the physical robot in this room. Only one per room, so be a twin. <a href="#" onclick="event.preventDefault();document.getElementById('toTwin').click()">Be a twin</a>` : ''; }
 function renderJoin() { $('#url').textContent = location.host + location.pathname.replace(/index\.html$/, '') + '?room=' + room(); $('#roomShow').textContent = room(); const qr = $('.join img'); if (qr) qr.classList.toggle('hide', room() !== 'teacher'); }
 function selectCell(k) {
   if (!agg.by[k]) return;
@@ -522,7 +574,18 @@ function selectCell(k) {
 function sendRobot(o) { const id = Math.random().toString(36).slice(2, 9); pub('ur/cmd', Object.assign({id, by:name(), t:Date.now()}, o)); return id; }
 function waitAck(id, ms) { return new Promise(res => { const to = setTimeout(() => { delete acks[id]; res(null); }, ms); acks[id] = m => { clearTimeout(to); res(m); }; }); }
 let lastSent = 0;
-async function moveTo(q) {
+const simBot = {q:HOME.slice(), busy:false};
+const trapT = d => d >= V * V / .6 ? d / V + V / .6 : 2 * Math.sqrt(d / .6), ease = u => u < .5 ? 2 * u * u : 1 - 2 * (1 - u) * (1 - u);
+async function moveToSim(q) {   // a real controller waits a moment before every move, then speeds up and slows down
+  if (running.abort) throw new Error('Stopped.');
+  await sleep(200 + Math.random() * 250);
+  const a = simBot.q.slice(), T = Math.max(.05, trapT(maxAbs(a, q)) * (.95 + Math.random() * .1)), t0 = performance.now(); simBot.busy = true;
+  for (;;) { await sleep(30); if (running.abort) { simBot.busy = false; throw new Error('Stopped.'); } const u = Math.min(1, (performance.now() - t0) / 1000 / T); simBot.q = lerpQ(a, q, ease(u)); if (u >= 1) break; }
+  simBot.busy = false;
+}
+if (PHYS) setInterval(() => { if (physBlocked()) { remote = null; return; } remote = {q:simBot.q.map(v => +v.toFixed(5)), busy:simBot.busy, src:'phys', name:name(), armed:true, box:DEFBOX.map(b => b.map(v => +v.toFixed(4)))}; remoteAt = performance.now(); if (client) pub('ur/state', Object.assign({t:Date.now()}, remote)); }, 100);
+const moveTo = q => PHYS ? moveToSim(q) : moveToBridge(q);
+async function moveToBridge(q) {
   for (let attempt = 0; ; attempt++) {
     const wait = lastSent + 1650 - performance.now(); if (wait > 0) await sleep(wait);
     if (running.abort) throw new Error('Stopped.');
@@ -554,9 +617,11 @@ function phase(t) { $('#phase').textContent = t; }
 async function runPlan(k) {
   const ev = evals[k];
   if (!ev || !ev.ok) return phase('Pick a plan that worked in the twins.');
+  if (physBlocked()) return phase(room() === 'teacher' ? 'The teacher room has the real robot. Pick your group room, for example g1, and connect again.' : 'Another student is already the physical robot in this room.');
   if (!robotFresh()) return phase('No robot online in this room.');
-  if (!remote.armed) return phase('The robot is not armed. Type arm in the bridge terminal.');
-  const box = liveBox(), path = readyPath(remote.q, ev.qs[0], box);
+  if (BOARD && !remote.armed) return phase('The robot is not armed. Type arm in the bridge terminal.');
+  const box = liveBox(); let path = readyPath(remote.q, ev.qs[0], box);
+  if (!path && PHYS) { simBot.q = HOME.slice(); remote.q = HOME.slice(); path = readyPath(HOME, ev.qs[0], box); }
   if (!path) return phase('No safe way to the start from where the robot is now. Type home in the bridge terminal, then try again.');
   const said = pred(ev), by = agg.by[k] ? agg.by[k].name : '';
   running = {key:k, abort:false}; dirty = true; showTrace(ev, 'final'); anim = null;
@@ -582,13 +647,13 @@ async function runPlan(k) {
 }
 $('#btnRun').onclick = () => {
   if (running) return; const k = selKey || bestKey; if (!k) return;
-  if (!armedClick) { armedClick = setTimeout(() => { armedClick = 0; renderRun(); }, 4000); $('#btnRun').textContent = 'Tap again, I am at the emergency stop'; return; }
+  if (BOARD && !armedClick) { armedClick = setTimeout(() => { armedClick = 0; renderRun(); }, 4000); $('#btnRun').textContent = 'Tap again, I am at the emergency stop'; return; }
   clearTimeout(armedClick); armedClick = 0; renderRun(); runPlan(k);
 };
-$('#btnStop').onclick = () => { if (running) running.abort = true; if (client) sendRobot({type:'stop'}); phase('Stop sent.'); };
+$('#btnStop').onclick = () => { if (running) running.abort = true; if (client && BOARD) sendRobot({type:'stop'}); phase('Stop sent.'); };
 $('#btnReset').onclick = () => {
-  if (!confirmReset) { confirmReset = setTimeout(() => { confirmReset = 0; $('#btnReset').textContent = 'Clear class results'; }, 4000); $('#btnReset').textContent = 'Tap again to clear everything'; return; }
-  clearTimeout(confirmReset); confirmReset = 0; $('#btnReset').textContent = 'Clear class results';
+  if (!confirmReset) { confirmReset = setTimeout(() => { confirmReset = 0; $('#btnReset').textContent = PHYS ? 'Clear room results' : 'Clear class results'; }, 4000); $('#btnReset').textContent = 'Tap again to clear everything'; return; }
+  clearTimeout(confirmReset); confirmReset = 0; $('#btnReset').textContent = PHYS ? 'Clear room results' : 'Clear class results';
   Object.keys(students).forEach(id => pub('many/st/' + id, null, true)); pub('many/calib', null, true); pub('many/sum', null, true); pub('many/reset', {t:Date.now()});
   students = {}; calib = {ov:0, runs:[]}; selKey = null; lastRunInfo = null; timerInfo = null; $('#lastRun').textContent = ''; showTrace(null); dirty = true;
 };
@@ -596,20 +661,29 @@ $('#btnReset').onclick = () => {
 /* ===== chips, timer and render loop ===== */
 function chips() {
   const live = robotFresh(), cr = $('#chipRobot'), cc = $('#chipCopy');
-  if (live) { cr.className = 'chip ok'; cr.textContent = (remote.src === 'sim' ? 'simulated robot online' : 'real robot online') + (BOARD ? (remote.armed ? ' · armed' : ' · not armed') : ''); if (BOARD && !remote.armed) cr.className = 'chip warn'; }
+  if (live) { cr.className = 'chip ok'; cr.textContent = (remote.src === 'sim' ? 'simulated robot online' : remote.src === 'phys' ? (PHYS ? 'your physical robot' : 'physical robot online') : 'real robot online') + (BOARD ? (remote.armed ? ' · armed' : ' · not armed') : ''); if (BOARD && !remote.armed) cr.className = 'chip warn'; }
   else { cr.className = 'chip ' + (client ? 'bad' : ''); cr.textContent = client ? 'no robot in this room' : 'not connected'; }
-  if (BOARD) { const n = Object.values(twins).filter(t => performance.now() - t.at < 12000).length; cc.className = 'chip'; cc.textContent = `${n} twin${n === 1 ? '' : 's'} online`; }
+  if (PHYS) physWarn();
+  if (DASH) { const n = Object.values(twins).filter(t => performance.now() - t.at < 12000).length; cc.className = 'chip'; cc.textContent = `${n} twin${n === 1 ? '' : 's'} online`; }
   else {
-    const testing = anim && !anim.ended; cc.className = 'chip ' + (testing ? 'warn' : '');
-    cc.textContent = testing ? 'your copy, testing at 2× speed' : live ? 'your copy follows the real robot' : 'your copy';
+    const testing = anim && !anim.ended;
+    cc.className = 'chip ' + (shadowLock ? 'ok' : testing ? 'warn' : ''); cc.textContent = shadowLock ? 'shadow mode, watching the physical robot' : testing ? 'your copy, testing at 2× speed' : live ? 'your copy follows the physical robot' : 'your copy';
     $('#fPose').classList.toggle('on', live); $('#fBox').classList.toggle('on', live && Array.isArray(remote.box));
-    $('#fCal').classList.toggle('on', calib.ov > 0); $('#fCalText').textContent = calib.ov > 0 ? `Timing learned from ${calib.runs.length} real run${calib.runs.length === 1 ? '' : 's'}, ${calib.ov.toFixed(2)} s per move` : 'Timing learned from real runs, none yet';
+    $('#fCal').classList.toggle('on', calib.ov > 0); $('#fCalText').textContent = calib.ov > 0 ? `Timing learned from ${calib.runs.length} physical run${calib.runs.length === 1 ? '' : 's'}, ${calib.ov.toFixed(2)} s per move` : 'Timing learned from physical runs, none yet';
+    const tr = room() === 'teacher'; $('#physName').textContent = tr ? 'the real robot, run by the teacher' : (Object.values(physAll).filter(e => Date.now() - e.t < 15000).sort((a, b) => a.since - b.since)[0] || {name:'nobody yet'}).name; $('#toPhys').classList.toggle('hide', tr);
     if (!sum) renderClass();
   }
 }
 setInterval(chips, 500); chips();
-if (BOARD) { $('#ttl').textContent = 'Many twins, one robot'; $('#sub').textContent = 'ML2305 Lab 3 · class board, every copy tests, the real robot runs the best'; renderJoin(); setInterval(renderBoard, 1000); renderBoard(); }
-else { renderPlan(); renderMine(); }
+if (DASH) {
+  $('#ttl').textContent = BOARD ? 'Many twins, one robot' : 'Physical robot';
+  $('#sub').textContent = BOARD ? 'ML2305 Lab 3 · class board, every copy tests, the real robot runs the best' : 'ML2305 Lab 3 · you are the robot. Watch the twins, choose one plan and run it';
+  if (BOARD) $('#worldCard').classList.add('hide');
+  if (PHYS) { $('#learnTitle').textContent = 'What the twins learned from the physical robot'; $('#btnReset').textContent = 'Clear room results'; $('#runTitle').textContent = 'Run on your physical robot'; $('#runHelp').innerHTML = 'You decide which plan runs. Pick the best one or tap a cell to choose another. While it runs, every twin watches in shadow mode. <a href="#" id="toTwin">Be a twin instead</a>'; $('#toTwin').onclick = e => { e.preventDefault(); goRole(null); }; }
+  renderJoin(); renderWorld(); setInterval(renderBoard, 1000); renderBoard();
+}
+else { renderPlan(); renderMine(); $('#toPhys').onclick = e => { e.preventDefault(); goRole('phys'); }; }
+function goRole(r) { const q = new URLSearchParams(location.search); q.set('room', room()); q.set('b', $('#broker').value); if ($('#broker').value === 'custom') q.set('url', $('#customUrl').value); if (r) q.set('role', r); else q.delete('role'); q.delete('board'); lsSet('mt_me', $('#me').value); location.search = q.toString(); }
 let shown = HOME.slice(), last = performance.now();
 function animQ(now) {
   const a = anim, t = (now - a.t0) / 1000 * a.speed, pre = a.pre ? a.pre.dur : 0;
@@ -621,19 +695,19 @@ function animQ(now) {
 function frame() {
   const now = performance.now(), dt = Math.min(.1, (now - last) / 1000); last = now;
   const live = robotFresh() ? remote.q : null;
-  if (!BOARD && anim) {
+  if (!DASH && anim) {
     shown = animQ(now); ghost.g.visible = !!live; if (live) ghost.set(live);
     if (anim.ended && now - anim.endAt > 2500) anim = null;
   } else {
     const tgt = live || HOME, step = 4 * dt; shown = shown.map((v, i) => v + Math.max(-step, Math.min(step, tgt[i] - v)));
-    if (BOARD && anim) { ghost.g.visible = true; ghost.set(animQ(now)); if (anim.ended && !running && now - anim.endAt > 5000) anim = null; }
+    if (DASH && anim) { ghost.g.visible = true; ghost.set(animQ(now)); if (anim.ended && !running && now - anim.endAt > 5000) anim = null; }
     else ghost.g.visible = false;
   }
   arm.set(shown);
   const tm = $('#timer');
-  if (BOARD && timerInfo) {
+  if (DASH && timerInfo) {
     const el = timerInfo.done != null ? timerInfo.done : (now - timerInfo.t0) / 1000;
-    tm.classList.remove('hide'); tm.innerHTML = `Twins said ${timerInfo.said.toFixed(1)} s<br>Robot ${el.toFixed(1)} s${timerInfo.done != null ? '' : '…'}<small>${timerInfo.done != null ? 'measured on the real robot' : 'running'}</small>`;
+    tm.classList.remove('hide'); tm.innerHTML = `Twins said ${timerInfo.said.toFixed(1)} s<br>Robot ${el.toFixed(1)} s${timerInfo.done != null ? '' : '…'}<small>${timerInfo.done != null ? (BOARD ? 'measured on the real robot' : 'measured on the physical robot') : 'running'}</small>`;
   } else tm.classList.add('hide');
   controls.update(); renderer.render(scene, camera); requestAnimationFrame(frame);
 }

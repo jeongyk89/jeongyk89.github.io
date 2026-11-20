@@ -55,6 +55,23 @@ th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
 th{font-size:12px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
 .big{font-size:26px;font-weight:900}
 .grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:12px}
+.modes{display:grid;gap:8px;margin-top:8px}
+.modes button{border:2px solid var(--line);background:#fbfaf7;border-radius:12px;padding:10px;text-align:left;cursor:pointer}
+.modes button b{display:block}.modes button span{font-size:12px;color:var(--muted)}
+.modes button.on{border-color:var(--kth);background:var(--soft)}
+.lbl{font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin:12px 0 2px}
+.check{border-radius:10px;padding:10px;margin-top:10px;font-weight:700;font-size:14px}
+.check.ok{background:#e5f3ea;color:#14633a}.check.bad{background:#fae6e4;color:#b3321f}.check.wait{background:#f2f3f5;color:#4a5563}
+.banner{border-radius:10px;padding:10px;margin-top:10px;background:#fff8e1;border:1.5px solid #e0a800;font-weight:700;font-size:14px}
+.cond{display:inline-block;font-size:12px;font-weight:700;color:#8a5a00;background:#fbf2dc;border-radius:8px;padding:2px 8px;margin:6px 0 2px}
+.tile pre.raw{font-size:12px;margin:6px 0 2px;max-height:130px}
+.rawline{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:#6b7785;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.tile .v.dim{color:#9aa6b2}
+.warn{color:#b3321f;font-weight:700;font-size:13px;margin-top:2px}
+.flash{font-weight:800;font-size:14px;margin-top:6px;min-height:20px}
+.flash.ok{color:#14633a}.flash.bad{color:#b3321f}.flash.mid{color:#8a5a00}
+.tag.bad{background:#fae6e4;color:#b3321f}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
 .hide{display:none!important}
 @media(max-width:860px){.grid2{grid-template-columns:1fr}.rounds{grid-template-columns:1fr}}
 </style>
@@ -116,125 +133,220 @@ function local(t) { const d = new Date(t), p = n => String(n).padStart(2, '0'); 
 function fieldsOf(o, pre = '') { const out = []; for (const [k, v] of Object.entries(o || {})) { const p = pre ? pre + '.' + k : k; if (v && typeof v === 'object') out.push(...fieldsOf(v, p)); else out.push(p); } return out; }
 const getPath = (o, p) => p.split('.').reduce((a, k) => a == null ? undefined : a[k], o);
 function stdMsg(d, v, t) { return {assetId:'urn:kth:lab:' + d.id, quantity:d.q, value:+v.toFixed(3), unit:STD[d.q], time:new Date(t).toISOString()}; }
-const ROUNDS = [null, ['Own format', 'Every supplier sends what it always sends. The integrator translates.'], ['Describe', 'Suppliers keep their format and say which field holds the value and in which unit.'], ['Standard', 'Everyone sends the same names and units.']];
+/* how a supplier can send its data. The supplier decides, the plant has to live with it */
+const MODES = {own:['Own format', 'What the device always sends. The plant has to work out the field and the unit.'], desc:['Own format + description', 'The same message, plus a description of which field holds the value and in which unit.'], std:['Standard', 'The same names and units as every other device.']};
+const RANGE = {freezer:[-40, 30], amr:[0, 100], conveyor:[0, 3], shelf:[0, 10], robotcell:[0, 8000], meter:[0, 20000]};
+const decs = d => d.q === 'Speed' ? 2 : d.q === 'Power' ? 0 : 1;
+const fmtV = (d, v) => v == null || isNaN(v) ? '?' : `${(+v).toFixed(decs(d))} ${UNIT_LABEL[STD[d.q]]}`;
+const numOf = x => typeof x === 'number' ? x : typeof x === 'string' && x.trim() !== '' && !isNaN(+x) ? +x : NaN;
+const isStd = m => !!(m && typeof m === 'object' && m.quantity && m.unit && m.value != null);
+const UNIT_TEXT = {kW:'kW', W:'W', '°C':'degC', degC:'degC', '°F':'degF', degF:'degF', K:'K', '%':'percent', 'm/s':'m/s', 'mm/s':'mm/s', kg:'kg', g:'g'};
+/* what the plant can check in a description without asking anyone */
+function hintFor(field, msg, d) {
+  const parts = field.split('.'), name = parts[parts.length - 1], last = name.toLowerCase();
+  const sib = parts.length > 1 ? getPath(msg, parts.slice(0, -1).concat('unit').join('.')) : undefined;
+  if (typeof sib === 'string' && last !== 'unit' && UNIT_TEXT[sib]) return {unit:UNIT_TEXT[sib], txt:`the message itself says ${sib}`};
+  if (/tempf|fahr|(^|_)f$/.test(last)) return {unit:'degF', txt:'the field name says °F'};
+  if (/mm_?s$|mm\/s/.test(last)) return {unit:'mm/s', txt:'the field name says mm/s'};
+  if (/kw/.test(last)) return {unit:'kW', txt:'the field name says kW'};
+  if (/antal|count|qty|pcs/.test(last)) return {bad:`“${name}” looks like a count, not ${d.q.toLowerCase()}`};
+  if (/^(ts|t|time|timestamp|date)$/.test(last)) return {bad:`“${name}” looks like a time, not ${d.q.toLowerCase()}`};
+  return null;
+}
+function readDesc(id, msg, meta) {
+  const d = dev(id); if (!msg || typeof msg !== 'object') return {v:null, why:'The message is not readable.'};
+  const raw = getPath(msg, meta.field);
+  if (raw === undefined) return {v:null, why:`There is no field “${meta.field}” in the message.`};
+  const num = numOf(raw); if (isNaN(num)) return {v:null, why:`“${meta.field}” is not a number.`};
+  const v = toStd(num, meta.unit), h = hintFor(meta.field, msg, d);
+  if (h && h.bad) return {v, why:h.bad + '.'};
+  if (h && h.unit && h.unit !== meta.unit) return {v, why:`The description says ${UNIT_LABEL[meta.unit]}, but ${h.txt}.`};
+  const [lo, hi] = RANGE[id]; if (v < lo || v > hi) return {v, why:`${fmtV(d, v)} is not possible for a ${d.name.toLowerCase()}.`};
+  if (meta.unit === 'percent' && num <= 1) return {v, why:'The value is between 0 and 1. That looks like a fraction, not percent.'};
+  return {v, ok:true};
+}
 
 /* ===== connection ===== */
 const BROKERS = {emqx:{url:'wss://broker.emqx.io:8084/mqtt'}, hivemq:{url:'wss://broker.hivemq.com:8884/mqtt'}, mosq:{url:'wss://test.mosquitto.org:8081/'}, shiftr:{url:'wss://public.cloud.shiftr.io', username:'public', password:'public'}};
-let me = lsGet('cx_me', null), client = null, round = 1;
+let me = lsGet('cx_me', null), client = null;
 const T = s => `ml2305/cx-${me.team}/${s}`;
 function pub(s, o, retain) { if (client) client.publish(T(s), o == null ? '' : JSON.stringify(o), !!retain); }
 async function connect() {
   if (client) client.close(); client = null; $('#dot').className = 'dot';
   const p = me.broker === 'custom' ? {url:me.url} : BROKERS[me.broker || 'emqx'], c = new MiniMQTT(p.url, {username:p.username, password:p.password});
   c.onmessage = onMsg; c.onstatus = s => { if (client === c && s !== 'on') { $('#dot').className = 'dot err'; setTimeout(() => { if (client === c) connect(); }, 3000); } };
-  try { await c.connect(); client = c; $('#dot').className = 'dot on'; c.subscribe(T('round')); if (me.role === 'integrator') { DEVICES.forEach(d => { alarms[d.id] = false; pub('alarm/' + d.id, {on:false, t:Date.now()}, true); }); c.subscribe(T('data/+')); c.subscribe(T('meta/+')); c.subscribe(T('incident/+')); c.subscribe(T('hello/+')); setTimeout(() => { if (!roundSeen) pub('round', {n:round}, true); }, 1500); } else { c.subscribe(T('alarm/' + me.device)); pub('hello/' + me.device, {name:me.name, t:Date.now()}, true); } }
-  catch (e) { $('#dot').className = 'dot err'; setTimeout(connect, 3000); }
+  try {
+    await c.connect(); client = c; $('#dot').className = 'dot on';
+    if (me.role === 'integrator') { DEVICES.forEach(d => pub('alarm/' + d.id, null, true)); ['data/+', 'meta/+', 'incident/+', 'hello/+'].forEach(s => c.subscribe(T(s))); }
+    else { c.subscribe(T('alarm/' + me.device)); c.subscribe(T('ask/' + me.device)); hello(); publishMeta(); }
+  } catch (e) { $('#dot').className = 'dot err'; setTimeout(connect, 3000); }
 }
-let roundSeen = false;
 function onMsg(topic, payload) {
   let m = null; if (payload) { try { m = JSON.parse(payload); } catch (e) { m = undefined; } }
   const p = topic.split('/'), kind = p[2], id = p[3];
-  if (kind === 'round') { if (m && m.n) { round = m.n; roundSeen = true; if (me.role !== 'integrator') { publishMeta(); } render(); } return; }
   if (me.role === 'integrator') {
-    if (kind === 'data') { latest[id] = {raw:payload, msg:m, at:Date.now()}; evaluate(id); return; }
-    if (kind === 'meta') { if (m) metas[id] = m; else delete metas[id]; evaluate(id); render(); return; }
-    if (kind === 'hello') { if (m) hellos[id] = m; else delete hellos[id]; render(); return; }
-    if (kind === 'incident' && m) { onIncident(id, m); return; }
-  } else if (kind === 'alarm') { plantAlarm = m && m.on; plantAlarmAt = m ? m.t : 0; feedback(); }
+    if (!dev(id)) return;
+    if (kind === 'data') { latest[id] = {raw:payload, msg:m, at:Date.now()}; ensureTile(id); updateTile(id); }
+    else if (kind === 'meta') { if (m && m.field && m.unit) metas[id] = m; else delete metas[id]; if (tileEl(id)) updateTile(id); }
+    else if (kind === 'hello') { if (m) hellos[id] = m; else delete hellos[id]; if (m) ensureTile(id); if (tileEl(id)) updateTile(id); }
+    else if (kind === 'incident' && m) onIncident(id, m);
+  } else if (kind === 'alarm' && m && typeof m.ok === 'boolean') onAlarm(m);
+  else if (kind === 'ask' && m && m.kind) { ask = {kind:m.kind, why:m.why || '', at:Date.now()}; renderAsk(); }
 }
 
-/* ===== supplier: one device, one problem button ===== */
-let value = null, incident = null, plantAlarm = false, plantAlarmAt = 0, sendTimer = null, metaPick = null;
+/* ===== supplier: one device, it decides how to send, it can break ===== */
+let value = null, incident = null, sendTimer = null, lastMsg = null, lastTrue = null, ask = null, result = null, mode = 'own', metaPick = null;
+const GRACE = 5000;
+function hello() { pub('hello/' + me.device, {name:me.name, mode, t:Date.now()}, true); }
+function publishMeta() { if (!me || me.role === 'integrator') return; pub('meta/' + me.device, mode === 'desc' && metaPick ? metaPick : null, true); }
 function supplierLoop() {
   const d = dev(me.device); if (value == null) value = d.normal;
   clearInterval(sendTimer);
   sendTimer = setInterval(() => {
-    const now = Date.now(), target = incident && now < incident.until ? d.problem : d.normal, span = Math.abs(d.problem - d.normal);
+    const now = Date.now(), target = incident && !incident.end ? d.problem : d.normal, span = Math.abs(d.problem - d.normal);
     value += (target - value) * .45 + (Math.random() - .5) * span * .03;
-    if (incident && now >= incident.until) { incident = null; pub('incident/' + me.device, {on:false, t:now}); }
-    if (Math.floor(now / 1000) % d.period === 0) { const msg = round === 3 ? stdMsg(d, value, now) : d.own(value, now); pub('data/' + me.device, msg); lastMsg = msg; }
+    if (incident && !incident.end && now >= incident.until) { incident.end = now; pub('incident/' + me.device, {on:false, t:now}); }
+    if (incident && incident.end && now - incident.end > GRACE) { if (incident.caught == null) result = {kind:'missed', at:now}; incident = null; }
+    if (Math.floor(now / 1000) % d.period === 0) { const msg = mode === 'std' ? stdMsg(d, value, now) : d.own(value, now); pub('data/' + me.device, msg); lastMsg = msg; lastTrue = value; }
     renderSupplierLive();
   }, 1000);
 }
-let lastMsg = null;
-function publishMeta() { if (!me || me.role === 'integrator') return; if (round === 2 && metaPick) pub('meta/' + me.device, metaPick, true); else pub('meta/' + me.device, null, true); }
+function onAlarm(m) {
+  const now = Date.now();
+  if (m.ok) { if (incident) incident.caught = m.secs; result = {kind:'caught', secs:m.secs, at:now}; }
+  else result = {kind:'false', at:now};
+  feedback();
+}
 function feedback() {
-  const el = $('#fb'); if (!el) return; const d = dev(me.device);
-  if (incident && incident.pre) { el.className = 'fb bad'; el.textContent = 'The plant already showed an alarm before your problem started ✗ An alarm that is always on tells nothing.'; }
-  else if (incident) { const seen = plantAlarm && plantAlarmAt >= incident.t - 1500; el.className = 'fb ' + (seen ? 'ok' : 'wait'); el.textContent = seen ? `The plant saw it after ${fmt(Math.max(0, (plantAlarmAt - incident.t) / 1000))} s ✓` : `Waiting. Has the plant noticed? ${fmt((Date.now() - incident.t) / 1000, 0)} s`; if (!seen && Date.now() - incident.t > 10000) { el.className = 'fb bad'; el.textContent = 'Not noticed in 10 s ✗ The problem went unseen.'; } }
-  else if (plantAlarm) { el.className = 'fb bad'; el.textContent = 'False alarm ✗ The plant thinks your device has a problem, but it is fine.'; }
-  else { el.className = 'fb ok'; el.textContent = 'All quiet. The plant sees no problem, and there is none.'; }
+  const el = $('#fb'); if (!el) return; const now = Date.now();
+  const set = (c, t) => { el.className = 'fb ' + c; el.textContent = t; };
+  if (incident && incident.caught != null) set(incident.caught <= 10 ? 'ok' : 'wait', `The plant raised the alarm after ${fmt(incident.caught)} s ${incident.caught <= 10 ? '✓' : ', too late'}`);
+  else if (incident) { const s = (now - incident.t) / 1000; s > 10 ? set('bad', `Not noticed in 10 s ✗ The problem is still unseen, ${fmt(s, 0)} s.`) : set('wait', `Problem running. Has the plant noticed? ${fmt(s, 0)} s`); }
+  else if (result && now - result.at < 12000) {
+    if (result.kind === 'caught') set(result.secs <= 10 ? 'ok' : 'wait', `The plant raised the alarm after ${fmt(result.secs)} s ${result.secs <= 10 ? '✓' : ', too late'}`);
+    else if (result.kind === 'missed') set('bad', 'The plant never raised the alarm ✗ Your problem went unseen.');
+    else set('bad', 'False alarm ✗ The plant raised an alarm, but your device is fine.');
+  } else set('ok', 'All quiet. No problem, no alarm.');
+}
+function renderAsk() {
+  const el = $('#ask'); if (!el) return;
+  if (!ask || Date.now() - ask.at > 40000) { el.classList.add('hide'); return; }
+  el.classList.remove('hide');
+  el.innerHTML = ask.kind === 'describe' ? 'The plant cannot read your format. It asks for a description, or for the standard.' : `The plant says your description does not fit your data. ${esc(ask.why)}`;
 }
 function renderSupplierLive() {
   const d = dev(me.device), u = d.q === 'Temperature' ? '°C' : d.q === 'Battery' ? '%' : STD[d.q];
-  if ($('#val')) $('#val').innerHTML = `${fmt(value, d.q === 'Speed' ? 2 : d.q === 'Power' ? 0 : 1)} <small>${u}</small>`;
+  if ($('#val')) $('#val').innerHTML = `${fmt(value, decs(d))} <small>${u}</small>`;
   if ($('#msg') && lastMsg) $('#msg').textContent = JSON.stringify(lastMsg, null, 1);
-  if ($('#btnProb')) { $('#btnProb').textContent = incident ? `Problem running, ${Math.max(0, Math.ceil((incident.until - Date.now()) / 1000))} s` : 'Cause a problem'; $('#btnProb').disabled = !!incident; }
-  feedback();
+  if ($('#btnProb')) { $('#btnProb').textContent = incident && !incident.end ? `Problem running, ${Math.max(0, Math.ceil((incident.until - Date.now()) / 1000))} s` : 'Cause a problem'; $('#btnProb').disabled = !!incident; }
+  const ck = $('#mCheck');
+  if (ck) {
+    if (mode === 'own') { ck.className = 'check wait'; ck.textContent = 'The plant only gets the raw message. Someone there has to work out which field is the value and in which unit.'; }
+    else if (mode === 'std') { ck.className = 'check ok'; ck.textContent = 'Standard message ✓ The plant reads it directly, like every other device.'; }
+    else if (!metaPick) { ck.className = 'check wait'; ck.textContent = 'Pick the field and the unit. Until then the plant only gets the raw message.'; }
+    else if (lastMsg) {
+      const r = readDesc(me.device, lastMsg, metaPick), tol = Math.max(.02 * Math.abs(d.problem - d.normal), .01), right = r.v != null && Math.abs(r.v - lastTrue) <= tol;
+      ck.className = 'check ' + (right ? 'ok' : 'bad');
+      ck.innerHTML = (right ? `✓ The plant reads your ${esc(d.name.toLowerCase())} right, ${esc(fmtV(d, r.v))}.` : r.v == null ? `✗ Your description is wrong. The plant cannot read a number from “${esc(metaPick.field)}”.` : `✗ Your description is wrong. The plant reads ${esc(fmtV(d, r.v))}, but your ${esc(d.name.toLowerCase())} is at ${esc(fmtV(d, lastTrue))}.`) + (!r.ok && r.why ? `<div class="small" style="font-weight:600;margin-top:4px">The plant also sees a warning. ${esc(r.why)}</div>` : '');
+    }
+  }
+  if ($('#metaPre')) $('#metaPre').textContent = mode === 'desc' && metaPick ? 'description ' + JSON.stringify(metaPick) : '';
+  feedback(); renderAsk();
 }
 function supplierView() {
   const d = dev(me.device), fields = fieldsOf(d.own(d.normal, Date.now()));
-  if (!metaPick) metaPick = lsGet('cx_meta_' + me.device, null);
-  let h = `<div class="grid2"><div><div class="card"><div class="eyebrow">Round ${round} · ${ROUNDS[round][0]}</div><h2>${esc(d.name)}</h2><div class="small muted">${esc(d.sup)}. ${esc(d.habit)}</div>
+  mode = lsGet('cx_mode_' + me.device, mode); if (!metaPick) metaPick = lsGet('cx_meta_' + me.device, null);
+  let h = `<div class="grid2"><div><div class="card"><div class="eyebrow">Your device</div><h2>${esc(d.name)}</h2><div class="small muted">${esc(d.sup)}. ${esc(d.habit)}</div>
     <div class="value" id="val" style="margin-top:10px"></div><div class="small muted">${esc(d.q)}. The plant should raise an alarm when it is ${esc(d.ruleTxt)}.</div>
     <button class="btn huge red" id="btnProb" style="margin-top:14px">Cause a problem</button><div id="fb" class="fb ok"></div></div></div>`;
-  h += `<div><div class="card"><div class="eyebrow">What your device sends</div><pre id="msg">waiting…</pre><div class="small muted">${round === 3 ? 'Standard message. Same names and units for everyone.' : 'This is your supplier’s own format. You cannot change it.'}</div></div>`;
-  if (round === 2) h += `<div class="card"><div class="eyebrow">Describe your data for the plant</div><div class="small muted">Tell the plant which field holds the ${esc(d.q.toLowerCase())} and in which unit. A wrong description gives wrong alarms.</div>
-    <label class="f">Field</label><select id="mField"><option value="">choose</option>${fields.map(f => `<option ${metaPick && metaPick.field === f ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select>
-    <label class="f">Unit</label><select id="mUnit"><option value="">choose</option>${UNITS[d.q].map(u => `<option value="${u}" ${metaPick && metaPick.unit === u ? 'selected' : ''}>${UNIT_LABEL[u]}</option>`).join('')}</select>
-    <div class="small" id="mState" style="margin-top:8px">${metaPick ? 'Description sent to the plant.' : 'Not described yet.'}</div></div>`;
-  h += '</div></div>';
+  h += `<div><div class="card"><div class="eyebrow">How your device sends its data</div><div class="modes" id="modes">${Object.entries(MODES).map(([k, [t, s]]) => `<button data-m="${k}" class="${mode === k ? 'on' : ''}"><b>${t}</b><span>${s}</span></button>`).join('')}</div>`;
+  if (mode === 'desc') h += `<div class="lbl">Your description</div><div class="small muted">Which field holds the ${esc(d.q.toLowerCase())}, and in which unit?</div><div class="row" style="margin-top:6px"><select id="mField" style="flex:1;width:auto"><option value="">field</option>${fields.map(f => `<option ${metaPick && metaPick.field === f ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select><select id="mUnit" style="flex:1;width:auto"><option value="">unit</option>${UNITS[d.q].map(u => `<option value="${u}" ${metaPick && metaPick.unit === u ? 'selected' : ''}>${UNIT_LABEL[u]}</option>`).join('')}</select></div>`;
+  h += `<div class="check wait" id="mCheck"></div><div class="banner hide" id="ask"></div><div class="lbl">What the plant receives</div><pre id="msg">waiting…</pre><pre id="metaPre"></pre></div></div></div>`;
   $('#main').innerHTML = h;
-  $('#btnProb').onclick = () => { const now = Date.now(); incident = {t:now, until:now + 25000, pre:!!plantAlarm}; pub('incident/' + me.device, {on:true, t:now}); renderSupplierLive(); };
-  if (round === 2) { const upd = () => { const f = $('#mField').value, u = $('#mUnit').value; metaPick = f && u ? {quantity:d.q, field:f, unit:u} : null; lsSet('cx_meta_' + me.device, metaPick); publishMeta(); $('#mState').textContent = metaPick ? 'Description sent to the plant.' : 'Not described yet.'; }; $('#mField').onchange = upd; $('#mUnit').onchange = upd; }
+  $('#btnProb').onclick = () => { if (incident) return; const now = Date.now(); incident = {t:now, until:now + 25000, caught:null}; result = null; pub('incident/' + me.device, {on:true, t:now}); renderSupplierLive(); };
+  $$('#modes button').forEach(b => b.onclick = () => { if (mode === b.dataset.m) return; mode = b.dataset.m; lsSet('cx_mode_' + me.device, mode); ask = null; publishMeta(); hello(); supplierView(); });
+  if (mode === 'desc') { const upd = () => { const f = $('#mField').value, u = $('#mUnit').value; metaPick = f && u ? {quantity:d.q, field:f, unit:u} : null; lsSet('cx_meta_' + me.device, metaPick); ask = null; publishMeta(); renderSupplierLive(); }; $('#mField').onchange = upd; $('#mUnit').onchange = upd; }
   renderSupplierLive();
 }
 
-/* ===== integrator: the plant view ===== */
-let latest = {}, metas = {}, hellos = {}, maps = lsGet('cx_maps', {}), alarms = {}, scores = lsGet('cx_scores', {1:null, 2:null, 3:null}), live = {};
-function sc() { return scores[round] || (scores[round] = {inc:[], fa:0, faAt:{}, maps:0}); }
-function interpret(id) {
-  const L = latest[id], d = dev(id); if (!L || !d) return null;
-  const m = L.msg; if (!m || typeof m !== 'object') return {how:'unreadable'};
-  if (m.quantity && m.unit && m.value != null) return {how:'std', v:toStd(m.value, m.unit)};
-  if (round === 3) return {how:'unknown'};   // in the standard round only standard messages count
-  if (round >= 2 && metas[id]) return {how:'sup', v:toStd(getPath(m, metas[id].field), metas[id].unit)};
-  if (maps[id] && maps[id].field && maps[id].unit) return {how:'you', v:toStd(getPath(m, maps[id].field), maps[id].unit)};
-  return {how:'unknown'};
-}
-function evaluate(id) {
-  const d = dev(id), r = interpret(id); live[id] = r;
-  const on = !!(r && r.v != null && d && d.rule(r.v)), was = !!alarms[id], now = Date.now();
-  if (on !== was) {
-    alarms[id] = on; pub('alarm/' + id, {on, t:now}, true);
-    const s = sc(), open = s.inc.find(x => x.id === id && !x.end);
-    if (on) { if (open && open.caught == null && !open.pre) open.caught = (now - open.t) / 1000; else if (!open) { s.fa++; } }
-    lsSet('cx_scores', scores);
-  }
-  scheduleRender();
+/* ===== integrator: the plant view. It reads what comes in and decides when to raise the alarm ===== */
+const FMT_NAME = {own:'Own format', desc:'Described', std:'Standard'};
+const freshScore = () => ({own:{n:0, caught:0, secs:[], missed:0, fa:0}, desc:{n:0, caught:0, secs:[], missed:0, fa:0}, std:{n:0, caught:0, secs:[], missed:0, fa:0}});
+let latest = {}, metas = {}, hellos = {}, inc = {}, flash = {}, score = lsGet('cx_score3', null) || freshScore();
+const tileEl = id => document.getElementById('t-' + id);
+function fmtOf(id) { const L = latest[id]; return L && isStd(L.msg) ? 'std' : metas[id] ? 'desc' : 'own'; }
+function tileState(id) {
+  const L = latest[id]; if (!L) return {how:'none'};
+  if (isStd(L.msg)) return {how:'std', v:toStd(L.msg.value, L.msg.unit)};
+  if (metas[id]) { const r = readDesc(id, L.msg, metas[id]); return {how:'desc', v:r.v, ok:!!r.ok, why:r.why}; }
+  return {how:'own'};
 }
 function onIncident(id, m) {
-  const s = sc();
-  if (m.on) { s.inc.push({id, t:Date.now(), caught:null, pre:!!alarms[id]}); }   // an alarm that was already on tells nothing
-  else { const open = s.inc.find(x => x.id === id && !x.end); if (open) open.end = Date.now(); }
-  lsSet('cx_scores', scores); scheduleRender();
+  const now = Date.now();
+  if (m.on) { const f = fmtOf(id); inc[id] = {t:now, fmt:f, caught:null, end:null}; score[f].n++; }
+  else if (inc[id]) inc[id].end = now;
+  lsSet('cx_score3', score); renderScore(); if (tileEl(id)) updateTile(id);
 }
-let rt = null; function scheduleRender() { if (!rt) rt = setTimeout(() => { rt = null; if (document.activeElement && document.activeElement.tagName === 'SELECT') { scheduleRender(); return; } render(); }, 400); }
-function scoreRow(n) { const s = scores[n]; if (!s) return `<tr><td>${n}. ${ROUNDS[n][0]}</td><td colspan="4" class="muted">not played</td></tr>`; const tot = s.inc.length, caught = s.inc.filter(x => x.caught != null && x.caught <= 10).length; return `<tr><td>${n}. ${ROUNDS[n][0]}</td><td><b>${caught} of ${tot}</b></td><td>${s.inc.filter(x => x.caught != null).map(x => fmt(x.caught)).join(', ') || '–'}</td><td>${s.fa}</td><td>${s.maps}</td></tr>`; }
+function raiseAlarm(id) {
+  const now = Date.now(), o = inc[id];
+  if (flash[id] && now - flash[id].at < 1200 && flash[id].kind !== 'asked') return;
+  if (o && (o.end == null || now - o.end < GRACE)) {
+    if (o.caught != null) flash[id] = {kind:'dup', at:now};
+    else { const secs = (now - o.t) / 1000, s = score[o.fmt]; o.caught = secs; s.secs.push(+secs.toFixed(1)); if (secs <= 10) s.caught++; flash[id] = {kind:'caught', secs, at:now}; pub('alarm/' + id, {ok:true, secs:+secs.toFixed(1), t:now}); }
+  } else { score[fmtOf(id)].fa++; flash[id] = {kind:'false', at:now}; pub('alarm/' + id, {ok:false, t:now}); }
+  lsSet('cx_score3', score); updateTile(id); renderScore();
+}
+function askSupplier(id) { const r = tileState(id); pub('ask/' + id, {kind:r.how === 'own' ? 'describe' : 'fix', why:r.why || '', t:Date.now()}); flash[id] = {kind:'asked', at:Date.now()}; updateTile(id); }
+function ensureTile(id) {
+  if (tileEl(id) || !$('#tiles')) return;
+  const d = dev(id), el = document.createElement('div'); el.className = 'tile'; el.id = 't-' + id; el.style.order = DEVICES.indexOf(d);
+  el.innerHTML = `<div class="row"><b>${esc(d.name)}</b><span class="tag" data-r="tag"></span><span class="small muted" data-r="who" style="margin-left:auto"></span></div><div class="cond">Alarm when ${esc(d.ruleTxt)}</div><div data-r="body"></div><div class="row" style="margin-top:8px"><button class="btn red" data-alarm="${id}">Raise alarm</button><a href="#" class="small" data-ask="${id}"></a></div><div class="flash" data-r="flash"></div>`;
+  el.querySelector('[data-alarm]').onclick = () => raiseAlarm(id);
+  el.querySelector('[data-ask]').onclick = e => { e.preventDefault(); askSupplier(id); };
+  $('#tiles').appendChild(el); const w = $('#tilesWait'); if (w) w.remove();
+}
+function updateTile(id) {
+  const el = tileEl(id); if (!el) return; const d = dev(id), L = latest[id], r = tileState(id), now = Date.now(), q = s => el.querySelector(`[data-r="${s}"]`);
+  q('who').textContent = hellos[id] ? hellos[id].name : '';
+  const tag = q('tag'); tag.className = 'tag ' + (r.how === 'std' ? 'std' : r.how === 'desc' ? (r.ok ? 'sup' : 'bad') : '');
+  tag.textContent = r.how === 'std' ? 'standard' : r.how === 'desc' ? (r.ok ? 'described' : 'described, does not fit') : r.how === 'own' ? 'own format' : 'no data';
+  let b = '';
+  if (r.how === 'none') b = '<div class="small muted" style="margin-top:6px">No data yet.</div>';
+  else if (r.how === 'std') b = `<div class="v">${esc(fmtV(d, r.v))}</div><div class="small muted">standard message</div>`;
+  else if (r.how === 'desc' && r.ok) b = `<div class="v">${esc(fmtV(d, r.v))}</div><div class="small muted">${esc(metas[id].field)} ${metas[id].unit === 'fraction' ? 'as a fraction' : 'in ' + esc(UNIT_LABEL[metas[id].unit])}, from the supplier’s description</div><div class="rawline">${esc(L.raw)}</div>`;
+  else if (r.how === 'desc') b = `<div class="v dim">${r.v == null ? '?' : esc(fmtV(d, r.v)) + ' ?'}</div><div class="warn">⚠ ${esc(r.why)}</div><div class="rawline">${esc(L.raw)}</div>`;
+  else b = `<pre class="raw">${esc(L.raw)}</pre><div class="small muted">No description. Read the raw message yourself.</div>`;
+  if (L && now - L.at > 10000) b += `<div class="warn">No data for ${Math.round((now - L.at) / 1000)} s.</div>`;
+  const body = q('body'); if (body.innerHTML !== b) body.innerHTML = b;
+  const a = el.querySelector('[data-ask]'), askTxt = r.how === 'own' ? 'Ask for a description' : r.how === 'desc' && !r.ok ? 'Tell the supplier it does not fit' : '';
+  a.textContent = askTxt; a.classList.toggle('hide', !askTxt);
+  const f = flash[id], fl = q('flash'), age = f ? now - f.at : 1e9;
+  if (f && age < 7000) {
+    const t = {caught:f.secs <= 10 ? [`✓ Real problem. Alarm after ${fmt(f.secs)} s.`, 'ok'] : [`✓ Real problem, but late. Alarm after ${fmt(f.secs)} s.`, 'mid'], dup:['The alarm for this problem is already raised.', 'mid'], false:['✗ False alarm. The device is fine.', 'bad'], missed:['✗ A problem here went unnoticed.', 'bad'], asked:['Message sent to the supplier.', 'mid']}[f.kind];
+    fl.className = 'flash ' + t[1]; fl.textContent = t[0];
+  } else { fl.className = 'flash'; fl.textContent = ''; }
+  const o = inc[id]; el.classList.toggle('alarm', !!(o && o.caught != null));
+}
+function renderScore() {
+  const tb = $('#scoreTbl'); if (!tb) return;
+  tb.innerHTML = '<tr><th>Data came as</th><th>Problems</th><th>Caught in 10 s</th><th>Average time</th><th>Missed</th><th>False alarms</th></tr>' + Object.keys(FMT_NAME).map(k => { const s = score[k], avg = s.secs.length ? s.secs.reduce((a, b) => a + b, 0) / s.secs.length : null; return `<tr><td>${FMT_NAME[k]}</td><td>${s.n}</td><td><b>${s.caught} of ${s.n}</b></td><td>${avg == null ? '–' : fmt(avg) + ' s'}</td><td>${s.missed}</td><td>${s.fa}</td></tr>`; }).join('');
+}
+function integratorTick() {
+  const now = Date.now();
+  for (const [id, o] of Object.entries(inc)) {
+    if (o.end != null && now - o.end > GRACE) { if (o.caught == null) { score[o.fmt].missed++; flash[id] = {kind:'missed', at:now}; lsSet('cx_score3', score); renderScore(); } delete inc[id]; }
+    else if (now - o.t > 90000) delete inc[id];
+  }
+  DEVICES.forEach(d => { if (tileEl(d.id)) updateTile(d.id); });
+}
 function integratorView() {
-  const ids = DEVICES.map(d => d.id).filter(id => latest[id] || hellos[id]);
-  let h = `<div class="card"><div class="eyebrow">Integrator · team ${esc(me.team)}</div><h2>Make the plant view catch every problem</h2><div class="small muted">Suppliers cause problems on their devices. Your plant view must raise the alarm within 10 seconds, without false alarms. Play the three rounds and compare.</div>
-    <div class="rounds" style="margin-top:10px">${[1, 2, 3].map(n => `<button data-n="${n}" class="${round === n ? 'on' : ''}"><b>Round ${n} · ${ROUNDS[n][0]}</b><span>${ROUNDS[n][1]}</span></button>`).join('')}</div></div>`;
-  h += `<div class="grid2"><div class="card"><div class="eyebrow">Plant view</div><div class="tiles" style="margin-top:8px">${ids.map(id => { const d = dev(id), r = live[id], on = alarms[id], unk = !r || r.v == null; const tag = r && r.how === 'std' ? '<span class="tag std">standard</span>' : r && r.how === 'sup' ? '<span class="tag sup">described by supplier</span>' : r && r.how === 'you' ? '<span class="tag you">translated by you</span>' : '<span class="tag">not understood</span>'; return `<div class="tile ${on ? 'alarm' : unk ? 'unk' : ''}"><div class="row"><b>${esc(d.name)}</b><span class="small muted" style="margin-left:auto">${esc(hellos[id] ? hellos[id].name : '')}</span></div><div class="v">${unk ? '?' : fmt(r.v, d.q === 'Speed' ? 2 : d.q === 'Power' ? 0 : 1) + ' ' + (UNIT_LABEL[STD[d.q]] || STD[d.q])}</div><div class="st" style="color:${on ? '#b3321f' : unk ? '#6b7785' : '#14633a'}">${on ? 'ALARM, ' + esc(d.ruleTxt) : unk ? 'cannot check' : 'OK'}</div><div style="margin-top:4px">${tag}</div></div>`; }).join('') || '<div class="muted">Waiting for suppliers to connect.</div>'}</div></div>`;
-  h += `<div><div class="card"><div class="eyebrow">Score per round</div><table style="margin-top:6px"><tr><th>Round</th><th>Caught in 10 s</th><th>Seconds to alarm</th><th>False alarms</th><th>Your translations</th></tr>${[1, 2, 3].map(scoreRow).join('')}</table><div class="row" style="margin-top:8px"><button class="btn ghost" id="clrScore">Clear scores</button></div></div>`;
-  const needMap = ids.filter(id => { const r = live[id]; return round === 1 || (r && r.how !== 'std' && r.how !== 'sup'); });
-  if (round < 3 && needMap.length) h += `<div class="card"><div class="eyebrow">${round === 1 ? 'Translate each supplier' : 'Not described yet, translate it yourself'}</div><div class="small muted">Choose the field that holds the value and its unit. The plant view converts to the standard.</div>${needMap.map(id => { const d = dev(id), L = latest[id], fs = L && L.msg && typeof L.msg === 'object' ? fieldsOf(L.msg) : [], mp = maps[id] || {}; return `<div style="margin-top:10px"><b>${esc(d.name)}</b> <span class="small muted">${esc(d.q)} in ${esc(UNIT_LABEL[STD[d.q]])}</span><div class="row" style="margin-top:4px"><select data-mf="${id}" style="width:auto;flex:1"><option value="">field</option>${fs.map(f => `<option ${mp.field === f ? 'selected' : ''}>${esc(f)}</option>`).join('')}</select><select data-mu="${id}" style="width:auto;flex:1"><option value="">unit</option>${UNITS[d.q].map(u => `<option value="${u}" ${mp.unit === u ? 'selected' : ''}>${UNIT_LABEL[u]}</option>`).join('')}</select></div><pre style="font-size:11px">${esc(L ? L.raw : 'no message yet')}</pre></div>`; }).join('')}</div>`;
-  h += '</div></div>';
+  let h = `<div class="card"><div class="eyebrow">Plant view · team ${esc(me.team)}</div><h2>Spot the problem, raise the alarm</h2><div class="small muted">Suppliers cause problems on their devices. When you see one, press <b>Raise alarm</b> on that device within 10 seconds. Each box says when. The suppliers decide how they send their data, so some boxes are easy to read and some are not. Ask them for something better when you cannot read it.</div></div>`;
+  h += `<div class="grid2"><div class="card"><div class="eyebrow">Devices</div><div class="tiles" id="tiles" style="margin-top:8px"><div class="muted" id="tilesWait">Waiting for suppliers to connect.</div></div></div>`;
+  h += `<div><div class="card"><div class="eyebrow">Score by how the data came</div><table style="margin-top:6px" id="scoreTbl"></table><div class="small muted" style="margin-top:8px">Which way of sending made you fastest? Where did the false alarms come from?</div><div class="row" style="margin-top:8px"><button class="btn ghost" id="clrScore">Clear scores</button></div></div></div></div>`;
   $('#main').innerHTML = h;
-  $$('.rounds button').forEach(b => b.onclick = () => { round = +b.dataset.n; pub('round', {n:round}, true); render(); });
-  $('#clrScore').onclick = () => { scores = {1:null, 2:null, 3:null}; lsSet('cx_scores', scores); render(); };
-  const upd = id => { const f = $(`[data-mf="${id}"]`).value, u = $(`[data-mu="${id}"]`).value, old = maps[id] || {}; if (f && u && (old.field !== f || old.unit !== u)) sc().maps++; maps[id] = {field:f, unit:u}; lsSet('cx_maps', maps); lsSet('cx_scores', scores); evaluate(id); };
-  $$('[data-mf]').forEach(s => s.onchange = () => upd(s.dataset.mf)); $$('[data-mu]').forEach(s => s.onchange = () => upd(s.dataset.mu));
+  DEVICES.forEach(d => { if (latest[d.id] || hellos[d.id]) { ensureTile(d.id); updateTile(d.id); } });
+  renderScore();
+  $('#clrScore').onclick = () => { score = freshScore(); inc = {}; lsSet('cx_score3', score); renderScore(); };
 }
 
 /* ===== join ===== */
@@ -242,7 +354,7 @@ function joinView() {
   let role = me ? me.role : 'supplier', device = me ? me.device : 'freezer';
   $('#main').innerHTML = `<div class="card"><div class="eyebrow">Join your team</div><h2>One integrator, everyone else a supplier</h2>
     <div class="row"><div style="flex:1;min-width:140px"><label class="f">Team code</label><input type="text" id="jTeam" placeholder="for example c1" value="${esc(me ? me.team : params.get('team') || '')}"></div><div style="flex:1;min-width:140px"><label class="f">Your name</label><input type="text" id="jName" value="${esc(me ? me.name : '')}"></div></div>
-    <label class="f">Your role</label><div class="pick" id="jRole"><button data-r="supplier"><b>Supplier</b><span>you own one device on the shop floor</span></button><button data-r="integrator"><b>Integrator</b><span>you run the plant view on a laptop</span></button></div>
+    <label class="f">Your role</label><div class="pick" id="jRole"><button data-r="supplier"><b>Supplier</b><span>you own one device, decide how it sends its data, and cause problems</span></button><button data-r="integrator"><b>Integrator</b><span>you run the plant view, read the data and raise the alarm</span></button></div>
     <div id="jDevBox"><label class="f">Your device</label><div class="pick" id="jDev">${DEVICES.map(d => `<button data-d="${d.id}"><b>${esc(d.name)}</b><span>${esc(d.sup)}. ${esc(d.habit)}</span></button>`).join('')}</div></div>
     <label class="f">Server</label><select id="jBroker"><option value="emqx">Server A</option><option value="hivemq">Server B</option><option value="mosq">Server C</option><option value="shiftr">Server D, port 443</option><option value="custom">Own server URL</option></select><input type="text" id="jUrl" class="hide" placeholder="ws://192.168.1.10:9001" style="margin-top:6px">
     <div style="margin-top:14px"><button class="btn huge" id="jGo">Join</button></div><div class="small muted" style="margin-top:8px">Each device once per team. The integrator opens this page on a laptop or the projector.</div></div>`;
@@ -254,10 +366,11 @@ function joinView() {
 }
 function render() {
   if (!me) { joinView(); return; }
-  $('#whoText').innerHTML = `${esc(me.name)} · ${esc(me.team)} · <a href="#" id="chg" style="color:#c9d7ea">change</a>`; $('#chg').onclick = e => { e.preventDefault(); clearInterval(sendTimer); if (client) client.close(); client = null; joinView(); };
+  $('#whoText').innerHTML = `${esc(me.name)} · ${esc(me.team)} · <a href="#" id="chg" style="color:#c9d7ea">change</a>`; $('#chg').onclick = e => { e.preventDefault(); clearInterval(sendTimer); clearInterval(tickTimer); if (client) client.close(); client = null; joinView(); };
   if (me.role === 'integrator') integratorView(); else supplierView();
 }
-function start() { render(); connect(); if (me.role !== 'integrator') supplierLoop(); else setInterval(() => { Object.keys(latest).forEach(id => { if (Date.now() - latest[id].at > 12000 && alarms[id]) { alarms[id] = false; pub('alarm/' + id, {on:false, t:Date.now()}, true); } }); }, 3000); }
+let tickTimer = 0;
+function start() { render(); connect(); clearInterval(tickTimer); if (me.role !== 'integrator') supplierLoop(); else tickTimer = setInterval(integratorTick, 1000); }
 if (me) start(); else joinView();
 </script>
 </body>
